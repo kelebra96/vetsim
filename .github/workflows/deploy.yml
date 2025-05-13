@@ -1,0 +1,36 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches: [ main ]         # dispara a cada push na main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout do código
+    - uses: actions/checkout@v4
+
+    # 2. Carrega a chave SSH dos Secrets
+    - name: Load SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    # 3. Sincroniza apenas o que mudou
+    - name: Sync files to VPS
+      run: |
+        rsync -az --delete \
+          -e "ssh -p ${{ secrets.PORT }}" \
+          ./  ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.PROJECT_DIR }}
+
+    # 4. Instala dependências e reinicia
+    - name: Post-deploy
+      run: |
+        ssh -p ${{ secrets.PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+          cd ${{ secrets.PROJECT_DIR }}
+          npm ci --omit=dev                     # ajuste ao seu stack
+          pm2 restart vetsim || pm2 start index.js --name vetsim
+          pm2 save
+        EOF
