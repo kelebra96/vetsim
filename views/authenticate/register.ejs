@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<meta http-equiv="refresh" content="3">-->
+    <link rel="icon" type="img/svg+xml" href="/gato-preto.svg" />
+    <title>VetSim</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/register.css">
+</head>
+
+<body>
+    <% if (messages && messages.length> 0) { %>
+        <div class="alert alert-danger">
+            <ul>
+                <% messages.forEach(function(message) { %>
+                    <li>
+                        <%= message %>
+                    </li>
+                    <% }); %>
+            </ul>
+        </div>
+        <% } %>
+
+            <% if (locals.success) { %>
+                <div class="alert alert-success">
+                    <%= success %>
+                </div>
+                <% } %>
+                    <div class="card " id="cardlogin">
+                        <div class="text-center" id="card-header">
+                            <img src="/img/felinos.png" class="card-img-top" alt="VetSim Logo">
+                            <h1 class="card-title">VetSim</h1>
+                            <div class="row d-flex" id="register-text">
+                                <div class="col">
+                                    <span class="card-text">Vamos realizar o seu cadastro!</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body mx-1">
+                            <form action="/createuser" method="POST">
+                                <div class="row g-2 mx-3">
+                                    <div class="col-12 col-md-8">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" name="name" required
+                                                placeholder="Informe seu nome" id="nameInput">
+                                            <label for="nameInput">Nome</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="form-floating mb-2">
+                                            <input type="number" class="form-control" name="code" required
+                                                placeholder="Informe seu código" id="codeInput"
+                                                min="0" max="9999999" step="1" pattern="\d{1,7}">
+                                            <label for="codeInput">Código</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mx-3">
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-floating mb-2">
+                                            <input type="text" class="form-control" name="email" required
+                                                placeholder="Digite seu e-mail" id="emailInput">
+                                            <label for="emailInput">E-mail</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <div class="form-floating mb-2">
+                                            <input type="number" class="form-control" name="semester" required
+                                                placeholder="Informe seu semestre" min="1" max="8" id="semesterInput">
+                                            <label for="semesterInput">Semestre</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="form-floating mb-2">
+                                            <input type="password" class="form-control" name="password" required
+                                                placeholder="Informe sua senha" id="passwordInput">
+                                            <label for="passwordInput">Senha</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <fieldset>
+                                    <legend class="text-center">Status</legend>
+                                    <div class="row g-2 mx-3">
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-floating mb-2">
+                                                <select class="form-select" name="status" required id="statusSelect">
+                                                    <option value="true" selected>Ativo</option>
+                                                    <option value="false">Inativo</option>
+                                                </select>
+                                                <label for="statusSelect">Status da conta</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="form-floating mb-2">
+                                                <select class="form-select" name="type" required id="typeSelect">
+                                                    <option value="student" selected>Aluno</option>
+                                                    <option value="teacher">Professor</option>
+                                                    <option value="admin">Administrador</option>
+                                                </select>
+                                                <label for="typeSelect">Tipo de usuário</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div class="d-grid gap-2 mx-3">
+                                    <button type="submit" class="btn btn-primary btn-lg mt-3">Cadastrar</button>
+                                </div>
+                            </form>
+                            <div class="mt-auto mt-3" id="footer">
+                                <div class="d-flex justify-content-center">
+                                    <img src="/img/baraomaua.svg" alt="Barão Mauá" class="text-center">
+                                </div>
+                                <div class="cadastro">
+                                    <p class="text-center">Já se cadastrou vamos nos <a href="/">conectar!</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

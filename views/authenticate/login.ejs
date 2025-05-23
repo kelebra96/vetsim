@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta http-equiv="refresh" content="3"> -->
+    <link rel="icon" type="img/svg+xml" href="/gato-preto.svg" />
+    <title>VetSim</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body>
+    <div class="card " id="cardlogin">
+        <div class="text-center" id="card-header">
+            <img src="/img/felinos.png" class="card-img-top" alt="VetSim Logo">
+            <h1 class="card-title">VetSim</h1>
+            <p class="card-text">Sistema de gestão veterinária</p>
+        </div>
+        <div class="card-body">         
+              <form action="/login" method="POST">
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control" name="email" required placeholder="Informe seu e-mail">
+                    <label for="floatingInput">E-mail</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control" name="password" required
+                        placeholder="Informe sua senha">
+                    <label for="floatingPassword">Senha</label>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">Entrar</button>
+                </div>
+            </form>
+            <div class="mt-auto mt-3" id="footer">
+                <p class="text-center mt-3">Desenvolvido: Rodrigo A. Almeida</p>
+                <div class="d-flex justify-content-center">
+                    <img src="/img/baraomaua.svg" alt="Barão Mauá" class="text-center">
+                </div>
+                <div class="cadastro">
+                    <p class="text-center">Não tem uma conta? <a href="https://www.baraodemaua.br" target="_blank" rel="noopener">Entre em contato, pelo portal</a></p>
+                    <p class="text-center"><a href="/forgot-password">Esqueci minha senha</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
