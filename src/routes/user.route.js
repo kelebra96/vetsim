@@ -10,5 +10,12 @@ router.post("/createuser", userController.create);
 router.get("/userall", userController.findAll); 
 router.get("/userid/:id", userController.findById);
 router.patch("/userupdate/:id", userController.update); 
+router.get("/logout", (req, res) => {
+  res.clearCookie("token"); // remove o JWT
+  req.session.destroy(() => {
+    res.redirect("/"); // redireciona para login
+  });
+});
+  
 
 export default router; 

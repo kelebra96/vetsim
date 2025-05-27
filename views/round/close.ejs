@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+    <title>VetSim</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+
+<body>
+<%- include('../partials/navbar') %>
+
+    <div class="container mt-5">
+        <h1>Fechar Round</h1>
+
+        <% if (messages.length> 0) { %>
+            <div class="alert alert-danger">
+                <%= messages[0] %>
+            </div>
+            <% } %>
+                <% if (success.length> 0) { %>
+                    <div class="alert alert-success">
+                        <%= success[0] %>
+                    </div>
+                    <% } %>
+
+                        <form action="/roundclose" method="POST">
+                            <div class="mb-3">
+                                <label>Número do Round</label>
+                                <input type="number" class="form-control" name="numberRound" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>Semestre</label>
+                                <input type="number" class="form-control" name="semester" required>
+                            </div>
+                            <button class="btn btn-danger">Fechar Round e Gerar Gráficos</button>
+                        </form>
+    </div>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    </body>
+    
+    </html>

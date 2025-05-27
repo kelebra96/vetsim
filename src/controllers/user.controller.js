@@ -11,7 +11,6 @@ const loginPost = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email }).select("+password");
-
   if (!user) {
     req.flash("error", "Usuário não encontrado.");
     return res.redirect("/");
@@ -25,9 +24,10 @@ const loginPost = async (req, res) => {
 
   const token = generateToken({
     id: user._id,
-    code: user.code, // ESSENCIAL para /rounds
-    role: user.type,
+    code: user.code,
+    role: user.type, 
   });
+  
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -36,8 +36,11 @@ const loginPost = async (req, res) => {
 
   res.redirect("/home");
 };
+
 const login = async (req, res) => {
   res.render("authenticate/login", { messages: req.flash("error") });
+
+  
 };
 const create = async (req, res) => {
   const { name, code, email, semester, password, status } = req.body;

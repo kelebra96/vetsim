@@ -1,0 +1,55 @@
+
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+    <title>VetSim</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+
+<body><%- include('../partials/navbar') %>
+
+    <div class="container mt-4">
+        <h2>Gráficos dos Alunos — Round <%= numberRound %> / Semestre <%= semester %>
+        </h2>
+
+        <% results.forEach((r, i)=> { %>
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Código do Aluno: <%= r.codeUser %>
+                    </h5>
+                    <canvas id="chart<%= i %>" width="400" height="150"></canvas>
+                </div>
+            </div>
+            <script>
+                const data = {
+                    labels: Object.keys(JSON.parse('<%= JSON.stringify(r.data.n) %>')),
+                    datasets: [{
+                        label: 'População Total',
+                        data: Object.values(JSON.parse('<%= JSON.stringify(r.data.n) %>')),
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.2
+                    }]
+                };
+        new Chart(
+            document.getElementById('chart<%= i %>'),
+            {
+                type: 'line',
+                data: data
+            }
+        );
+            </script>
+            <% }) %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    </body>
+    
+    </html>

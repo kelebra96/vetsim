@@ -58,6 +58,9 @@ const closeRoundForSemester = async (semester, numberRound) => {
 const findActiveRoundByUserCode = async (codeUser) => {
   return Round.findOne({ codeUser, status: true });
 };
+const findBySemesterAndNumber = (semester, numberRound) =>
+  Round.find({ semester, numberRound });
+
 
 
 
@@ -97,4 +100,5 @@ export default {
   createRoundsForSemester,
   closeRoundForSemester,
   findActiveRoundByUserCode,
+  findBySemesterAndNumber,
 };

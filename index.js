@@ -24,6 +24,32 @@ app.use(
 
 app.use(flash());
 
+import jwt from "jsonwebtoken";
+
+app.use((req, res, next) => {
+  const token = req.cookies?.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "vetSimSecretKey"
+      );
+      res.locals.user = {
+        id: decoded.id,
+        code: decoded.code,
+        role: decoded.role,
+      };
+    } catch (err) {
+      res.locals.user = null;
+    }
+  } else {
+    res.locals.user = null;
+  }
+  next();
+});
+
+
+
 app.set("view engine", "ejs");
 
 // database
