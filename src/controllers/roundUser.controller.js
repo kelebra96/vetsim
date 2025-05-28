@@ -133,16 +133,13 @@ const closeRound = async (req, res) => {
   }
 
   try {
-    // 1. Encerra os rounds no banco
     await roundService.closeRoundForSemester(semester, numberRound);
 
-    // 2. Busca todos os rounds desse semestre + número
     const rounds = await roundService.findBySemesterAndNumber(
       Number(semester),
       Number(numberRound)
     );
 
-    // 3. Prepara as entradas para simulação por usuário
     const results = [];
 
     for (const round of rounds) {
@@ -163,7 +160,7 @@ const closeRound = async (req, res) => {
         JSON.stringify(dados),
       ];
 
-      console.log(`Executando: python ${scriptPath} ${args.join(" ")}`);
+      console.log(`🚀 Executando: python ${scriptPath} ${args.join(" ")}`);
 
       await new Promise((resolve, reject) => {
         execFile("python", [scriptPath, ...args], (error, stdout, stderr) => {
@@ -172,27 +169,37 @@ const closeRound = async (req, res) => {
             return reject(error);
           }
 
-          console.log("📤 STDOUT:", stdout);
-          console.log("📥 STDERR:", stderr);
+          if (!stdout) {
+            console.error("❌ Nenhuma saída recebida do script Python.");
+            return reject("Saída vazia");
+          }
 
           try {
             const parsed = JSON.parse(stdout);
+            if (!parsed.n || Object.keys(parsed.n).length === 0) {
+              console.warn("⚠️ Simulação retornou sem dados em 'n'");
+            }
+
             results.push({
               codeUser: round.codeUser,
+              nameusr: round.nameusr || "Desconhecido",
               numberRound,
               semester,
               data: parsed,
             });
+
             resolve();
           } catch (parseError) {
             console.error("❌ Erro ao fazer JSON.parse:", parseError.message);
+            console.log("Conteúdo recebido:", stdout);
             return reject(parseError);
           }
         });
       });
     }
 
-    // 4. Renderiza uma view com todos os gráficos
+    console.log("✅ Gráficos a renderizar:", results.length);
+
     res.render("round/graph", {
       results,
       numberRound,
@@ -204,6 +211,7 @@ const closeRound = async (req, res) => {
     res.redirect("/roundclose");
   }
 };
+
 
 
 const roundCloseForm = async (req, res) => {
