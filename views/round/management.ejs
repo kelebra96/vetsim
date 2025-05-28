@@ -12,50 +12,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary" id="navbarHome">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">VetSim</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/home">Home</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Usuários
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/register">Criação</a></li>
-                            <li><a class="dropdown-item" href="#">Atualização</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Lista de Usuários</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Sobre</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/roundcreate">Rounds</a>
-
-                    </li>
-                </ul>
-                <li class="nav-item d-flex">
-                    <a class="nav-link active" href="/login">
-                        <i class="bi bi-door-open"></i>
-                        Logout
-                    </a>
-                </li>
-            </div>
-        </div>
-    </nav>
+    <%- include('../partials/navbar') %>
     <div class="container">
         <% if (messages && messages.length> 0) { %>
             <div class="alert alert-danger mt-3">

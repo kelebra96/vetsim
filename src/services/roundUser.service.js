@@ -20,6 +20,7 @@ const createRoundsForSemester = async (numberRound, semester) => {
         update: {
           $setOnInsert: {
             numberRound,
+            nameusr: user.name,
             codeUser: user.code,
             semester,
             quantMales: 0,

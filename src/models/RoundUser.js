@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const RoundSchema = new mongoose.Schema({
   numberRound: { type: Number, required: true },
+  nameusr: { type: String, required: true },
   codeUser: { type: String, required: true },
   semester: { type: Number, required: true },
   quantMales: { type: Number, required: true, min: 0 },

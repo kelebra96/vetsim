@@ -41,7 +41,8 @@ const create = async (req, res) => {
 };
 
 const rounds = async (req, res) => {
-  const userCode = req.user?.code;
+  const userCode = req.user?.code; // Obtém o código do usuário da sessão
+  const nameusr = req.user?.name; // Obtém o nome do usuário da sessão
 
   if (!userCode) {
     req.flash("error", "Sessão expirada. Faça login novamente.");
@@ -93,13 +94,14 @@ const findById = async (req, res) => {
 };
 
 const update = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params;// Obtém o ID do round a ser atualizado
   const { quantMales, quantFemales, shelter } = req.body;
 
   try {
     const updated = await roundService.updateService(
       id,
       undefined, // número da rodada não será atualizado
+      undefined, // nome do usuário não será atualizado
       undefined, // código do usuário também não
       undefined, // semestre também não
       Number(quantMales),
