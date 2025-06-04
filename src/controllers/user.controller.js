@@ -77,7 +77,7 @@ const findAll = async (req, res) => {
     }
     res.send(users);
   } catch (err) {
-    send.status(500).send({ message: err.message });
+    res.status(500).send({ message: err.message });
   }
 };
 const findById = async (req, res) => {
@@ -91,12 +91,12 @@ const findById = async (req, res) => {
 const update = async (req, res) => {
   try {
     const { name, code, email, semester, password, status } = req.body;
-    if (!name && !code && !email && !semester && !password, !status) {
-      res
+    if (!name && !code && !email && !semester && !password && !status) {
+      return res
         .status(400)
-        .send({ menssage: "Submit at least one field for update" });
+        .send({ message: "Submit at least one field for update" });
     }
-    const { id, user } = req;
+    const { id } = req.params;
     console.log(`Esse é o ID esperado:${id}`);
     await userService.updateService(id, name, code, email, semester, password, status);
     res.send({ message: "User successfully updated!" });
