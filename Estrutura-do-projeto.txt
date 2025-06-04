@@ -1,6 +1,6 @@
 VETSIM {
     public{
-	   boostrap{}
+        bootstrap{}
 	   bootstrap-icons{}
 	   css{
 	        index.css
