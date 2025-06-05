@@ -104,4 +104,69 @@ const update = async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 };
-export default { register, loginPost, login, create, findAll, findById, update };
+
+const importForm = async (req, res) => {
+  res.render("user/import", {
+    messages: req.flash("error"),
+    success: req.flash("success"),
+  });
+};
+
+const importCsv = async (req, res) => {
+  if (!req.file) {
+    req.flash("error", "Nenhum arquivo enviado.");
+    return res.redirect("/userimport");
+  }
+
+  try {
+    const csv = req.file.buffer.toString("utf-8");
+    const lines = csv.split(/\r?\n/).filter((l) => l.trim());
+    if (lines.length < 2) {
+      req.flash("error", "Arquivo CSV vazio ou inválido.");
+      return res.redirect("/userimport");
+    }
+
+    const headers = lines[0].split(",").map((h) => h.trim());
+    let created = 0;
+
+    for (const line of lines.slice(1)) {
+      const values = line.split(",").map((v) => v.trim());
+      if (values.length !== headers.length) continue;
+      const data = {};
+      headers.forEach((h, idx) => {
+        data[h] = values[idx];
+      });
+
+      if (data.semester) data.semester = Number(data.semester);
+      if (data.code) data.code = Number(data.code);
+      if (data.status !== undefined)
+        data.status = data.status.toLowerCase() === "true" || data.status === "1";
+
+      try {
+        await userService.createService(data);
+        created++;
+      } catch (err) {
+        console.error("Erro ao importar usuário:", err.message);
+      }
+    }
+
+    req.flash("success", `${created} usuários importados com sucesso.`);
+    res.redirect("/userimport");
+  } catch (err) {
+    console.error("Erro ao processar CSV:", err.message);
+    req.flash("error", "Erro ao processar arquivo CSV.");
+    res.redirect("/userimport");
+  }
+};
+
+export default {
+  register,
+  loginPost,
+  login,
+  create,
+  findAll,
+  findById,
+  update,
+  importForm,
+  importCsv,
+};
