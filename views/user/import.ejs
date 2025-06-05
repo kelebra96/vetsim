@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+    <title>VetSim</title>
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center my-5">Importar Usuários</h1>
+            </div>
+        </div>
+        <% if (messages && messages.length > 0) { %>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <% messages.forEach(function(message) { %>
+                        <li><%= message %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <form action="/importcsv" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <input type="file" name="csvfile" class="form-control" accept=".csv" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-dark btn-lg">Importar</button>
+            </div>
+        </form>
+    </div>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
