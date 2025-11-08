@@ -215,3 +215,15 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
   background: rgba(255,255,255,0.06);
 }
 .vs-dropzone small { color: #bfeee3; }
+
+/* Destaque para semestre atual em /me/xp */
+.vs-sem-card {
+  padding: 10px;
+  border: 1px solid var(--vs-border);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+}
+.vs-sem-card.vs-sem-current {
+  border-color: var(--vs-accent);
+  box-shadow: 0 0 0 2px rgba(19,211,179,0.25) inset;
+}

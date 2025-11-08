@@ -28,11 +28,14 @@
       <div class="col-12 col-md-4">
         <label class="form-label">Semestre</label>
         <select class="form-select" name="semester" required>
-          <option value="" <%= !semester ? 'selected' : '' %> disabled>Selecionar...</option>
+          <option value="" <%= !semester && !(user && user.semester) ? 'selected' : '' %> disabled>Selecionar...</option>
           <% for (let i=1;i<=8;i++){ %>
-            <option value="<%= i %>" <%= Number(semester)===i ? 'selected' : '' %>><%= i %></option>
+            <option value="<%= i %>" <%= (semester ? Number(semester)===i : (user && Number(user.semester)===i)) ? 'selected' : '' %>><%= i %><%= (user && Number(user.semester)===i) ? ' (Atual)' : '' %></option>
           <% } %>
         </select>
+        <% if (user && user.semester) { %>
+          <div class="form-text">Seu semestre: <span class="badge text-bg-info"><%= user.semester %></span></div>
+        <% } %>
       </div>
       <div class="col-12 col-md-4">
         <label class="form-label">Número do Round</label>

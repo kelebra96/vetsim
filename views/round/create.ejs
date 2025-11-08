@@ -47,7 +47,10 @@
                 <div class="row g-3">
                   <div class="col-12 col-md-6">
                     <label for="semester" class="form-label">Semestre (1 a 8)</label>
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-control" id="semester" name="semester" min="1" max="8" required aria-describedby="hint-existing">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-control" id="semester" name="semester" min="1" max="8" required aria-describedby="hint-existing" value="<%= (user && user.semester) ? user.semester : '' %>">
+                    <% if (user && user.semester) { %>
+                      <div class="form-text">Seu semestre: <span class="badge text-bg-info"><%= user.semester %></span></div>
+                    <% } %>
                   </div>
                   <div class="col-12 col-md-6">
                     <label for="number" class="form-label">Número do Round (1 a 4)</label>

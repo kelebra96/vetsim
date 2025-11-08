@@ -9,25 +9,55 @@
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
 </head>
-<body>
+<body class="vs-gradient">
   <%- include('../partials/navbar') %>
   <div class="container mt-4">
-    <h1 class="vs-title h3 mb-3">Meu XP</h1>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="vs-title h4 mb-0">Meu XP</h1>
+      <button id="btnExportEvents" class="btn btn-vs-dark btn-sm"><i class="bi bi-download me-1"></i>Exportar histórico CSV</button>
+    </div>
     <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger"><%= messages[0] %></div>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= messages[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
     <% } %>
     <% if (success && success.length>0) { %>
-      <div class="alert alert-success"><%= success[0] %></div>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= success[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
     <% } %>
 
     <div class="card vs-card mb-4">
-      <div class="card-body d-flex justify-content-between align-items-center">
+      <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div>
           <div class="fs-5">Nível <strong><%= summary.level %></strong></div>
           <div class="text-white-50 small">Progresso: <%= summary.inLevel %>/100 XP</div>
         </div>
-        <div class="vs-xpbar" style="width:220px"><div class="fill" style="width:<%= Math.min(100, Math.max(0, summary.inLevel)) %>%"></div></div>
-        <div class="ms-3">Total: <strong><%= summary.points %> XP</strong></div>
+        <div class="vs-xpbar" style="width:260px"><div class="fill" style="width:<%= Math.min(100, Math.max(0, summary.inLevel)) %>%"></div></div>
+        <div class="ms-0 ms-md-3">Total: <strong><%= summary.points %> XP</strong></div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="vs-card p-3 d-flex align-items-center justify-content-between">
+          <div class="text-white-50 small">XP Total</div>
+          <div class="fs-5"><strong><%= summary.points %></strong></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="vs-card p-3 d-flex align-items-center justify-content-between">
+          <div class="text-white-50 small">Nível</div>
+          <div class="fs-5"><strong><%= summary.level %></strong></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="vs-card p-3 d-flex align-items-center justify-content-between">
+          <div class="text-white-50 small">Para o próximo nível</div>
+          <div class="fs-5"><strong><%= 100 - (summary.inLevel % 100) %> XP</strong></div>
+        </div>
       </div>
     </div>
 
@@ -35,10 +65,21 @@
       <div class="card vs-card mb-4">
         <div class="card-body">
           <div class="row g-3">
-            <% for (let i=1;i<=8;i++){ const val=(user.xpBySemester[i-1]||0); const pct = Math.min(100, Math.max(0, val % 100)); %>
+            <% for (let i=1;i<=8;i++){
+                 const val=(user.xpBySemester[i-1]||0);
+                 const pct = Math.min(100, Math.max(0, val % 100));
+                 const isCur = Number(user.semester) === i;
+            %>
               <div class="col-12 col-md-3">
-                <div class="text-white-50 small mb-1">Semestre <%= i %>: <%= val %> XP</div>
-                <div class="vs-xpbar" style="width:100%"><div class="fill" style="width:<%= pct %>%"></div></div>
+                <div class="vs-sem-card <%= isCur ? 'vs-sem-current' : '' %>">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="text-white-50 small">Semestre <%= i %>: <%= val %> XP</div>
+                    <% if (isCur) { %>
+                      <span class="badge text-bg-info">Atual</span>
+                    <% } %>
+                  </div>
+                  <div class="vs-xpbar" style="width:100%"><div class="fill" style="width:<%= pct %>%"></div></div>
+                </div>
               </div>
             <% } %>
           </div>
@@ -46,8 +87,9 @@
       </div>
     <% } %>
 
-    <div class="table-responsive">
-      <table class="table table-dark table-striped align-middle">
+    <div class="vs-card p-0">
+      <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle mb-0">
         <thead>
           <tr>
             <th>Data</th>
@@ -56,17 +98,50 @@
           </tr>
         </thead>
         <tbody>
-          <% (events || []).forEach(ev => { %>
+          <% if (!events || events.length===0) { %>
             <tr>
-              <td><%= new Date(ev.createdAt).toLocaleString('pt-BR') %></td>
-              <td><span class="badge text-bg-success">+<%= ev.amount %> XP</span></td>
-              <td><%= ev.reason || '-' %></td>
+              <td colspan="3" class="text-center text-white-50">Nenhum evento de XP encontrado.</td>
             </tr>
-          <% }) %>
+          <% } else { %>
+            <% (events || []).forEach(ev => { %>
+              <tr>
+                <td><%= new Date(ev.createdAt).toLocaleString('pt-BR') %></td>
+                <td><span class="badge text-bg-success">+<%= ev.amount %> XP</span></td>
+                <td><%= ev.reason || '-' %></td>
+              </tr>
+            <% }) %>
+          <% } %>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      document.querySelectorAll('.alert').forEach(el => setTimeout(()=>{
+        try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch(_){}
+      }, 5000));
+    })();
+  </script>
+  <script>
+    (function(){
+      const btn = document.getElementById('btnExportEvents');
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        const rows = Array.from(document.querySelectorAll('table tbody tr'))
+          .filter(tr => !tr.querySelector('td[colspan]'))
+          .map(tr => Array.from(tr.querySelectorAll('td')).map(td => td.innerText.trim()));
+        const head = ['Data','Pontos','Ação'];
+        const lines = [head.join(',')];
+        rows.forEach(r => lines.push(r.map(v => '"'+v.replaceAll('"','""')+'"').join(',')));
+        const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'meu_xp.csv'; a.click();
+        setTimeout(()=> URL.revokeObjectURL(url), 1000);
+      });
+    })();
+  </script>
 </body>
 </html>
