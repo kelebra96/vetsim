@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>VetSim - Usuários</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container mt-4">
+    <h1 class="vs-title h3 mb-3">Lista de Usuários</h1>
+    <% if (messages && messages.length>0) { %>
+      <div class="alert alert-danger"><%= messages[0] %></div>
+    <% } %>
+    <% if (success && success.length>0) { %>
+      <div class="alert alert-success"><%= success[0] %></div>
+    <% } %>
+
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>E-mail</th>
+            <th>Semestre</th>
+            <th>Tipo</th>
+            <th>Status</th>
+            <th>Criado em</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% (users || []).forEach(u => { %>
+            <tr>
+              <td><%= u.name %></td>
+              <td><%= u.code %></td>
+              <td><%= u.email %></td>
+              <td><%= u.semester %></td>
+              <td class="text-capitalize"><%= u.type %></td>
+              <td>
+                <% if (u.status) { %>
+                  <span class="badge text-bg-success">Ativo</span>
+                <% } else { %>
+                  <span class="badge text-bg-secondary">Inativo</span>
+                <% } %>
+              </td>
+              <td><%= new Date(u.createdAt).toLocaleString('pt-BR') %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

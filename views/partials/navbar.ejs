@@ -1,6 +1,13 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary" id="navbarHome">
+<nav class="navbar navbar-expand-lg navbar-dark" id="navbarHome" style="background-color:#191d1c !important;">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">VetSim</a>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/home">
+          <% if (user) { %>
+            <img src="<%= user.avatarUrl && user.avatarUrl.length ? user.avatarUrl : '/img/gato-preto.svg' %>" alt="Avatar" class="rounded-circle" style="width:28px;height:28px;object-fit:cover;">
+            <span><%= user.name || 'Usuário' %></span>
+          <% } else { %>
+            VetSim
+          <% } %>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -22,34 +29,75 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">Lista de Usuários</a></li>
+                        <li><a class="dropdown-item" href="/users">Lista de Usuários</a></li>
                     </ul>
                 </li>
                 <% } %>
                 <li class="nav-item">
                     <a class="nav-link active" href="#">Sobre</a>
                 </li>
-                    <% if (user && (user.role==="admin" || user.role==="teacher" )) { %>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Rounds
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/roundcreate">Criação</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="/roundclose">Fechar Round</a></li>
-
-                            </ul>
-                        </li> <% } %>
+                <% if (user && (user.role==="admin" || user.role==="teacher" )) { %>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Rounds
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/roundcreate">Criação</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="/roundclose">Fechar Round</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="/roundsadmin">Por Semestre</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Configurações
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/settings/costs">Custos</a></li>
+                        <li><a class="dropdown-item" href="/logs">Logs de Ações</a></li>
+                    </ul>
+                </li>
+                <% } %>
             </ul>
-            <li class="nav-item d-flex">
-                <a class="nav-link active" href="/logout">
-                    <i class="bi bi-door-open"></i> Logout
-                </a>
-            </li>
+            <div class="d-flex align-items-center gap-3 ms-auto vs-hud">
+                <div class="vs-streak" title="Streak diário">
+                    <i class="bi bi-fire"></i>
+                    <span id="streak-value">0</span>
+                </div>
+                <div class="d-flex flex-column">
+                    <span class="vs-level">Nível <span id="level-value"><%= (user && typeof user.level === 'number') ? user.level : 1 %></span></span>
+                    <% 
+                      const _sem = (user && typeof user.semester === 'number') ? user.semester : 1;
+                      const _xpArr = (user && Array.isArray(user.xpBySemester)) ? user.xpBySemester : [];
+                      const _cur = (_xpArr[_sem-1] || 0);
+                      const _in = ((_cur % 100) + 100) % 100; 
+                      const _pct = Math.min(100, Math.max(0, _in)); 
+                    %>
+                    <div class="vs-xpbar"><div class="fill" id="xp-progress-inner" style="width: <%= _pct %>%;"></div></div>
+                    <small class="text-white-50"><%= _in %>/100 XP (Semestre <%= _sem %>)</small>
+                </div>
+                <div class="nav-item d-flex align-items-center">
+                  <a class="nav-link" href="/me/xp">
+                    <i class="bi bi-trophy me-1"></i> Meu XP
+                  </a>
+                </div>
+                <div class="nav-item d-flex align-items-center">
+                  <a class="nav-link" href="/profile">
+                    <i class="bi bi-person-circle me-1"></i> Meu Perfil
+                  </a>
+                </div>
+                <div class="nav-item">
+                  <a class="nav-link active d-flex align-items-center" href="/logout">
+                    <i class="bi bi-door-open me-1"></i> Logout
+                  </a>
+                </div>
+            </div>
         </div>
     </div>
-</nav>
-  
+ </nav>
+ <div id="toast-container"></div>

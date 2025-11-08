@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const UserSchema = new mongoose.Schema({
   name: { type: String, require: true },
   code: { type: Number, require: true },
-  email: { type: String, require: true, unique: true },
+  email: { type: String, require: true, unique: true, lowercase: true, trim: true },
   semester: { type: Number, require: true, min: 1, max: 8 },
   password: { type: String, require: true, select: false },
   status: { type: Boolean, default: true },
@@ -12,6 +12,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["admin", "student", "teacher"],
     default: "student",
+  },
+  avatarUrl: { type: String, default: "" },
+  points: { type: Number, default: 0, min: 0 },
+  level: { type: Number, default: 1, min: 1 },
+  xpBySemester: {
+    type: [Number],
+    default: () => [0,0,0,0,0,0,0,0],
   },
   balance: { type: Number, default: 50000 },
   createdAt: { type: Date, default: Date.now },

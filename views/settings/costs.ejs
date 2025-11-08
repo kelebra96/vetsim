@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>VetSim - Custos</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container mt-4">
+    <h1 class="vs-title h3 mb-3">Configurar Custos</h1>
+    <% if (messages && messages.length>0) { %>
+      <div class="alert alert-danger"><%= messages[0] %></div>
+    <% } %>
+    <% if (success && success.length>0) { %>
+      <div class="alert alert-success"><%= success[0] %></div>
+    <% } %>
+
+    <div class="card vs-card">
+      <div class="card-body">
+        <form action="/settings/costs" method="POST">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label">Criação de Abrigo (R$)</label>
+              <input type="number" name="shelterCost" class="form-control" min="0" step="0.01" required value="<%= (costs && costs.shelterCost) || 0 %>">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Castrar Macho (R$)</label>
+              <input type="number" name="maleNeuterCost" class="form-control" min="0" step="0.01" required value="<%= (costs && costs.maleNeuterCost) || 0 %>">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Castrar Fêmea (R$)</label>
+              <input type="number" name="femaleNeuterCost" class="form-control" min="0" step="0.01" required value="<%= (costs && costs.femaleNeuterCost) || 0 %>">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Limite de aviso (registros)</label>
+              <input type="number" name="highVolumeThreshold" class="form-control" min="0" step="1" required value="<%= (costs && costs.highVolumeThreshold) || 200 %>">
+              <div class="form-text">Exibe alerta na criação de rounds quando a previsão ultrapassar este limite.</div>
+            </div>
+          </div>
+          <div class="d-grid gap-2 mt-4">
+            <button class="btn btn-vs-accent vs-cta" type="submit"><i class="bi bi-save2 me-1"></i> Salvar Custos</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

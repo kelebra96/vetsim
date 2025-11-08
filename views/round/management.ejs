@@ -9,6 +9,7 @@
     <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/round.css">
+    <link rel="stylesheet" href="/css/theme.css">
 </head>
 
 <body>
@@ -18,62 +19,53 @@
             <div class="alert alert-danger mt-3">
                 <ul>
                     <% messages.forEach(function(msg) { %>
-                        <li>
-                            <%= msg %>
-                        </li>
-                        <% }) %>
+                        <li><%= msg %></li>
+                    <% }) %>
                 </ul>
             </div>
-            <% } %>
-    
-                <% if (success && success.length> 0) { %>
-                    <div class="alert alert-success mt-3">
-                        <%= success %>
-                    </div>
-                    <% } %>
-    
-                        <fieldset>
-                            <legend>Rounds Liberados</legend>
-                            <div class="mb-3">
-                                <% if (round) { %>
-                                    <form action="/roundupdate/<%= round._id %>" method="POST">
-                                        <div class="card mt-4">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Round Liberado</h5>
-                                                <p class="card-text">Número: <%= round.numberRound %>
-                                                </p>
-                                                <p class="card-text">Semestre: <%= round.semester %>
-                                                </p>
-    
-                                                <div class="form-group mb-3">
-                                                    <label for="shelter">Abrigo</label>
-                                                    <input type="number" class="form-control" id="shelter" name="shelter"
-                                                        min="0" required value="<%= round.shelter %>">
-                                                </div>
-    
-                                                <div class="form-group mb-3">
-                                                    <label for="quantMales">Machos Castrados</label>
-                                                    <input type="number" class="form-control" id="quantMales"
-                                                        name="quantMales" min="0" required value="<%= round.quantMales %>">
-                                                </div>
-    
-                                                <div class="form-group mb-3">
-                                                    <label for="quantFemales">Fêmeas Castradas</label>
-                                                    <input type="number" class="form-control" id="quantFemales"
-                                                        name="quantFemales" min="0" required
-                                                        value="<%= round.quantFemales %>">
-                                                </div>
-    
-                                                <button type="submit" class="btn btn-success">Salvar Dados</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <% } %>
+        <% } %>
+
+        <% if (success && success.length> 0) { %>
+            <div class="alert alert-success mt-3"><%= success %></div>
+        <% } %>
+
+        <fieldset class="mt-4">
+            <legend class="vs-title h4">Rounds Liberados</legend>
+            <div class="mb-3">
+                <% if (round) { %>
+                    <form action="/roundupdate/<%= round._id %>" method="POST" id="form-round-update">
+                        <div class="card vs-card mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Round Liberado</h5>
+                                <p class="card-text">Número: <%= round.numberRound %></p>
+                                <p class="card-text">Semestre: <%= round.semester %></p>
+
+                                <div class="form-group mb-3">
+                                    <label for="shelter">Abrigo</label>
+                                    <input type="number" class="form-control" id="shelter" name="shelter" min="0" required value="<%= round.shelter %>">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="quantMales">Machos Castrados</label>
+                                    <input type="number" class="form-control" id="quantMales" name="quantMales" min="0" required value="<%= round.quantMales %>">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="quantFemales">Fêmeas Castradas</label>
+                                    <input type="number" class="form-control" id="quantFemales" name="quantFemales" min="0" required value="<%= round.quantFemales %>">
+                                </div>
+
+                                <button type="submit" class="btn btn-success">Salvar Dados</button>
                             </div>
-                        </fieldset>
+                        </div>
+                    </form>
+                <% } %>
+            </div>
+        </fieldset>
     </div>
       
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/gamification.js"></script>
 
 </body>
 

@@ -1,0 +1,194 @@
+/* Tema profissional e HUD gamificado para VetSim */
+
+:root {
+  --vs-bg-start: #20419A;
+  --vs-bg-end: #2CB79A;
+  --vs-primary: #2CB79A;
+  --vs-secondary: #20419A;
+  --vs-accent: #13d3b3;
+  --vs-text: #101315;
+  --vs-text-inverse: #ffffff;
+  --vs-muted: #6b7785;
+  --vs-surface: rgba(255, 255, 255, 0.08);
+  --vs-border: rgba(255, 255, 255, 0.15);
+  --vs-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Fundo padrão */
+body.vs-gradient {
+  background: linear-gradient(135deg, var(--vs-secondary), var(--vs-primary)) fixed;
+}
+
+/* Navbar glass */
+#navbarHome.navbar { background: #000000 !important; }
+#navbarHome .navbar-brand,
+#navbarHome .nav-link { color: #ffffff !important; }
+#navbarHome .nav-link:hover,
+#navbarHome .nav-link:focus { color: #e9f8f4 !important; }
+
+/* Botões primários coerentes com a marca */
+.btn-vs-primary {
+  color: var(--vs-text);
+  background: #ffffff;
+  border: 1px solid var(--vs-border);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.15);
+}
+.btn-vs-primary:hover {
+  color: var(--vs-text);
+  background: #f7fffd;
+  border-color: var(--vs-accent);
+}
+
+/* Variações de botão */
+.btn-vs-accent {
+  color: #072824;
+  background: linear-gradient(90deg, var(--vs-accent), #69f0d0);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(19,211,179,0.35);
+}
+.btn-vs-accent:hover {
+  color: #051f1c;
+  filter: saturate(1.05);
+  border-color: rgba(0,0,0,0.15);
+}
+
+.btn-vs-dark {
+  color: var(--vs-text-inverse);
+  background: var(--vs-secondary);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+.btn-vs-dark:hover {
+  color: var(--vs-text-inverse);
+  filter: brightness(1.05);
+  border-color: rgba(255,255,255,0.25);
+}
+
+/* Cards glass */
+.vs-card {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-border);
+  border-radius: 14px;
+  box-shadow: var(--vs-shadow);
+}
+
+/* Títulos e textos */
+.vs-title {
+  color: var(--vs-text-inverse);
+  font-weight: 700;
+}
+.vs-subtitle { color: #eaf7f4; }
+
+/* HUD Gamificado (navbar, canto direito) */
+.vs-hud { color: var(--vs-text-inverse); }
+.vs-hud .vs-level {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.vs-hud .vs-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 196, 0, 0.12);
+  border: 1px solid rgba(255, 196, 0, 0.35);
+  border-radius: 999px;
+}
+.vs-hud .vs-streak i { color: #ff9d00; }
+
+.vs-xpbar {
+  width: 160px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--vs-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.vs-xpbar > .fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--vs-accent), #69f0d0);
+  transition: width 600ms ease;
+}
+
+/* Missões (Home) */
+.vs-missions { margin-top: 3rem; }
+@media (max-width: 576px) {
+  .vs-missions { margin-top: 1.5rem; }
+}
+.vs-mission-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  color: var(--vs-text-inverse);
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-border);
+  border-radius: 12px;
+}
+.vs-mission-item .points {
+  color: #b8ffe9;
+  font-weight: 600;
+}
+
+/* Toasts simples (sem dependência) */
+#toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1080;
+  pointer-events: none;
+}
+.vs-toast {
+  min-width: 260px;
+  max-width: 360px;
+  margin-bottom: 10px;
+  color: var(--vs-text-inverse);
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  box-shadow: var(--vs-shadow);
+  padding: 10px 14px;
+  pointer-events: auto;
+  animation: vs-toast-in 220ms ease-out both;
+}
+.vs-toast.success { background: rgba(18, 140, 126, 0.85); }
+.vs-toast.warn { background: rgba(255, 164, 28, 0.9); }
+.vs-toast.error { background: rgba(199, 44, 65, 0.9); }
+
+@keyframes vs-toast-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Gráficos (Chart.js) cards */
+.vs-chart-card .card-title {
+  color: var(--vs-text-inverse);
+}
+
+/* Acessibilidade focos */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--vs-accent) !important;
+  outline-offset: 2px;
+}
+
+/* CTA principal (Home) */
+.vs-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 260px;
+  padding: 16px 28px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-radius: 12px;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.vs-cta:hover { transform: translateY(-1px); }
+.vs-cta i { font-size: 1.2em; }
+
+@media (max-width: 576px) {
+  .vs-cta { width: 100%; }
+}

@@ -9,6 +9,7 @@
     <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/theme.css">
 </head>
 
 <body>
@@ -18,30 +19,33 @@
         <h1>Fechar Round</h1>
 
         <% if (messages.length> 0) { %>
-            <div class="alert alert-danger">
-                <%= messages[0] %>
-            </div>
-            <% } %>
-                <% if (success.length> 0) { %>
-                    <div class="alert alert-success">
-                        <%= success[0] %>
-                    </div>
-                    <% } %>
+            <div class="alert alert-danger"><%= messages[0] %></div>
+        <% } %>
+        <% if (success.length> 0) { %>
+            <div class="alert alert-success"><%= success[0] %></div>
+            <script>
+              window.addEventListener('DOMContentLoaded', function(){
+                if (window.gamification) gamification.awardXP(30, 'Fechou round e gerou gráficos');
+              });
+            </script>
+        <% } %>
 
-                        <form action="/roundclose" method="POST">
-                            <div class="mb-3">
-                                <label>Número do Round</label>
-                                <input type="number" class="form-control" name="numberRound" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Semestre</label>
-                                <input type="number" class="form-control" name="semester" required>
-                            </div>
-                            <button class="btn btn-danger">Fechar Round e Gerar Gráficos</button>
-                        </form>
+        <form action="/roundclose" method="POST">
+            <div class="mb-3">
+                <label>Número do Round</label>
+                <input type="number" class="form-control" name="numberRound" required>
+            </div>
+            <div class="mb-3">
+                <label>Semestre</label>
+                <input type="number" class="form-control" name="semester" required>
+            </div>
+            <button class="btn btn-danger">Fechar Round e Gerar Gráficos</button>
+        </form>
     </div>
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/gamification.js"></script>
     
     </body>
     
     </html>
+

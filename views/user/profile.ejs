@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>Meu Perfil</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <div class="container mt-4">
+    <h1 class="vs-title h3 mb-3">Meu Perfil</h1>
+    <% if (messages && messages.length>0) { %>
+      <div class="alert alert-danger"><%= messages[0] %></div>
+    <% } %>
+    <% if (success && success.length>0) { %>
+      <div class="alert alert-success"><%= success[0] %></div>
+    <% } %>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-4">
+        <div class="card vs-card p-3 text-center">
+          <img src="<%= (userDoc && userDoc.avatarUrl) ? userDoc.avatarUrl : '/img/gato-preto.svg' %>" alt="Avatar" class="rounded-circle mx-auto" style="width:120px;height:120px;object-fit:cover;">
+          <div class="mt-3">
+            <div class="text-white-50 small">Email</div>
+            <div><%= userDoc?.email %></div>
+            <div class="text-white-50 small mt-2">Código</div>
+            <div><%= userDoc?.code %></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-8">
+        <div class="card vs-card p-3">
+          <form action="/profile" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label class="form-label">Nome</label>
+              <input type="text" name="name" class="form-control" required value="<%= userDoc?.name %>">
+              <div class="form-text">2 a 80 caracteres.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Foto de Perfil</label>
+              <input type="file" name="avatar" class="form-control" accept="image/*">
+              <div class="form-text">Formatos: PNG, JPG, JPEG, GIF, WEBP. Máximo: 2MB.</div>
+            </div>
+            <div class="d-grid gap-2">
+              <button class="btn btn-vs-accent vs-cta" type="submit"><i class="bi bi-save2 me-1"></i> Salvar Perfil</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@
     <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/theme.css">
 </head>
 <body>
     <%- include('../partials/navbar') %>
@@ -21,12 +22,41 @@
         </div>
         <div id="gato-curioso">
             <img src="/img/gato-preto.svg" alt="Gato Preto" class="img-fluid">
-            <h1 class="text-center">VetSim</h1>
-            <a href="/rounds" class="btn btn-lg" id="btnInicial">Começar Minha Gestão</a>
-        </div>           
+        </div>
+
+        <div class="vs-missions">
+            <h2 class="vs-title h3">Gestões de Hoje</h2>
+            <div class="mt-1 d-grid gap-2">
+                <div class="vs-mission-item">
+                    <div><i class="bi bi-check2-circle me-2"></i>Acessar seu Round</div>
+                    <div class="points">+10 XP</div>
+                    <a href="/rounds" class="btn btn-sm btn-outline-light" data-xp="10" data-reason="Acessou o round">Ir</a>
+                </div>
+                <% if (user && (user.role === 'admin' || user.role === 'teacher')) { %>
+                <div class="vs-mission-item">
+                    <div><i class="bi bi-gear me-2"></i>Criar novo Round</div>
+                    <div class="points">+20 XP</div>
+                    <a href="/roundcreate" class="btn btn-sm btn-outline-light">Ir</a>
+                </div>
+                <div class="vs-mission-item">
+                    <div><i class="bi bi-flag me-2"></i>Fechar Round e gerar gráficos</div>
+                    <div class="points">+30 XP</div>
+                    <a href="/roundclose" class="btn btn-sm btn-outline-light">Ir</a>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 mb-5">
+            <a href="/rounds" class="btn btn-lg btn-vs-accent vs-cta w-100 w-md-auto" id="btnInicial" data-xp="10" data-reason="Primeiro acesso ao round">
+                Começar Minha Gestão
+                <i class="bi bi-rocket-takeoff"></i>
+            </a>
+        </div>
 
     </div>
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-   
+    <script src="/js/gamification.js"></script>
+ 
 </body>
 </html>

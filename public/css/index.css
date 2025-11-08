@@ -9,28 +9,29 @@
 }
 body{
     background: linear-gradient(to right, #20419A, #2CB79A) fixed;
-    overflow: hidden;
+    /* permitir rolagem vertical para não cortar seções abaixo */
+    overflow-x: hidden;
+    overflow-y: auto;
     color: #fff;
 }
 #navbarHome{
-    color: #000;
+    color: #fff;
     text-decoration: none;
 }
 #gato-curioso {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /* remover posicionamento absoluto que sobrepunha as missões */
+    position: static;
+    left: auto;
+    transform: none;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 0.5rem auto 1rem;
 }
 
 #gato-curioso img {
-    width: 100px;
+    width: 60px;
     z-index: 1;
-    margin-bottom: 1px;
-
     margin-left: 0px;
 }
 #gato-curioso #btnInicial {

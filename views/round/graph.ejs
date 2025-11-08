@@ -9,65 +9,68 @@
     <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/theme.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <%- include('../partials/navbar') %>
 
-        <div class="container mt-4">
-            <h1 class="mb-4">Gráficos dos Alunos — Round <%= numberRound %> / Semestre <%= semester %>
-            </h1>
+    <div class="container mt-4">
+        <% if (typeof warning !== 'undefined' && warning) { %>
+            <div class="alert alert-warning"><%= warning %></div>
+        <% } %>
+        <h1 class="mb-4">Gráficos dos Alunos - Round <%= numberRound %> / Semestre <%= semester %></h1>
 
-            <% if (!results || results.length===0) { %>
-                <div class="alert alert-warning">Nenhum dado encontrado para exibir.</div>
-                <% } else { %>
-                    <p class="text-success fw-semibold">
-                        <%= results.length %> aluno(s) encontrados.
-                    </p>
+        <% if (!results || results.length===0) { %>
+            <div class="alert alert-info">Nenhum gráfico para exibir no momento.</div>
+        <% } else { %>
+            <p class="text-success fw-semibold">
+                <%= results.length %> aluno(s) encontrados.
+            </p>
 
-                    <% results.forEach((r, i)=> { %>
-                        <div class="card mt-4 shadow">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Aluno: <%= r.nameusr || 'Sem nome' %> — Código: <%= r.codeUser %>
-                                </h5>
-                                <canvas id="chart<%= i %>" height="100"></canvas>
-                            </div>
-                        </div>
+            <% results.forEach((r, i)=> { %>
+                <div class="card vs-card mt-4 shadow vs-chart-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Aluno: <%= r.nameusr || 'Sem nome' %> - Código: <%= r.codeUser %>
+                        </h5>
+                        <canvas id="chart<%= i %>" height="100"></canvas>
+                    </div>
+                </div>
 
-                        <script>
-                            const data = {
-                                labels: Object.keys(<%- JSON.stringify(r.data.j) %>),
-                                datasets: [{
-                                    label: 'População Jovem (j)',
-                                    data: Object.values(<%- JSON.stringify(r.data.j) %>),
-                                    borderColor: 'rgb(75, 192, 192)',
-                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                    borderWidth: 1, // para linha mais fina
-                                    tension: 0.5,
-                                    fill: true,
-                                }]
-                            };
+                <script>
+                    const data_<%= i %> = {
+                        labels: Object.keys(<%- JSON.stringify(r.data.j) %>),
+                        datasets: [{
+                            label: 'População Jovem (j)',
+                            data: Object.values(<%- JSON.stringify(r.data.j) %>),
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 1,
+                            tension: 0.5,
+                            fill: true,
+                        }]
+                    };
 
-                            new Chart(document.getElementById('chart<%= i %>'), {
-                                type: 'line',
-                                data: data,
-                                options: {
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }
-                            });
-                        </script>
-                          
-                        <% }); %>
-                            <% } %>
-        </div>
+                    new Chart(document.getElementById('chart<%= i %>'), {
+                        type: 'line',
+                        data: data_<%= i %>,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: false }
+                            }
+                        }
+                    });
+                </script>
+            <% }); %>
+        <% } %>
+    </div>
 
-        <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/gamification.js"></script>
 </body>
 
 </html>
