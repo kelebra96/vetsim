@@ -3,4 +3,7 @@ const home = async (req, res) => {
 }
 export default {
     home,
+    async sobre(req, res) {
+        res.render('sobre');
+    }
 };

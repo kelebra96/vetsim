@@ -40,19 +40,16 @@ app.use(async (req, res, next) => {
         const u = await User.findById(decoded.id).select("name avatarUrl type code points level semester xpBySemester").lean();
         if (u) {
           let pts = Number(u.points || 0);
-          let lvl = Number(u.level || 1);
           let sem = Number(u.semester || 1);
           let xpBySemester = Array.isArray(u.xpBySemester) ? u.xpBySemester : [];
-          if (u.type === 'student') {
-            if (!Array.isArray(xpBySemester) || xpBySemester.length !== 8) {
-              xpBySemester = [0,0,0,0,0,0,0,0];
-            }
-            pts = xpBySemester.reduce((a,b)=> a + Number(b||0), 0);
-            lvl = Math.max(1, Math.min(8, sem));
-          } else {
-            // admin/teacher mantém cálculo global
-            lvl = Math.max(1, Math.floor(pts / 100) + 1);
+          if (!Array.isArray(xpBySemester) || xpBySemester.length !== 8) {
+            xpBySemester = [0,0,0,0,0,0,0,0];
           }
+          // Recalcula pontos como soma dos semestres quando disponível
+          const sumSem = xpBySemester.reduce((a,b)=> a + Number(b||0), 0);
+          if (sumSem > 0 || pts === 0) pts = sumSem;
+          // Nível sempre baseado em pontos acumulados (começa em 1)
+          const lvl = Math.max(1, Math.floor(pts / 100) + 1);
           res.locals.user = {
             id: decoded.id,
             code: decoded.code,

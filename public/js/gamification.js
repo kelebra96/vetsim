@@ -34,12 +34,12 @@
 
   function setXPBar(pct) {
     const el = document.getElementById('xp-progress-inner');
-    if (el) el.style.width = pct + '%';
+    if (el && el.dataset.lock !== 'true') el.style.width = pct + '%';
   }
 
   function setLevel(level) {
     const el = document.getElementById('level-value');
-    if (el) el.textContent = String(level);
+    if (el && el.dataset.lock !== 'true') el.textContent = String(level);
   }
 
   function setStreak(streak) {
@@ -73,6 +73,15 @@
     if (body && !body.classList.contains('vs-gradient')) body.classList.add('vs-gradient');
 
     const st = readState();
+    // Sync with server-reported XP if available to keep tabs consistent
+    try {
+      const sxp = (typeof window !== 'undefined' && window.__serverXP !== undefined)
+        ? Number(window.__serverXP) : NaN;
+      if (Number.isFinite(sxp) && sxp >= 0 && st.xp !== sxp) {
+        st.xp = sxp;
+        saveState(st);
+      }
+    } catch (_) {}
     if (isNewDay(st.last)) {
       st.streak = Number(st.streak || 0) + 1;
       st.last = new Date().toISOString();
@@ -82,6 +91,7 @@
 
     setStreak(st.streak || 0);
     const { level, pct } = computeLevel(st.xp || 0);
+    // Respeita valores renderizados pelo servidor quando bloqueados via data-lock
     setLevel(level);
     setXPBar(pct);
 
@@ -100,4 +110,3 @@
     document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
-

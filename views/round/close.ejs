@@ -18,16 +18,17 @@
     <div class="container mt-5">
         <h1>Fechar Round</h1>
 
-        <% if (messages.length> 0) { %>
-            <div class="alert alert-danger"><%= messages[0] %></div>
+        <% if (messages && messages.length> 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= messages[0] %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
         <% } %>
-        <% if (success.length> 0) { %>
-            <div class="alert alert-success"><%= success[0] %></div>
-            <script>
-              window.addEventListener('DOMContentLoaded', function(){
-                if (window.gamification) gamification.awardXP(30, 'Fechou round e gerou gráficos');
-              });
-            </script>
+        <% if (success && success.length> 0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= success[0] %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
         <% } %>
 
         <form action="/roundclose" method="POST">
@@ -44,8 +45,14 @@
     </div>
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/gamification.js"></script>
+    <script>
+      (function(){
+        document.querySelectorAll('.alert').forEach(function(el){
+          setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        });
+      })();
+    </script>
     
     </body>
     
     </html>
-

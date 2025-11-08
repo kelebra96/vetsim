@@ -2,223 +2,255 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-    <title>VetSim</title>
-    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/round.css">
-    <link rel="stylesheet" href="/css/theme.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>VetSim</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/round.css">
+  <link rel="stylesheet" href="/css/theme.css">
 </head>
 
-<body>
-    <%- include('../partials/navbar') %>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="text-center my-5">Criar Round</h1>
-            </div>
-        </div>
-        <form action="/createround" method="POST">
-            <div class="container">
-                <% if (messages && messages.length> 0) { %>
-                    <div class="alert alert-danger mt-3">
-                        <ul class="mb-0">
-                            <% messages.forEach(function(message) { %>
-                                <li><%= message %></li>
-                            <% }); %>
-                        </ul>
-                    </div>
-                <% } %>
-                <% if (success && success.length> 0) { %>
-                    <div class="alert alert-success mt-3"><%= success %></div>
-                <% } %>
-                <div class="mb-3" id="form">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label for="semester" class="form-label">Semestre (1 a 8)</label>
-                                <input type="number" class="form-control" id="semester" name="semester" min="1" max="8" required>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-1">
-                                <label for="number" class="form-label">Número do Round (1 a 4)</label>
-                                <select class="form-select" id="number" name="numberRound" required>
-                                    <option value="" selected disabled>Selecionar...</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                </select>
-                            </div>
-                            <div class="form-text" id="hint-existing">Selecione um semestre para ver rounds já existentes.</div>
-                            <div class="text-white-50 small" id="existing-counter">Rounds criados neste semestre: 0/4</div>
-                            <div class="text-white-50 small" id="remaining-rounds">Rounds restantes neste semestre: 4</div>
-                            <div class="text-white-50 small" id="active-users">Alunos ativos neste semestre: 0</div>
-                            <div class="text-white-50 small" id="predicted-info">Previstos para criação: 0 registros</div>
-                            <div class="alert alert-info mt-2 d-none" id="no-users-warning">Nenhum aluno ativo para este semestre. Criação desabilitada.</div>
-                            <div class="alert alert-warning mt-2 d-none" id="high-volume-warning">Volume alto de criação. Considere realizar em horário de menor uso.</div>
-                        </div>
-                    </div>
+<body class="vs-gradient">
+  <%- include('../partials/navbar') %>
+  <div class="container py-3 py-md-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10 col-xxl-8">
+        <h1 class="text-center my-4 my-md-5">Criar Round</h1>
+      </div>
+    </div>
+
+    <form action="/createround" method="POST" novalidate>
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xxl-8">
+          <div class="card vs-card">
+            <div class="card-body">
+              <% if (messages && messages.length> 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show mt-1" role="alert">
+                  <ul class="mb-0">
+                    <% messages.forEach(function(message) { %>
+                      <li><%= message %></li>
+                    <% }); %>
+                  </ul>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                 </div>
-                <div class="d-grid gap-2">
-                  <button type="submit" class="btn btn-dark btn-lg" id="btn-create-round">Criar Round</button>
+              <% } %>
+              <% if (success && success.length> 0) { %>
+                <div class="alert alert-success alert-dismissible fade show mt-1" role="alert">
+                  <%= success %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                 </div>
-                <div class="card vs-card mt-3 mb-3">
-                  <div class="card-body">
-                    <h5 class="card-title">Rounds existentes neste semestre</h5>
-                    <div id="existing-details">
-                      <div class="text-white-50 small">Selecione um semestre para carregar os dados.</div>
+              <% } %>
+
+              <div id="form">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label for="semester" class="form-label">Semestre (1 a 8)</label>
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-control" id="semester" name="semester" min="1" max="8" required aria-describedby="hint-existing">
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label for="number" class="form-label">Número do Round (1 a 4)</label>
+                    <select class="form-select" id="number" name="numberRound" required aria-describedby="hint-existing">
+                      <option value="" selected disabled>Selecionar...</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="row g-2">
+                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="existing-counter">Rounds criados neste semestre: 0/4</div></div>
+                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="remaining-rounds">Rounds restantes neste semestre: 4</div></div>
+                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="active-users">Alunos ativos neste semestre: 0</div></div>
+                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="predicted-info">Previstos para criação: 0 registros</div></div>
+                      <div class="col-12"><div class="form-text" id="hint-existing">Selecione um semestre para ver rounds já existentes.</div></div>
+                      <div class="col-12"><div class="alert alert-info mt-2 d-none" id="no-users-warning">Nenhum aluno ativo para este semestre. Criação desabilitada.</div></div>
+                      <div class="col-12"><div class="alert alert-warning mt-2 d-none" id="high-volume-warning">Volume alto de criação. Considere realizar em horário de menor uso.</div></div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="d-grid gap-2 mt-1">
+                      <button type="submit" class="btn btn-vs-accent vs-cta w-100 w-md-auto" id="btn-create-round">Criar Round</button>
                     </div>
                   </div>
                 </div>
+              </div>
             </div>
-        </form>
-    </div>
-    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/gamification.js"></script>
-    <script>
-      (function(){
-        const $sem = document.getElementById('semester');
-        const $num = document.getElementById('number');
-        const $hint = document.getElementById('hint-existing');
-        async function refreshExisting(){
-          const v = Number($sem.value);
-          if (!v || v < 1 || v > 8) return;
-          try {
-            const r = await fetch(`/roundsexisting?semester=${encodeURIComponent(v)}`);
-            if (!r.ok) throw new Error('fail');
-            const data = await r.json();
-            const existing = Array.isArray(data.existing) ? data.existing : [];
-            // Enable all options then disable existing
-            Array.from($num.options).forEach(opt => { if (opt.value) opt.disabled = false; });
-            existing.forEach(n => {
-              const opt = Array.from($num.options).find(o => Number(o.value) === Number(n));
-              if (opt) opt.disabled = true;
-            });
-            // Update hint
-            if (existing.length === 0) {
-              $hint.textContent = 'Nenhum round existente para este semestre.';
-            } else {
-              $hint.textContent = 'Já existem: ' + existing.sort().join(', ');
-            }
-            // Update counter and submit state
-            const $counter = document.getElementById('existing-counter');
-            if ($counter) $counter.textContent = `Rounds criados neste semestre: ${existing.length}/4`;
-            const $rem = document.getElementById('remaining-rounds');
-            if ($rem) $rem.textContent = `Rounds restantes neste semestre: ${Math.max(0, 4 - existing.length)}`;
-            const $btn = document.getElementById('btn-create-round');
-            if ($btn) {
-              $btn.disabled = existing.length >= 4;
-            }
-            // If selected option is disabled now, reset selection
-            if ($num.value) {
-              const optSel = Array.from($num.options).find(o => o.value === $num.value);
-              if (optSel && optSel.disabled) $num.value = '';
-            }
-          } catch (e) {
-            $hint.textContent = 'Não foi possível consultar rounds existentes.';
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center mt-3 mb-3">
+        <div class="col-12 col-lg-10 col-xxl-8">
+          <div class="card vs-card">
+            <div class="card-body">
+              <h5 class="card-title">Rounds existentes neste semestre</h5>
+              <div id="existing-details">
+                <div class="text-white-50 small">Selecione um semestre para carregar os dados.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/gamification.js"></script>
+  <script>
+    (function(){
+      document.querySelectorAll('.alert').forEach(function(el){
+        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+      });
+    })();
+  </script>
+  <script>
+    (function(){
+      const $sem = document.getElementById('semester');
+      const $num = document.getElementById('number');
+      const $hint = document.getElementById('hint-existing');
+
+      async function refreshExisting(){
+        const v = Number($sem.value);
+        if (!v || v < 1 || v > 8) return;
+        try {
+          const r = await fetch(`/roundsexisting?semester=${encodeURIComponent(v)}`);
+          if (!r.ok) throw new Error('fail');
+          const data = await r.json();
+          const existing = Array.isArray(data.existing) ? data.existing : [];
+          // Enable all options then disable existing
+          Array.from($num.options).forEach(opt => { if (opt.value) opt.disabled = false; });
+          existing.forEach(n => {
+            const opt = Array.from($num.options).find(o => Number(o.value) === Number(n));
+            if (opt) opt.disabled = true;
+          });
+          // Update hint
+          if (existing.length === 0) {
+            $hint.textContent = 'Nenhum round existente para este semestre.';
+          } else {
+            $hint.textContent = 'Já existem: ' + existing.sort().join(', ');
           }
-        }
-        $sem && $sem.addEventListener('change', refreshExisting);
-        // auto on load if value preset
-        if ($sem && $sem.value) refreshExisting();
-        async function refreshList(){
-          const v = Number($sem.value);
-          const $details = document.getElementById('existing-details');
-          if (!$details) return;
-          if (!v || v < 1 || v > 8) { $details.innerHTML = '<div class="text-white-50 small">Semestre inválido.</div>'; return; }
-          try {
-            const r = await fetch(`/roundslist?semester=${encodeURIComponent(v)}`);
-            if (!r.ok) throw new Error('fail');
-            const data = await r.json();
-            const list = Array.isArray(data.list) ? data.list : [];
-            if (list.length === 0) { $details.innerHTML = '<div class="text-white-50 small">Nenhum round criado neste semestre.</div>'; return; }
-            const rows = list.map(item => {
-              const d1 = new Date(item.firstCreated);
-              const d2 = new Date(item.lastUpdated);
-              return `<tr>
-                <td>${item.numberRound}</td>
-                <td>${item.count}</td>
-                <td>${isNaN(d1) ? '-' : d1.toLocaleString('pt-BR')}</td>
-                <td>${isNaN(d2) ? '-' : d2.toLocaleString('pt-BR')}</td>
-              </tr>`;
-            }).join('');
-            $details.innerHTML = `
-              <div class="table-responsive">
-                <table class="table table-dark table-striped align-middle mb-0">
-                  <thead>
-                    <tr>
-                      <th>Número</th>
-                      <th>Quant. Registros</th>
-                      <th>Criado em</th>
-                      <th>Última Atualização</th>
-                    </tr>
-                  </thead>
-                  <tbody>${rows}</tbody>
-                </table>
-              </div>`;
-          } catch (e) {
-            $details.innerHTML = '<div class="text-danger small">Erro ao carregar lista de rounds.</div>';
-          }
-        }
-        async function refreshActiveUsers(){
-          const v = Number($sem.value);
-          const $au = document.getElementById('active-users');
-          const $pred = document.getElementById('predicted-info');
+          // Update counter and submit state
+          const $counter = document.getElementById('existing-counter');
+          if ($counter) $counter.textContent = `Rounds criados neste semestre: ${existing.length}/4`;
+          const $rem = document.getElementById('remaining-rounds');
+          if ($rem) $rem.textContent = `Rounds restantes neste semestre: ${Math.max(0, 4 - existing.length)}`;
           const $btn = document.getElementById('btn-create-round');
-          const $warn = document.getElementById('high-volume-warning');
-          const $none = document.getElementById('no-users-warning');
-          if (!$au) return;
-          if (!v || v < 1 || v > 8) {
-            $au.textContent = 'Alunos ativos neste semestre: 0';
-            if ($pred) $pred.textContent = 'Previstos para criação: 0 registros';
-            if ($btn) $btn.textContent = 'Criar Round';
-            if ($warn) $warn.classList.add('d-none');
-            if ($none) $none.classList.add('d-none');
-            return;
+          if ($btn) {
+            $btn.disabled = existing.length >= 4;
           }
-          try {
-            const r = await fetch(`/semesterusers?semester=${encodeURIComponent(v)}`);
-            if (!r.ok) throw new Error('fail');
-            const data = await r.json();
-            const n = Number(data.activeUsers || 0);
-            $au.textContent = `Alunos ativos neste semestre: ${n}`;
-            if ($pred) $pred.textContent = `Previstos para criação: ${n} registro(s)`;
-            if ($btn) $btn.textContent = `Criar Round (${n})`;
-            const THRESHOLD = Number(<%= typeof hvThreshold !== 'undefined' ? hvThreshold : 200 %>);
-            if ($warn) {
-              if (n > THRESHOLD) {
-                $warn.textContent = `Volume alto de criação (${n} registros). Considere realizar em horário de menor uso.`;
-                $warn.classList.remove('d-none');
-              } else {
-                $warn.classList.add('d-none');
-              }
-            }
-            // Nenhum aluno ativo: avisa e desabilita
-            if ($none) {
-              if (n === 0) $none.classList.remove('d-none'); else $none.classList.add('d-none');
-            }
-            // Estado do botão: bloqueia se sem alunos ou limite 4/4
-            const existingCount = (document.getElementById('existing-counter')?.textContent.match(/(\d+)\/4/)||[])[1];
-            const full = existingCount ? Number(existingCount) >= 4 : false;
-            if ($btn) {
-              $btn.disabled = (n === 0) || full;
-            }
-          } catch (e) {
-            $au.textContent = 'Alunos ativos neste semestre: -';
-            if ($pred) $pred.textContent = 'Previstos para criação: -';
-            if ($btn) $btn.textContent = 'Criar Round';
-            if ($warn) $warn.classList.add('d-none');
-            if ($none) $none.classList.add('d-none');
+          // If selected option is disabled now, reset selection
+          if ($num.value) {
+            const optSel = Array.from($num.options).find(o => o.value === $num.value);
+            if (optSel && optSel.disabled) $num.value = '';
           }
+        } catch (e) {
+          $hint.textContent = 'Não foi possível consultar rounds existentes.';
         }
-        $sem && $sem.addEventListener('change', function(){ refreshExisting(); refreshList(); refreshActiveUsers(); });
-        if ($sem && $sem.value) { refreshList(); refreshActiveUsers(); }
-      })();
-    </script>
+      }
+      $sem && $sem.addEventListener('change', refreshExisting);
+      if ($sem && $sem.value) refreshExisting();
+
+      async function refreshList(){
+        const v = Number($sem.value);
+        const $details = document.getElementById('existing-details');
+        if (!$details) return;
+        if (!v || v < 1 || v > 8) { $details.innerHTML = '<div class="text-white-50 small">Semestre inválido.</div>'; return; }
+        try {
+          const r = await fetch(`/roundslist?semester=${encodeURIComponent(v)}`);
+          if (!r.ok) throw new Error('fail');
+          const data = await r.json();
+          const list = Array.isArray(data.list) ? data.list : [];
+          if (list.length === 0) { $details.innerHTML = '<div class="text-white-50 small">Nenhum round criado neste semestre.</div>'; return; }
+          const rows = list.map(item => {
+            const d1 = new Date(item.firstCreated);
+            const d2 = new Date(item.lastUpdated);
+            return `<tr>
+              <td>${item.numberRound}</td>
+              <td>${item.count}</td>
+              <td>${isNaN(d1) ? '-' : d1.toLocaleString('pt-BR')}</td>
+              <td>${isNaN(d2) ? '-' : d2.toLocaleString('pt-BR')}</td>
+            </tr>`;
+          }).join('');
+          $details.innerHTML = `
+            <div class=\"table-responsive\">
+              <table class=\"table table-dark table-striped align-middle mb-0\">
+                <thead>
+                  <tr>
+                    <th>Número</th>
+                    <th>Quant. Registros</th>
+                    <th>Criado em</th>
+                    <th>Última Atualização</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>`;
+        } catch (e) {
+          $details.innerHTML = '<div class="text-danger small">Erro ao carregar lista de rounds.</div>';
+        }
+      }
+
+      async function refreshActiveUsers(){
+        const v = Number($sem.value);
+        const $au = document.getElementById('active-users');
+        const $pred = document.getElementById('predicted-info');
+        const $btn = document.getElementById('btn-create-round');
+        const $warn = document.getElementById('high-volume-warning');
+        const $none = document.getElementById('no-users-warning');
+        if (!$au) return;
+        if (!v || v < 1 || v > 8) {
+          $au.textContent = 'Alunos ativos neste semestre: 0';
+          if ($pred) $pred.textContent = 'Previstos para criação: 0 registros';
+          if ($btn) $btn.textContent = 'Criar Round';
+          if ($warn) $warn.classList.add('d-none');
+          if ($none) $none.classList.add('d-none');
+          return;
+        }
+        try {
+          const r = await fetch(`/semesterusers?semester=${encodeURIComponent(v)}`);
+          if (!r.ok) throw new Error('fail');
+          const data = await r.json();
+          const n = Number(data.activeUsers || 0);
+          $au.textContent = `Alunos ativos neste semestre: ${n}`;
+          if ($pred) $pred.textContent = `Previstos para criação: ${n} registro(s)`;
+          if ($btn) $btn.textContent = `Criar Round (${n})`;
+          const THRESHOLD = Number(<%= typeof hvThreshold !== 'undefined' ? hvThreshold : 200 %>);
+          if ($warn) {
+            if (n > THRESHOLD) {
+              $warn.textContent = `Volume alto de criação (${n} registros). Considere realizar em horário de menor uso.`;
+              $warn.classList.remove('d-none');
+            } else {
+              $warn.classList.add('d-none');
+            }
+          }
+          // Nenhum aluno ativo: avisa e desabilita
+          if ($none) {
+            if (n === 0) $none.classList.remove('d-none'); else $none.classList.add('d-none');
+          }
+          // Estado do botão: bloqueia se sem alunos ou limite 4/4
+          const existingCount = (document.getElementById('existing-counter')?.textContent.match(/(\d+)\/4/)||[])[1];
+          const full = existingCount ? Number(existingCount) >= 4 : false;
+          if ($btn) {
+            $btn.disabled = (n === 0) || full;
+          }
+        } catch (e) {
+          $au.textContent = 'Alunos ativos neste semestre: -';
+          if ($pred) $pred.textContent = 'Previstos para criação: -';
+          if ($btn) $btn.textContent = 'Criar Round';
+          if ($warn) $warn.classList.add('d-none');
+          if ($none) $none.classList.add('d-none');
+        }
+      }
+
+      $sem && $sem.addEventListener('change', function(){ refreshExisting(); refreshList(); refreshActiveUsers(); });
+      if ($sem && $sem.value) { refreshList(); refreshActiveUsers(); }
+    })();
+  </script>
 
 </body>
 

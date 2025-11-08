@@ -15,18 +15,42 @@
 <body>
     <%- include('../partials/navbar') %>
     <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-8">
+                <div class="card vs-card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Custos desta simulação</h5>
+                        <ul class="mb-0">
+                            <li>Criação de Abrigo: <strong>
+                                <%= (typeof costs !== 'undefined') ? Number(costs.shelterCost||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) : 'R$ 0,00' %>
+                            </strong></li>
+                            <li>Castração de machos: <strong>
+                                <%= (typeof costs !== 'undefined') ? Number(costs.maleNeuterCost||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) : 'R$ 0,00' %>
+                            </strong></li>
+                            <li>Castração de fêmeas: <strong>
+                                <%= (typeof costs !== 'undefined') ? Number(costs.femaleNeuterCost||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) : 'R$ 0,00' %>
+                            </strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <% if (messages && messages.length> 0) { %>
-            <div class="alert alert-danger mt-3">
-                <ul>
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                <ul class="mb-0">
                     <% messages.forEach(function(msg) { %>
                         <li><%= msg %></li>
                     <% }) %>
                 </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
             </div>
         <% } %>
 
         <% if (success && success.length> 0) { %>
-            <div class="alert alert-success mt-3"><%= success %></div>
+            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
         <% } %>
 
         <fieldset class="mt-4">
@@ -66,6 +90,13 @@
       
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/gamification.js"></script>
+    <script>
+      (function(){
+        document.querySelectorAll('.alert').forEach(function(el){
+          setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        });
+      })();
+    </script>
 
 </body>
 

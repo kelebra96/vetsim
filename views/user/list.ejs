@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="pt-br">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,53 +10,276 @@
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
 </head>
-<body>
+
+<body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <h1 class="vs-title h3 mb-3">Lista de Usuários</h1>
-    <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger"><%= messages[0] %></div>
-    <% } %>
-    <% if (success && success.length>0) { %>
-      <div class="alert alert-success"><%= success[0] %></div>
-    <% } %>
+    <div class="container mt-4">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="vs-title h4 mb-0">Usuários</h1>
+        <div class="d-flex gap-2">
+          <form id="bulkForm" action="/users/bulk" method="POST" class="d-flex gap-2 mb-0">
+            <input type="hidden" name="action" id="bulkAction" value="">
+            <div class="btn-group">
+              <button type="button" id="btnActivate" class="btn btn-outline-light btn-sm" disabled>Ativar</button>
+              <button type="button" id="btnDeactivate" class="btn btn-outline-light btn-sm" disabled>Desativar</button>
+            </div>
+          </form>
+          <button id="btnExport" class="btn btn-vs-dark btn-sm"><i class="bi bi-download me-1"></i>Exportar CSV
+            (filtro)</button>
+        </div>
+      </div>
 
-    <div class="table-responsive">
-      <table class="table table-dark table-striped align-middle">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Código</th>
-            <th>E-mail</th>
-            <th>Semestre</th>
-            <th>Tipo</th>
-            <th>Status</th>
-            <th>Criado em</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% (users || []).forEach(u => { %>
-            <tr>
-              <td><%= u.name %></td>
-              <td><%= u.code %></td>
-              <td><%= u.email %></td>
-              <td><%= u.semester %></td>
-              <td class="text-capitalize"><%= u.type %></td>
-              <td>
-                <% if (u.status) { %>
-                  <span class="badge text-bg-success">Ativo</span>
-                <% } else { %>
-                  <span class="badge text-bg-secondary">Inativo</span>
-                <% } %>
-              </td>
-              <td><%= new Date(u.createdAt).toLocaleString('pt-BR') %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+      <% if (messages && messages.length>0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <%= messages[0] %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        <% } %>
+          <% if (success && success.length>0) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <%= success[0] %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+            <% } %>
+
+              <div class="vs-card p-3 mb-3">
+                <div class="row g-2 align-items-end">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label text-white-50">Busca</label>
+                    <input id="fText" type="text" class="form-control form-control-sm"
+                      placeholder="Nome, email ou código">
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="form-label text-white-50">Tipo</label>
+                    <select id="fType" class="form-select form-select-sm">
+                      <option value="">Todos</option>
+                      <option value="student">Aluno</option>
+                      <option value="teacher">Professor</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="form-label text-white-50">Status</label>
+                    <select id="fStatus" class="form-select form-select-sm">
+                      <option value="">Todos</option>
+                      <option value="1">Ativo</option>
+                      <option value="0">Inativo</option>
+                    </select>
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="form-label text-white-50">Semestre mín.</label>
+                    <input id="fSemMin" type="number" class="form-control form-control-sm" min="1" max="8"
+                      placeholder="1">
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="form-label text-white-50">Semestre máx.</label>
+                    <input id="fSemMax" type="number" class="form-control form-control-sm" min="1" max="8"
+                      placeholder="8">
+                  </div>
+                </div>
+              </div>
+
+              <div class="vs-card p-0">
+                <div class="table-responsive">
+                  <table id="tblUsers" class="table table-dark table-striped align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th style="width:28px"><input type="checkbox" id="checkAll"></th>
+                        <th style="width:32px"></th>
+                        <th>Nome</th>
+                        <th>Código</th>
+                        <th>E-mail</th>
+                        <th>Semestre</th>
+                        <th>Tipo</th>
+                        <th>Status</th>
+                        <th>Criado em</th>
+                        <th style="width:56px">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% (users || []).forEach(u=> { %>
+                        <tr data-name="<%= (u.name||'').toLowerCase() %>"
+                          data-email="<%= (u.email||'').toLowerCase() %>" data-code="<%= u.code %>"
+                          data-type="<%= u.type %>" data-status="<%= u.status ? '1':'0' %>"
+                          data-semester="<%= u.semester %>">
+                          <td><input type="checkbox" class="chkRow" name="ids" value="<%= u._id %>" form="bulkForm">
+                          </td>
+                          <td>
+                            <% if (u.avatarUrl) { %>
+                              <img src="<%= u.avatarUrl %>" class="rounded"
+                                style="width:28px;height:28px;object-fit:cover;" alt="avatar">
+                              <% } else { %>
+                                <i class="bi bi-person-circle" style="font-size:1.2rem"></i>
+                                <% } %>
+                          </td>
+                          <td>
+                            <%= u.name %>
+                          </td>
+                          <td>
+                            <%= u.code %>
+                          </td>
+                          <td><a href="mailto:<%= u.email %>" class="link-light">
+                              <%= u.email %>
+                            </a></td>
+                          <td>
+                            <%= u.semester %>
+                          </td>
+                          <td class="text-capitalize">
+                            <%= u.type %>
+                          </td>
+                          <td>
+                            <% if (u.status) { %>
+                              <span class="badge text-bg-success">Ativo</span>
+                              <% } else { %>
+                                <span class="badge text-bg-secondary">Inativo</span>
+                                <% } %>
+                          </td>
+                          <td>
+                            <%= u.createdAt ? new Date(u.createdAt).toLocaleString('pt-BR') : '-' %>
+                          </td>
+                          <td>
+                            <div class="btn-group btn-group-sm gap-1" role="group">
+                              <a class="btn btn-outline-light" href="/users/edit/<%= u._id %>" title="Editar"><i
+                                  class="bi bi-pencil"></i></a>
+                              <form action="/users/<%= u._id %>/toggle" method="POST" class="d-inline"
+                                onsubmit="return confirm('Confirmar alteração de status deste usuário?');">
+                                <button type="submit" class="btn btn-outline-light" title="Ativar/Desativar"><i
+                                    class="bi bi-power"></i></button>
+                              </form>
+                              <button type="button" class="btn btn-outline-light btn-copy" title="Copiar e-mail"
+                                data-email="<%= u.email %>"><i class="bi bi-clipboard"></i></button>
+                              <a class="btn btn-outline-light" href="mailto:<%= u.email %>" title="Enviar e-mail"><i
+                                  class="bi bi-envelope"></i></a>
+                            </div>
+                          </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
     </div>
-  </div>
-  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
 
+    <div id="toast-container"></div>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Auto-dismiss alerts
+      (function () {
+        document.querySelectorAll('.alert').forEach(el => setTimeout(() => {
+          try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) { }
+        }, 5000));
+      })();
+    </script>
+    <script>
+      // Client-side filtering and export
+      (function () {
+        const fText = document.getElementById('fText');
+        const fType = document.getElementById('fType');
+        const fStatus = document.getElementById('fStatus');
+        const fSemMin = document.getElementById('fSemMin');
+        const fSemMax = document.getElementById('fSemMax');
+        const table = document.getElementById('tblUsers');
+        const btnExport = document.getElementById('btnExport');
+
+        function matchRow(tr) {
+          const name = tr.getAttribute('data-name') || '';
+          const email = tr.getAttribute('data-email') || '';
+          const code = (tr.getAttribute('data-code') || '').toString();
+          const type = tr.getAttribute('data-type') || '';
+          const status = tr.getAttribute('data-status') || '';
+          const sem = Number(tr.getAttribute('data-semester') || '0');
+
+          const txt = (fText.value || '').toLowerCase().trim();
+          if (txt) {
+            if (!name.includes(txt) && !email.includes(txt) && !code.includes(txt)) return false;
+          }
+          if (fType.value && fType.value !== type) return false;
+          if (fStatus.value && fStatus.value !== status) return false;
+          const smin = Number(fSemMin.value || '');
+          const smax = Number(fSemMax.value || '');
+          if (Number.isFinite(smin) && smin && sem < smin) return false;
+          if (Number.isFinite(smax) && smax && sem > smax) return false;
+          return true;
+        }
+
+        function applyFilter() {
+          const rows = table.tBodies[0].rows;
+          let anyVisible = false;
+          for (const tr of rows) {
+            const ok = matchRow(tr);
+            tr.style.display = ok ? '' : 'none';
+            if (ok) anyVisible = true;
+          }
+        }
+
+        [fText, fType, fStatus, fSemMin, fSemMax].forEach(el => el && el.addEventListener('input', applyFilter));
+
+        btnExport && btnExport.addEventListener('click', function () {
+          const rows = Array.from(table.tBodies[0].rows).filter(tr => tr.style.display !== 'none');
+          const head = ['Nome', 'Código', 'E-mail', 'Semestre', 'Tipo', 'Status', 'Criado em'];
+          const lines = [head.join(',')];
+          rows.forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            const name = tds[1].innerText.trim();
+            const code = tds[2].innerText.trim();
+            const email = tds[3].innerText.trim();
+            const sem = tds[4].innerText.trim();
+            const type = tds[5].innerText.trim();
+            const status = tds[6].innerText.trim();
+            const created = tds[7].innerText.trim();
+            lines.push([name, code, email, sem, type, status, created].map(v => '"' + v.replaceAll('"', '""') + '"').join(','));
+          });
+          const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'usuarios_filtrados.csv'; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        });
+
+        // Copy email
+        document.querySelectorAll('.btn-copy').forEach(btn => btn.addEventListener('click', () => {
+          const email = btn.getAttribute('data-email');
+          if (!email) return;
+          navigator.clipboard && navigator.clipboard.writeText(email).then(() => {
+            const cont = document.getElementById('toast-container');
+            if (!cont) return;
+            const d = document.createElement('div');
+            d.className = 'vs-toast success';
+            d.textContent = 'Email copiado';
+            cont.appendChild(d);
+            setTimeout(() => d.remove(), 2500);
+          });
+        }));
+
+        // Bulk selection controls
+        const checkAll = document.getElementById('checkAll');
+        const bulkForm = document.getElementById('bulkForm');
+        const btnActivate = document.getElementById('btnActivate');
+        const btnDeactivate = document.getElementById('btnDeactivate');
+
+        function updateBulkButtons() {
+          const checked = document.querySelectorAll('.chkRow:checked');
+          const has = checked.length > 0;
+          btnActivate.disabled = !has;
+          btnDeactivate.disabled = !has;
+        }
+        checkAll && checkAll.addEventListener('change', () => {
+          document.querySelectorAll('.chkRow').forEach(ch => { ch.checked = checkAll.checked; });
+          updateBulkButtons();
+        });
+        document.addEventListener('change', (e) => {
+          if (e.target && e.target.classList && e.target.classList.contains('chkRow')) updateBulkButtons();
+        });
+        btnActivate && btnActivate.addEventListener('click', () => {
+          if (confirm('Ativar usuários selecionados?')) { document.getElementById('bulkAction').value = 'activate'; bulkForm.submit(); }
+        });
+        btnDeactivate && btnDeactivate.addEventListener('click', () => {
+          if (confirm('Desativar usuários selecionados?')) { document.getElementById('bulkAction').value = 'deactivate'; bulkForm.submit(); }
+        });
+
+        applyFilter();
+      })();
+    </script>
+</body>
+
+</html>

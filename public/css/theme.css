@@ -192,3 +192,26 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
 @media (max-width: 576px) {
   .vs-cta { width: 100%; }
 }
+
+/* Modal glass style */
+.vs-modal {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.vs-dropzone {
+  border: 2px dashed rgba(255,255,255,0.35);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  color: #e6f6f2;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.vs-dropzone:hover, .vs-dropzone.dragover {
+  border-color: var(--vs-accent);
+  background: rgba(255,255,255,0.06);
+}
+.vs-dropzone small { color: #bfeee3; }

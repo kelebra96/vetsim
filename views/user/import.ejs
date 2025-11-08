@@ -17,16 +17,19 @@
             </div>
         </div>
         <% if (messages && messages.length > 0) { %>
-            <div class="alert alert-danger">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <ul class="mb-0">
                     <% messages.forEach(function(message) { %>
                         <li><%= message %></li>
                     <% }); %>
                 </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
             </div>
         <% } %>
         <% if (success && success.length > 0) { %>
-            <div class="alert alert-success"><%= success %></div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert"><%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
         <% } %>
         <form action="/importcsv" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
@@ -38,5 +41,12 @@
         </form>
     </div>
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function(){
+        document.querySelectorAll('.alert').forEach(function(el){
+          setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        });
+      })();
+    </script>
 </body>
 </html>

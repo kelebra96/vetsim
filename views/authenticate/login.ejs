@@ -20,8 +20,9 @@
         </div>
         <div class="card-body">
               <% if (messages && messages.length > 0) { %>
-                <div class="alert alert-danger" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <%= messages[0] %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                 </div>
               <% } %>
               <form action="/login" method="POST">
@@ -50,8 +51,14 @@
         </div>
     </div>
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function(){
+        document.querySelectorAll('.alert').forEach(function(el){
+          setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        });
+      })();
+    </script>
     <script src="/js/gamification.js"></script>
 </body>
 
 </html>
-

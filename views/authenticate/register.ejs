@@ -9,28 +9,31 @@
     <title>VetSim</title>
     <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/theme.css">
     <link rel="stylesheet" href="/css/register.css">
 </head>
 
-<body>
-    <% if (messages && messages.length> 0) { %>
-        <div class="alert alert-danger">
-            <ul>
-                <% messages.forEach(function(message) { %>
-                    <li>
-                        <%= message %>
-                    </li>
-                    <% }); %>
-            </ul>
-        </div>
-        <% } %>
+<body class="vs-gradient">
+    <% const __errors = (messages && messages.length) ? messages : []; %>
+    <% const __success = (typeof success !== 'undefined' && success.length) ? success : []; %>
+    <% if (__errors.length > 0) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <ul class="mb-0">
+          <% __errors.forEach(function(message) { %>
+            <li><%= message %></li>
+          <% }); %>
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+    <% } %>
 
-            <% if (locals.success) { %>
-                <div class="alert alert-success">
-                    <%= success %>
-                </div>
-                <% } %>
-                    <div class="card " id="cardlogin">
+    <% if (__success.length > 0) { %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= __success[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+    <% } %>
+                    <div class="card mt-3" id="cardlogin">
                         <div class="text-center" id="card-header">
                             <img src="/img/felinos.png" class="card-img-top" alt="VetSim Logo">
                             <h1 class="card-title">VetSim</h1>
@@ -114,14 +117,106 @@
                                 <div class="d-flex justify-content-center">
                                     <img src="/img/baraomaua.svg" alt="Barão Mauá" class="text-center">
                                 </div>
-                                <div class="cadastro">
-                                    <p class="text-center">Já se cadastrou vamos nos <a href="/">conectar!</a></p>
-                                    <p class="text-center"><a href="/userimport">Importar usuários via CSV</a></p>
-                                </div>
+                                  <div class="cadastro">
+                                      <p class="text-center">Já se cadastrou? Vamos nos <a href="/">conectar</a>!</p>
+                                      <% if (user && (user.role==='teacher' || user.role==='admin')) { %>
+                                      <p class="text-center"><a href="#" data-bs-toggle="modal" data-bs-target="#importStudentsModal">Importar alunos (.CSV ou .XLSX)</a></p>
+                                      <% } %>
+                                  </div>
                             </div>
                         </div>
                     </div>
+                    <% if (user && (user.role==='teacher' || user.role==='admin')) { %>
+                    <!-- Modal Importar Alunos (estilizado) -->
+                    <div class="modal fade" id="importStudentsModal" tabindex="-1" aria-labelledby="importStudentsLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content vs-modal">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="importStudentsLabel"><i class="bi bi-people me-2"></i>Importar alunos (.csv ou .xlsx)</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                          </div>
+                          <div class="modal-body">
+                            <p class="text-white-50 small mb-2">Campos obrigatórios: Nome do aluno, Código do aluno, E-mail, Semestre, Senha. Status e Tipo de Usuário serão definidos como Ativo e Aluno por padrão.</p>
+                            <ul class="text-white-50 small mb-3">
+                              <li>Planilha: primeira linha deve ser o cabeçalho.</li>
+                              <li>CSV: separador vírgula.</li>
+                              <li>Colunas aceitas (flexíveis): Nome, Código, E-mail, Semestre, Senha.</li>
+                            </ul>
+                            <form id="importForm" action="/importstudents" method="POST" enctype="multipart/form-data">
+                              <div class="vs-dropzone" id="dropzone">
+                                <i class="bi bi-upload" style="font-size:1.5rem"></i>
+                                <div class="mt-2">Arraste o arquivo aqui ou <span class="text-decoration-underline">clique para selecionar</span></div>
+                                <small class="d-block">Formatos aceitos: .csv, .xlsx</small>
+                                <input id="fileInput" type="file" name="file" accept=".csv,.xlsx" hidden required />
+                                <div id="fileName" class="small mt-2 text-white-50"></div>
+                                <a id="templateLink" href="#" class="small d-inline-block mt-2"><i class="bi bi-filetype-xlsx me-1"></i>Baixar modelo de planilha</a>
+                              </div>
+                              <div class="d-flex justify-content-end gap-2 mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button class="btn btn-vs-dark" type="submit"><i class="bi bi-upload me-1"></i> Importar Alunos</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <% } %>
                     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+                    <script>
+                      // Auto-dismiss alerts after 5s
+                      (function(){
+                        const els = document.querySelectorAll('.alert');
+                        els.forEach(function(el){
+                          setTimeout(function(){
+                            try {
+                              const ai = bootstrap.Alert.getOrCreateInstance(el);
+                              ai.close();
+                            } catch(_){}
+                          }, 5000);
+                        });
+                      })();
+                    </script>
+                    <script>
+                      (function(){
+                        const params = new URLSearchParams(window.location.search);
+                        if (params.get('import') === '1') {
+                          const el = document.getElementById('importStudentsModal');
+                          if (el && window.bootstrap) {
+                            const m = new bootstrap.Modal(el);
+                            m.show();
+                          }
+                        }
+                      })();
+                    </script>
+                    <script>
+                      // Dropzone interactions + template CSV/XLSX link
+                      (function(){
+                        const dz = document.getElementById('dropzone');
+                        const fi = document.getElementById('fileInput');
+                        const fn = document.getElementById('fileName');
+                        const tl = document.getElementById('templateLink');
+                        if (!dz || !fi) return;
+                        const openPicker = () => fi.click();
+                        dz.addEventListener('click', openPicker);
+                        dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.classList.add('dragover'); });
+                        dz.addEventListener('dragleave', ()=> dz.classList.remove('dragover'));
+                        dz.addEventListener('drop', (e)=>{
+                          e.preventDefault(); dz.classList.remove('dragover');
+                          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            fi.files = e.dataTransfer.files;
+                            if (fn) fn.textContent = e.dataTransfer.files[0].name;
+                          }
+                        });
+                        fi.addEventListener('change', ()=>{ if (fn && fi.files[0]) fn.textContent = fi.files[0].name; });
+                        if (tl) {
+                          const header = ['Nome','Código','E-mail','Semestre','Senha'];
+                          const sample = 'Nome,Código,E-mail,Semestre,Senha\nAna Lima,1001,ana@example.com,1,Senha@123\n';
+                          const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
+                          tl.href = URL.createObjectURL(blob);
+                          tl.download = 'modelo_alunos.csv';
+                        }
+                      })();
+                    </script>
 </body>
 
 </html>

@@ -5,6 +5,7 @@ import { authenticate } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 router.get("/home", authenticate, homeController.home);
+router.get("/sobre", homeController.sobre);
 
 
 

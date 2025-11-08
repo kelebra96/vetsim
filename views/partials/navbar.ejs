@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark" id="navbarHome" style="background-color:#191d1c !important;">
+<nav class="navbar navbar-expand-lg navbar-dark" id="navbarHome" style="background-color:#000000 !important;">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/home">
           <% if (user) { %>
@@ -25,7 +25,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/register">Criação</a></li>
-                        <li><a class="dropdown-item" href="#">Atualização</a></li>
+                        <li><a class="dropdown-item" href="/users">Atualização</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -34,7 +34,7 @@
                 </li>
                 <% } %>
                 <li class="nav-item">
-                    <a class="nav-link active" href="#">Sobre</a>
+                    <a class="nav-link active" href="/sobre">Sobre</a>
                 </li>
                 <% if (user && (user.role==="admin" || user.role==="teacher" )) { %>
                 <li class="nav-item dropdown">
@@ -70,7 +70,7 @@
                     <span id="streak-value">0</span>
                 </div>
                 <div class="d-flex flex-column">
-                    <span class="vs-level">Nível <span id="level-value"><%= (user && typeof user.level === 'number') ? user.level : 1 %></span></span>
+                    <span class="vs-level">Nível <span id="level-value" data-lock="true"><%= (user && typeof user.level === 'number') ? user.level : 1 %></span></span>
                     <% 
                       const _sem = (user && typeof user.semester === 'number') ? user.semester : 1;
                       const _xpArr = (user && Array.isArray(user.xpBySemester)) ? user.xpBySemester : [];
@@ -78,7 +78,7 @@
                       const _in = ((_cur % 100) + 100) % 100; 
                       const _pct = Math.min(100, Math.max(0, _in)); 
                     %>
-                    <div class="vs-xpbar"><div class="fill" id="xp-progress-inner" style="width: <%= _pct %>%;"></div></div>
+                    <div class="vs-xpbar"><div class="fill" id="xp-progress-inner" data-lock="true" style="width: <%= _pct %>%;"></div></div>
                     <small class="text-white-50"><%= _in %>/100 XP (Semestre <%= _sem %>)</small>
                 </div>
                 <div class="nav-item d-flex align-items-center">
@@ -101,3 +101,7 @@
     </div>
  </nav>
  <div id="toast-container"></div>
+ <script>
+   // Expor XP real do servidor para sincronizar localStorage entre abas
+   window.__serverXP = <%= (user && typeof user.points === 'number') ? Number(user.points) : 0 %>;
+ </script>

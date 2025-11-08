@@ -60,6 +60,19 @@ const rounds = async (req, res) => {
   }
 
   try {
+    // Carrega custos configurados
+    let costs = { shelterCost: 0, maleNeuterCost: 0, femaleNeuterCost: 0 };
+    try {
+      const Settings = (await import("../models/Settings.js")).default;
+      const cfg = await Settings.findOne({ key: "costs" }).lean();
+      if (cfg) {
+        costs = {
+          shelterCost: Number(cfg.shelterCost || 0),
+          maleNeuterCost: Number(cfg.maleNeuterCost || 0),
+          femaleNeuterCost: Number(cfg.femaleNeuterCost || 0),
+        };
+      }
+    } catch (_e) {}
     const round = await roundService.findActiveRoundByUserCode(userCode);
 
     if (!round) {
@@ -68,6 +81,7 @@ const rounds = async (req, res) => {
         round: null,
         messages: req.flash("error"),
         success: req.flash("success"),
+        costs,
       });
     }
 
@@ -75,6 +89,7 @@ const rounds = async (req, res) => {
       round,
       messages: req.flash("error"),
       success: req.flash("success"),
+      costs,
     });
   } catch (error) {
     console.error("Erro ao carregar round do usuário:", error);

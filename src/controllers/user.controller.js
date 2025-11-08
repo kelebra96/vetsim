@@ -1,11 +1,12 @@
 import userService from "../services/user.service.js";
+import * as xlsx from "xlsx";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import { generateToken } from "../middlewares/auth.middleware.js";
 
 const register = async (req, res) => {
-  res.render("authenticate/register");
+  res.render("authenticate/register", { messages: req.flash("error"), success: req.flash("success") });
 };
 
 const loginPost = async (req, res) => {
@@ -93,7 +94,7 @@ const update = async (req, res) => {
     if (!name && !code && !email && !semester && !password && !status) {
       return res.status(400).send({ menssage: "Submit at least one field for update" });
     }
-    const { id } = req;
+    const { id } = req.params || {};
     await userService.updateService(id, name, code, email, semester, password, status);
     res.send({ message: "User successfully updated!" });
   } catch (err) {
@@ -196,4 +197,201 @@ const profileUpdate = async (req, res) => {
   }
 };
 
-export default { register, loginPost, login, create, findAll, findById, update, importForm, importCsv, listView, profileView, profileUpdate };
+// Render edit page for a specific user (admin/teacher)
+const editView = async (req, res) => {
+  try {
+    const u = await User.findById(req.params.id).lean();
+    if (!u) { req.flash('error', 'Usuário não encontrado.'); return res.redirect('/users'); }
+    res.render('user/edit', { u, messages: req.flash('error'), success: req.flash('success') });
+  } catch (err) {
+    req.flash('error', 'Erro ao carregar usuário.');
+    return res.redirect('/users');
+  }
+};
+
+// Update user fields (admin/teacher)
+const adminUpdate = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { name, code, email, semester, type, status } = req.body;
+    const update = {};
+    if (typeof name === 'string' && name.trim().length >= 2) update.name = name.trim().slice(0, 80);
+    if (code !== undefined && code !== '') update.code = Number(code);
+    if (typeof email === 'string' && email.trim()) update.email = email.trim().toLowerCase();
+    if (semester !== undefined && semester !== '') update.semester = Number(semester);
+    if (type && ['student','teacher','admin'].includes(type)) update.type = type;
+    if (typeof status !== 'undefined') update.status = (status === '1' || status === 'true' || status === true);
+    update.updatedAt = new Date();
+    await User.findByIdAndUpdate(id, { $set: update });
+    req.flash('success', 'Usuário atualizado com sucesso.');
+    res.redirect('/users');
+  } catch (err) {
+    req.flash('error', 'Erro ao atualizar usuário.');
+    res.redirect('/users');
+  }
+};
+
+// Toggle active/inactive status (admin/teacher)
+const toggleStatus = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const u = await User.findById(id).select('status').lean();
+    if (!u) { req.flash('error', 'Usuário não encontrado.'); return res.redirect('/users'); }
+    const next = !Boolean(u.status);
+    await User.findByIdAndUpdate(id, { $set: { status: next, updatedAt: new Date() } });
+    req.flash('success', next ? 'Usuário ativado.' : 'Usuário desativado.');
+    res.redirect('/users');
+  } catch (err) {
+    req.flash('error', 'Erro ao alternar status.');
+    res.redirect('/users');
+  }
+};
+
+// Reset user password (admin/teacher)
+const resetPassword = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { password, confirm } = req.body;
+    if (!password || password.length < 6) {
+      req.flash('error', 'Senha deve ter ao menos 6 caracteres.');
+      return res.redirect('/users/edit/' + id);
+    }
+    if (password !== confirm) {
+      req.flash('error', 'As senhas não conferem.');
+      return res.redirect('/users/edit/' + id);
+    }
+    const hash = await bcrypt.hash(password, 10);
+    await User.findByIdAndUpdate(id, { $set: { password: hash, updatedAt: new Date() } });
+    req.flash('success', 'Senha redefinida com sucesso.');
+    res.redirect('/users/edit/' + id);
+  } catch (err) {
+    req.flash('error', 'Erro ao redefinir senha.');
+    res.redirect('/users');
+  }
+};
+
+// Bulk activate/deactivate users
+const bulkStatus = async (req, res) => {
+  try {
+    const { action, ids } = req.body;
+    const list = Array.isArray(ids) ? ids : (ids ? [ids] : []);
+    if (!list.length) { req.flash('error', 'Nenhum usuário selecionado.'); return res.redirect('/users'); }
+    let status;
+    if (action === 'activate') status = true; else if (action === 'deactivate') status = false; else {
+      req.flash('error', 'Ação inválida.'); return res.redirect('/users');
+    }
+    await User.updateMany({ _id: { $in: list } }, { $set: { status, updatedAt: new Date() } });
+    req.flash('success', `${status ? 'Ativados' : 'Desativados'} ${list.length} usuário(s).`);
+    res.redirect('/users');
+  } catch (err) {
+    req.flash('error', 'Erro na ação em massa.');
+    res.redirect('/users');
+  }
+};
+
+export default { register, loginPost, login, create, findAll, findById, update, importForm, importCsv, listView, editView, adminUpdate, toggleStatus, resetPassword, bulkStatus, profileView, profileUpdate };
+
+// New: import students from CSV/XLSX (teacher/admin)
+export async function importStudents(req, res) {
+  if (!req.file) {
+    req.flash("error", "Nenhum arquivo enviado.");
+    return res.redirect("/register");
+  }
+
+  try {
+    const buf = req.file.buffer;
+    const filename = (req.file.originalname || '').toLowerCase();
+
+    const normalize = (s) => (s || '').toString().trim();
+    const normKey = (h) => normalize(h)
+      .toLowerCase()
+      .normalize('NFD').replace(/\p{Diacritic}/gu,'') // remove acentos
+      .replace(/[^a-z0-9]+/g,'')
+    ;
+    const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '');
+
+    const rows = [];
+    if (filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
+      const wb = xlsx.read(buf, { type: 'buffer' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = xlsx.utils.sheet_to_json(ws, { defval: '' });
+      json.forEach(obj => rows.push(obj));
+    } else {
+      // CSV fallback (comma-separated)
+      const csv = buf.toString('utf-8');
+      const lines = csv.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) {
+        req.flash("error", "Arquivo vazio ou inválido.");
+        return res.redirect("/register");
+      }
+      const headers = lines[0].split(',').map(h => h.trim());
+      for (const line of lines.slice(1)) {
+        const values = line.split(',').map(v => v.trim());
+        if (!values.length) continue;
+        const obj = {};
+        headers.forEach((h, idx) => obj[h] = values[idx] ?? '');
+        rows.push(obj);
+      }
+    }
+
+    let created = 0, skipped = 0, errors = 0;
+    let skippedMissing = 0, skippedInvalidEmail = 0, skippedDupFile = 0, skippedDupDB = 0, skippedInvalidNum = 0;
+    const seenEmails = new Set();
+    const details = [];
+    for (const r of rows) {
+      // Map flexible headers
+      const mapped = {};
+      for (const [k, v] of Object.entries(r)) {
+        const key = normKey(k);
+        if (['name','nome','aluno','nomealuno'].includes(key)) mapped.name = normalize(v);
+        else if (['code','codigo','código','codigodoaluno','codigoaluno','codealuno','matricula'].includes(key)) mapped.code = v;
+        else if (['email','e-mail','mail'].includes(key)) mapped.email = normalize(v).toLowerCase();
+        else if (['semester','semestre'].includes(key)) mapped.semester = v;
+        else if (['password','senha'].includes(key)) mapped.password = normalize(v);
+        else if (['status','ativo'].includes(key)) mapped.status = v; // optional
+        else if (['type','tipo','tipousuario'].includes(key)) mapped.type = v; // optional
+      }
+      // Coerce and defaults
+      const rawEmail = normalize(mapped.email || '').toLowerCase();
+      mapped.email = rawEmail;
+      mapped.code = Number(mapped.code);
+      mapped.semester = Number(mapped.semester);
+      if (mapped.status === undefined || mapped.status === '') mapped.status = true; else mapped.status = String(mapped.status).toLowerCase() === 'true' || mapped.status === 1 || mapped.status === '1';
+      if (!mapped.type) mapped.type = 'student';
+
+      // Validations
+      const missing = (!mapped.name || !mapped.code || !mapped.email || !mapped.semester || !mapped.password);
+      if (missing) { skipped++; skippedMissing++; details.push(`Linha com campos ausentes para email '${rawEmail || '-'}'`); continue; }
+      if (!Number.isFinite(mapped.code) || mapped.code <= 0 || !Number.isFinite(mapped.semester) || mapped.semester < 1 || mapped.semester > 8) {
+        skipped++; skippedInvalidNum++; details.push(`Linha inválida (code/semester) para email '${rawEmail}'`); continue; }
+      if (!isValidEmail(rawEmail)) { skipped++; skippedInvalidEmail++; details.push(`Email inválido: '${rawEmail}'`); continue; }
+      if (seenEmails.has(rawEmail)) { skipped++; skippedDupFile++; details.push(`Email duplicado no arquivo: '${rawEmail}'`); continue; }
+      seenEmails.add(rawEmail);
+
+      // Check duplicate in DB
+      const exists = await User.findOne({ email: rawEmail }).select('_id email').lean();
+      if (exists) { skipped++; skippedDupDB++; details.push(`Email já cadastrado: '${rawEmail}'`); continue; }
+
+      try {
+        await userService.createService(mapped);
+        created++;
+      } catch (e) {
+        errors++;
+        details.push(`Erro ao criar '${rawEmail}': ${e?.message || e}`);
+      }
+    }
+
+    const summary = `Criados: ${created} | Ignorados: ${skipped} (faltantes: ${skippedMissing}, email inválido: ${skippedInvalidEmail}, duplicado no arquivo: ${skippedDupFile}, duplicado no sistema: ${skippedDupDB}, num inválido: ${skippedInvalidNum}) | Erros: ${errors}`;
+    if (created > 0) req.flash('success', summary);
+    else req.flash('error', summary);
+    if (details.length) {
+      const head = details.slice(0, 10).join(' | ');
+      req.flash('error', `Detalhes: ${head}${details.length>10 ? ' ...' : ''}`);
+    }
+    const hasIssues = details.length > 0 || created === 0;
+    return res.redirect('/register' + (hasIssues ? '?import=1' : ''));
+  } catch (err) {
+    req.flash('error', 'Erro ao processar arquivo.');
+    return res.redirect('/register');
+  }
+}
