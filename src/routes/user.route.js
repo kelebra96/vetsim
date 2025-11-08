@@ -63,6 +63,8 @@ router.get("/users", authenticate, authorizeAdminOrTeacher, userController.listV
 router.get("/users/edit/:id", authenticate, authorizeAdminOrTeacher, userController.editView);
 router.post("/users/edit/:id", authenticate, authorizeAdminOrTeacher, userController.adminUpdate);
 router.post("/users/:id/toggle", authenticate, authorizeAdminOrTeacher, userController.toggleStatus);
+// Ajuste de saldo VIDA (admin/professor)
+router.post("/users/:id/balance", authenticate, authorizeAdminOrTeacher, userController.adjustBalance);
 // Admin/Teacher: redefinir senha e ações em massa
 router.post("/users/:id/resetpass", authenticate, authorizeAdminOrTeacher, userController.resetPassword);
 router.post("/users/bulk", authenticate, authorizeAdminOrTeacher, userController.bulkStatus);

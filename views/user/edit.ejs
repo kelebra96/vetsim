@@ -68,6 +68,7 @@
         <div class="d-flex justify-content-end gap-2 mt-3">
           <a class="btn btn-secondary" href="/users">Cancelar</a>
           <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#resetPassModal"><i class="bi bi-key me-1"></i>Redefinir Senha</button>
+          <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#adjustVidaModal"><i class="bi bi-cash-coin me-1"></i>Ajustar VIDA</button>
           <button type="submit" class="btn btn-vs-dark"><i class="bi bi-check2 me-1"></i>Salvar</button>
         </div>
       </form>
@@ -101,7 +102,78 @@
       </div>
     </div>
   </div>
+  <!-- Modal Ajustar VIDA -->
+  <div class="modal fade" id="adjustVidaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content vs-modal">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Ajustar Saldo VIDA</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form action="/users/<%= u._id %>/balance" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Ação</label>
+              <div class="d-flex gap-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="action" id="actAdd" value="add" checked>
+                  <label class="form-check-label" for="actAdd">Adicionar</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="action" id="actRemove" value="remove">
+                  <label class="form-check-label" for="actRemove">Remover</label>
+                </div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Valor</label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" id="vidaAmount_display" class="form-control" inputmode="decimal" autocomplete="off" required>
+              </div>
+              <input type="hidden" name="amount" id="vidaAmount" value="0">
+              <div class="form-text text-white-50" id="vidaPreview"></div>
+            </div>
+            <small class="text-white-50">Saldo atual: <strong><%= Number(u.balance || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></strong></small>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-vs-dark"><i class="bi bi-check2 me-1"></i>Confirmar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <div id="toast-container"></div>
+  <script>
+    // Máscara BRL no modal de VIDA
+    (function(){
+      const nf = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const cf = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+      const toNumber = (str) => {
+        if (str == null) return 0;
+        const s = String(str).replace(/[^0-9,\.]/g, '').replace(/\./g, '').replace(',', '.');
+        const n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
+      };
+      const d = document.getElementById('vidaAmount_display');
+      const h = document.getElementById('vidaAmount');
+      const p = document.getElementById('vidaPreview');
+      if (d && h) {
+        const sync = ()=>{
+          const n = toNumber(d.value);
+          h.value = n.toFixed(2);
+          d.value = nf.format(n);
+          if (p) p.textContent = cf.format(n);
+        };
+        d.addEventListener('input', sync);
+        d.addEventListener('blur', sync);
+        // init
+        d.value = nf.format(Number(h.value||0));
+        if (p) p.textContent = cf.format(Number(h.value||0));
+      }
+    })();
+  </script>
 </body>
 </html>

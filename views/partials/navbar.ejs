@@ -65,6 +65,13 @@
                 <% } %>
             </ul>
             <div class="d-flex align-items-center gap-3 ms-auto vs-hud">
+                <div class="nav-item d-flex align-items-center">
+                  <% const __bal = (user && typeof user.balance === 'number') ? Number(user.balance) : 0; %>
+                  <span class="badge bg-dark border" title="Saldo VIDA" style="border-color: rgba(255,255,255,0.15) !important;">
+                    <i class="bi bi-cash-coin me-1"></i>
+                    <%= __bal.toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %>
+                  </span>
+                </div>
                 <div class="vs-streak" title="Streak diário">
                     <i class="bi bi-fire"></i>
                     <span id="streak-value">0</span>

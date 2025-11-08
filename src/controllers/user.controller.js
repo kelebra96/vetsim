@@ -247,6 +247,38 @@ const toggleStatus = async (req, res) => {
   }
 };
 
+// Ajusta saldo VIDA (admin/professor): action add|remove, amount decimal >= 0
+const adjustBalance = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const action = (req.body.action || '').toString();
+    const raw = (req.body.amount || '').toString();
+    const amount = Number(parseFloat(raw.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',', '.')));
+    if (!Number.isFinite(amount) || amount < 0) {
+      req.flash('error', 'Informe um valor válido (maior ou igual a zero).');
+      return res.redirect('/users/edit/' + id);
+    }
+    const u = await User.findById(id).select('balance').lean();
+    if (!u) {
+      req.flash('error', 'Usuário não encontrado.');
+      return res.redirect('/users');
+    }
+    let next = Number(u.balance || 0);
+    if (action === 'add') next = next + amount;
+    else if (action === 'remove') next = Math.max(0, next - amount);
+    else {
+      req.flash('error', 'Ação inválida.');
+      return res.redirect('/users/edit/' + id);
+    }
+    await User.findByIdAndUpdate(id, { $set: { balance: next, updatedAt: new Date() } });
+    req.flash('success', `Saldo atualizado: ${next.toLocaleString('pt-BR', { style:'currency', currency:'BRL' })}`);
+    res.redirect('/users/edit/' + id);
+  } catch (err) {
+    req.flash('error', 'Erro ao ajustar saldo.');
+    res.redirect('/users');
+  }
+};
+
 // Reset user password (admin/teacher)
 const resetPassword = async (req, res) => {
   try {
@@ -289,7 +321,7 @@ const bulkStatus = async (req, res) => {
   }
 };
 
-export default { register, loginPost, login, create, findAll, findById, update, importForm, importCsv, listView, editView, adminUpdate, toggleStatus, resetPassword, bulkStatus, profileView, profileUpdate };
+export default { register, loginPost, login, create, findAll, findById, update, importForm, importCsv, listView, editView, adminUpdate, toggleStatus, resetPassword, bulkStatus, adjustBalance, profileView, profileUpdate };
 
 // New: import students from CSV/XLSX (teacher/admin)
 export async function importStudents(req, res) {

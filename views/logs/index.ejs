@@ -9,15 +9,24 @@
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
 </head>
-<body>
+<body class="vs-gradient">
   <%- include('../partials/navbar') %>
   <div class="container mt-4">
-    <h1 class="vs-title h3 mb-3">Logs de Ações</h1>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="vs-title h4 mb-0">Logs de Ações</h1>
+      <a class="btn btn-dark btn-sm" id="btn-export-logs" href="#"><i class="bi bi-download me-1"></i> Exportar CSV</a>
+    </div>
     <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger"><%= messages[0] %></div>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= messages[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
     <% } %>
     <% if (success && success.length>0) { %>
-      <div class="alert alert-success"><%= success[0] %></div>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= success[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
     <% } %>
 
     <form class="row g-3 mb-3" method="GET" action="/logs" id="filter-form">
@@ -31,7 +40,12 @@
       </div>
       <div class="col-12 col-md-3">
         <label class="form-label">E-mail do usuário</label>
-        <input type="email" class="form-control" name="email" placeholder="usuario@dominio" value="<%= filters.email %>">
+        <input list="emailsList" type="email" class="form-control" name="email" placeholder="usuario@dominio" value="<%= filters.email %>">
+        <datalist id="emailsList">
+          <% (emailSuggestions || []).forEach(e => { %>
+            <option value="<%= e %>"></option>
+          <% }) %>
+        </datalist>
       </div>
       <div class="col-12 col-md-3">
         <label class="form-label">Ação</label>
@@ -48,8 +62,9 @@
       </div>
     </form>
 
-    <div class="table-responsive">
-      <table class="table table-dark table-striped align-middle">
+    <div class="vs-card p-0">
+      <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle mb-0">
         <thead>
           <tr>
             <th>
@@ -115,18 +130,29 @@
                 <% } %>
               </td>
               <td>
-                <% if (l.action==='bulk_close') { %>Fechar rounds (lote)<% } %>
-                <% if (l.action==='bulk_reopen') { %>Reabrir rounds (lote)<% } %>
-                <% if (l.action==='bulk_delete') { %>Excluir rounds (lote)<% } %>
+                <% if (l.action==='bulk_close') { %><span class="badge text-bg-danger">Fechar rounds (lote)</span><% } %>
+                <% if (l.action==='bulk_reopen') { %><span class="badge text-bg-warning text-dark">Reabrir rounds (lote)</span><% } %>
+                <% if (l.action==='bulk_delete') { %><span class="badge text-bg-secondary">Excluir rounds (lote)</span><% } %>
               </td>
               <td><%= l.semester %></td>
               <td><%= typeof l.numberRound === 'number' ? l.numberRound : 'Todos' %></td>
-              <td><%= l.statusFilter || 'Todos' %></td>
+              <td>
+                <% if (!l.statusFilter || l.statusFilter==='') { %>
+                  <span class="badge text-bg-light text-dark">Todos</span>
+                <% } else if (l.statusFilter==='active') { %>
+                  <span class="badge text-bg-success">Ativos</span>
+                <% } else if (l.statusFilter==='closed') { %>
+                  <span class="badge text-bg-warning text-dark">Fechados</span>
+                <% } else { %>
+                  <span class="badge text-bg-light text-dark"><%= l.statusFilter %></span>
+                <% } %>
+              </td>
               <td><span class="badge text-bg-info"><%= l.affectedCount %></span></td>
             </tr>
           <% }) %>
         </tbody>
       </table>
+      </div>
     </div>
     <% if (pagination && pagination.pages > 1) { %>
       <nav class="mt-3" aria-label="Paginação">
@@ -145,9 +171,9 @@
   <script>
     (function(){
       const form = document.getElementById('filter-form');
-      const btn = document.getElementById('btn-export-logs');
+      const btnTop = document.getElementById('btn-export-logs');
       function updateHref(){
-        if (!form || !btn) return;
+        if (!form) return;
         const start = form.querySelector('input[name="start"]').value;
         const end = form.querySelector('input[name="end"]').value;
         const email = form.querySelector('input[name="email"]').value;
@@ -155,10 +181,13 @@
         const sortKey = '<%= sort ? sort.key : '' %>';
         const sortDir = '<%= sort ? sort.dir : '' %>';
         const q = new URLSearchParams({ start, end, email, action, sort: sortKey, dir: sortDir }).toString();
-        btn.href = '/logs/export?' + q;
+        if (btnTop) btnTop.href = '/logs/export?' + q;
       }
       form && form.addEventListener('change', updateHref);
       updateHref();
+      document.querySelectorAll('.alert').forEach(function(el){
+        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+      });
     })();
   </script>
 </body>

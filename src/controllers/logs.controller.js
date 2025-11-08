@@ -67,6 +67,12 @@ const list = async (req, res) => {
       .populate({ path: "user", select: "email name" })
       .lean();
 
+    // Email suggestions (up to 500)
+    let emailSuggestions = [];
+    try {
+      emailSuggestions = (await User.find({}).select("email -_id").limit(500).lean()).map(u => u.email).filter(Boolean);
+    } catch(_e) {}
+
     res.render("logs/index", {
       logs,
       pagination: { page, limit, total, pages },
@@ -77,6 +83,7 @@ const list = async (req, res) => {
         action: action || "",
       },
       sort: { key: sortInfo.key, dir: sortInfo.dir === 1 ? "asc" : "desc" },
+      emailSuggestions,
       messages: req.flash("error"),
       success: req.flash("success"),
     });
