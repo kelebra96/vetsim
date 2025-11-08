@@ -166,7 +166,7 @@ const listView = async (req, res) => {
 
 const profileView = async (req, res) => {
   try {
-    const u = await User.findById(req.user.id).select("name email avatarUrl type code semester").lean();
+    const u = await User.findById(req.user.id).select("name email avatarUrl type code semester balance").lean();
     res.render("user/profile", { userDoc: u, messages: req.flash("error"), success: req.flash("success") });
   } catch (err) {
     req.flash("error", "Erro ao carregar perfil.");

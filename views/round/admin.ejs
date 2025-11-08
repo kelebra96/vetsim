@@ -59,6 +59,7 @@
         <a class="btn btn-dark w-100" id="btn-export" href="#"><i class="bi bi-download me-1"></i> Exportar CSV</a>
       </div>
     </form>
+    <div id="live-count" class="text-white-50 small mt-2"></div>
       </div>
     </div>
     <div class="card vs-card mb-3">
@@ -280,6 +281,28 @@
       }
       form && form.addEventListener('change', updateExportHref);
       updateExportHref();
+      async function updateLiveCount(){
+        if (!form) return;
+        const sem = form.querySelector('select[name="semester"]').value;
+        const nr = form.querySelector('select[name="numberRound"]').value;
+        const st = form.querySelector('select[name="status"]').value;
+        const el = document.getElementById('live-count');
+        if (!sem) { if (el) el.textContent=''; return; }
+        try {
+          async function fetchCount(s){
+            const q = new URLSearchParams({ semester: sem, numberRound: nr, status: s }).toString();
+            const r = await fetch('/roundsadmin/count?' + q);
+            const d = r.ok ? await r.json() : { count: 0 };
+            return Number(d.count || 0);
+          }
+          const [all, act, clo] = await Promise.all([
+            fetchCount(''), fetchCount('active'), fetchCount('closed')
+          ]);
+          if (el) el.textContent = `Prévia: Total ${all} | Ativos ${act} | Fechados ${clo}`;
+        } catch(_e){ if (el) el.textContent = 'Não foi possível obter a prévia agora.'; }
+      }
+      form && form.addEventListener('change', updateLiveCount);
+      updateLiveCount();
       // Sync hidden fields for close form
       const closeSem = document.getElementById('close-semester');
       const closeNr = document.getElementById('close-numberRound');

@@ -9,7 +9,7 @@
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
 </head>
-<body>
+<body class="vs-gradient">
   <%- include('../partials/navbar') %>
   <div class="container mt-4">
     <h1 class="vs-title h3 mb-3">Configurar Custos</h1>
@@ -22,23 +22,38 @@
 
     <div class="card vs-card">
       <div class="card-body">
-        <form action="/settings/costs" method="POST">
+        <form action="/settings/costs" method="POST" novalidate>
           <div class="row g-3">
             <div class="col-12 col-md-4">
-              <label class="form-label">Criação de Abrigo (R$)</label>
-              <input type="number" name="shelterCost" class="form-control" min="0" step="0.01" required value="<%= (costs && costs.shelterCost) || 0 %>">
+              <label class="form-label">Criação de Abrigo</label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" id="shelterCost_display" class="form-control js-brl" inputmode="decimal" autocomplete="off">
+              </div>
+              <input type="hidden" name="shelterCost" id="shelterCost" value="<%= (costs && costs.shelterCost) || 0 %>">
+              <div class="form-text text-white-50" id="shelterPreview"></div>
             </div>
             <div class="col-12 col-md-4">
-              <label class="form-label">Castrar Macho (R$)</label>
-              <input type="number" name="maleNeuterCost" class="form-control" min="0" step="0.01" required value="<%= (costs && costs.maleNeuterCost) || 0 %>">
+              <label class="form-label">Castrar Macho</label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" id="maleNeuterCost_display" class="form-control js-brl" inputmode="decimal" autocomplete="off">
+              </div>
+              <input type="hidden" name="maleNeuterCost" id="maleNeuterCost" value="<%= (costs && costs.maleNeuterCost) || 0 %>">
+              <div class="form-text text-white-50" id="malePreview"></div>
             </div>
             <div class="col-12 col-md-4">
-              <label class="form-label">Castrar Fêmea (R$)</label>
-              <input type="number" name="femaleNeuterCost" class="form-control" min="0" step="0.01" required value="<%= (costs && costs.femaleNeuterCost) || 0 %>">
+              <label class="form-label">Castrar Fêmea</label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" id="femaleNeuterCost_display" class="form-control js-brl" inputmode="decimal" autocomplete="off">
+              </div>
+              <input type="hidden" name="femaleNeuterCost" id="femaleNeuterCost" value="<%= (costs && costs.femaleNeuterCost) || 0 %>">
+              <div class="form-text text-white-50" id="femalePreview"></div>
             </div>
             <div class="col-12 col-md-4">
               <label class="form-label">Limite de aviso (registros)</label>
-              <input type="number" name="highVolumeThreshold" class="form-control" min="0" step="1" required value="<%= (costs && costs.highVolumeThreshold) || 200 %>">
+              <input type="number" name="highVolumeThreshold" id="highVolumeThreshold" class="form-control" min="0" step="1" required value="<%= (costs && costs.highVolumeThreshold) || 200 %>">
               <div class="form-text">Exibe alerta na criação de rounds quando a previsão ultrapassar este limite.</div>
             </div>
           </div>
@@ -50,5 +65,45 @@
     </div>
   </div>
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      // Auto-dismiss alerts
+      document.querySelectorAll('.alert').forEach(function(el){
+        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+      });
+      // BRL format helpers
+      const nf = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const cf = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+      const toNumber = (str) => {
+        if (str == null) return 0;
+        const s = String(str).replace(/[^0-9,\.]/g, '').replace(/\./g, '').replace(',', '.');
+        const n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
+      };
+      function initCurrency(idHidden, idDisplay, idPreview){
+        const h = document.getElementById(idHidden);
+        const d = document.getElementById(idDisplay);
+        const p = idPreview ? document.getElementById(idPreview) : null;
+        if (!h || !d) return;
+        const syncFromHidden = () => {
+          const n = toNumber(h.value || 0);
+          d.value = nf.format(n);
+          if (p) p.textContent = cf.format(n);
+        };
+        const syncFromDisplay = () => {
+          const n = toNumber(d.value);
+          h.value = n.toFixed(2);
+          d.value = nf.format(n);
+          if (p) p.textContent = cf.format(n);
+        };
+        d.addEventListener('input', syncFromDisplay);
+        d.addEventListener('blur', syncFromDisplay);
+        syncFromHidden();
+      }
+      initCurrency('shelterCost','shelterCost_display','shelterPreview');
+      initCurrency('maleNeuterCost','maleNeuterCost_display','malePreview');
+      initCurrency('femaleNeuterCost','femaleNeuterCost_display','femalePreview');
+    })();
+  </script>
 </body>
 </html>

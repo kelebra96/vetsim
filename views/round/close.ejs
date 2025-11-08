@@ -1,58 +1,134 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-    <title>VetSim</title>
-    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/index.css">
-    <link rel="stylesheet" href="/css/theme.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>Fechar Round - VetSim</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
 </head>
-
 <body class="vs-gradient">
-<%- include('../partials/navbar') %>
-
-    <div class="container mt-5">
-        <h1>Fechar Round</h1>
-
-        <% if (messages && messages.length> 0) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <%= messages[0] %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-            </div>
-        <% } %>
-        <% if (success && success.length> 0) { %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <%= success[0] %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-            </div>
-        <% } %>
-
-        <form action="/roundclose" method="POST">
-            <div class="mb-3">
-                <label>Número do Round</label>
-                <input type="number" class="form-control" name="numberRound" required>
-            </div>
-            <div class="mb-3">
-                <label>Semestre</label>
-                <input type="number" class="form-control" name="semester" min="1" max="8" value="<%= (user && user.semester) ? user.semester : ' %>" required>
-            </div>
-            <button class="btn btn-danger">Fechar Round e Gerar Gráficos</button>
-        </form>
+  <%- include('../partials/navbar') %>
+  <div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="vs-title h4 mb-0">Fechar Round</h1>
+      <a class="btn btn-outline-light btn-sm" href="/roundsadmin"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
     </div>
-    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/gamification.js"></script>
-    <script>
-      (function(){
-        document.querySelectorAll('.alert').forEach(function(el){
-          setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
-        });
-      })();
-    </script>
-    
-    </body>
-    
-    </html>
+
+    <% if (messages && messages.length> 0) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= messages[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+    <% } %>
+    <% if (success && success.length> 0) { %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= success[0] %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+    <% } %>
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10 col-xxl-8">
+        <div class="card vs-card mb-3">
+          <div class="card-body">
+            <form id="closeRoundForm" action="/roundclose" method="POST" novalidate>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Número do Round (1 a 4)</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                    <input type="number" class="form-control" name="numberRound" min="1" max="4" required>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Semestre (1 a 8)</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
+                    <input type="number" class="form-control" name="semester" min="1" max="8" value="<%= (user && user.semester) ? user.semester : '' %>" required>
+                  </div>
+                  <% if (user && user.semester) { %>
+                    <div class="form-text">Seu semestre: <span class="badge text-bg-info"><%= user.semester %></span></div>
+                  <% } %>
+                </div>
+                <div class="col-12">
+                  <div class="alert alert-info mb-0">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-info-circle"></i>
+                      <div class="small">
+                        O fechamento gera estatísticas e gráficos do round selecionado. Caso as dependências de gráficos não estejam disponíveis, os gráficos podem não ser exibidos.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div id="precheck-alert" class="alert alert-warning d-none" role="alert"></div>
+                  <button id="btnClose" class="btn btn-danger shadow"><i class="bi bi-check2-circle me-1"></i>Fechar Round e Gerar Gráficos</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      document.querySelectorAll('.alert').forEach(function(el){
+        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+      });
+    })();
+  </script>
+  <script>
+    // Pré-validação: verifica existência de registros antes de enviar
+    (function () {
+      const form = document.getElementById('closeRoundForm');
+      const btn = document.getElementById('btnClose');
+      const alertBox = document.getElementById('precheck-alert');
+      if (!form || !btn) return;
+      form.addEventListener('submit', async function (ev) {
+        try {
+          ev.preventDefault();
+          alertBox && alertBox.classList.add('d-none');
+          const sem = Number(form.elements['semester'].value || '');
+          const nr = Number(form.elements['numberRound'].value || '');
+          if (!Number.isFinite(sem) || sem < 1 || sem > 8 || !Number.isFinite(nr) || nr < 1 || nr > 4) {
+            if (alertBox) { alertBox.textContent = 'Informe semestre (1–8) e número do round (1–4).'; alertBox.classList.remove('d-none'); }
+            return;
+          }
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Validando...';
+          const r = await fetch(`/roundslist?semester=${encodeURIComponent(sem)}`);
+          if (!r.ok) throw new Error('Falha ao consultar rounds');
+          const data = await r.json();
+          const list = Array.isArray(data.list) ? data.list : [];
+          const found = list.find(it => Number(it.numberRound) === nr);
+          const count = found ? Number(found.count || 0) : 0;
+          if (count <= 0) {
+            if (alertBox) {
+              alertBox.innerHTML = `Nenhum registro encontrado para Semestre <strong>${sem}</strong> e Round <strong>${nr}</strong>.`;
+              alertBox.classList.remove('d-none');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Fechar Round e Gerar Gráficos';
+            return;
+          }
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Fechando...';
+          form.submit();
+        } catch (e) {
+          if (alertBox) {
+            alertBox.textContent = 'Não foi possível validar os dados. Tente novamente.';
+            alertBox.classList.remove('d-none');
+          }
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Fechar Round e Gerar Gráficos';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+

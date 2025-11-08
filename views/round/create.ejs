@@ -60,7 +60,7 @@
                       <option value="2">2</option>
                       <option value="3">3</option>
                       <option value="4">4</option>
-                    </select>
+                    </select>`n                    <div id="selected-round-info" class="form-text"></div>
                   </div>
 
                   <div class="col-12">
@@ -116,6 +116,7 @@
       const $sem = document.getElementById('semester');
       const $num = document.getElementById('number');
       const $hint = document.getElementById('hint-existing');
+      const $selInfo = document.getElementById('selected-round-info');
 
       async function refreshExisting(){
         const v = Number($sem.value);
@@ -157,6 +158,20 @@
       }
       $sem && $sem.addEventListener('change', refreshExisting);
       if ($sem && $sem.value) refreshExisting();
+
+      async function refreshSelectedRoundInfo(){
+        const v = Number($sem.value);
+        const sel = Number($num.value || '');
+        if (!v || v < 1 || v > 8 || !sel) { if ($selInfo) $selInfo.textContent=''; return; }
+        try {
+          const r = await fetch(`/roundslist?semester=${encodeURIComponent(v)}`);
+          const data = r.ok ? await r.json() : { list: [] };
+          const list = Array.isArray(data.list) ? data.list : [];
+          const row = list.find(it => Number(it.numberRound) === sel);
+          const count = row ? Number(row.count || 0) : 0;
+          if ($selInfo) $selInfo.textContent = count > 0 ? `Já existem ${count} registros para este round.` : 'Nenhum registro para este round ainda.';
+        } catch(_e){ if ($selInfo) $selInfo.textContent=''; }
+      }
 
       async function refreshList(){
         const v = Number($sem.value);
@@ -250,8 +265,9 @@
         }
       }
 
-      $sem && $sem.addEventListener('change', function(){ refreshExisting(); refreshList(); refreshActiveUsers(); });
-      if ($sem && $sem.value) { refreshList(); refreshActiveUsers(); }
+      $sem && $sem.addEventListener('change', function(){ refreshExisting(); refreshList(); refreshActiveUsers(); refreshSelectedRoundInfo(); });
+      $num && $num.addEventListener('change', refreshSelectedRoundInfo);
+      if ($sem && $sem.value) { refreshList(); refreshActiveUsers(); refreshSelectedRoundInfo(); }
     })();
   </script>
 
