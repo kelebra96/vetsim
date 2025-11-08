@@ -20,6 +20,8 @@ const UserSchema = new mongoose.Schema({
     type: [Number],
     default: () => [0,0,0,0,0,0,0,0],
   },
+  streakCount: { type: Number, default: 0, min: 0 },
+  streakLast: { type: Date, default: null },
   balance: { type: Number, default: 50000 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

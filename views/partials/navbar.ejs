@@ -72,9 +72,9 @@
                     <%= __bal.toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %>
                   </span>
                 </div>
-                <div class="vs-streak" title="Streak diário">
-                    <i class="bi bi-fire"></i>
-                    <span id="streak-value">0</span>
+                <div class="vs-streak" title="Sequência diária">
+                    <i class="bi bi-fire" aria-hidden="true"></i>
+                    <span id="streak-value" aria-live="polite">0</span>
                 </div>
                 <div class="d-flex flex-column">
                     <span class="vs-level">Nível <span id="level-value" data-lock="true"><%= (user && typeof user.level === 'number') ? user.level : 1 %></span></span>
@@ -111,4 +111,5 @@
  <script>
    // Expor XP real do servidor para sincronizar localStorage entre abas
    window.__serverXP = <%= (user && typeof user.points === 'number') ? Number(user.points) : 0 %>;
+   window.__serverStreak = <%= (user && typeof user.streakCount === 'number') ? Number(user.streakCount) : 0 %>;
  </script>

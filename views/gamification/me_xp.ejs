@@ -40,12 +40,7 @@
       </div>
     </div>
 
-    <div class="row g-3 mb-4">
-      <div class="col-12 col-md-4">
-        <div class="vs-card p-3 d-flex align-items-center justify-content-between">
-          <div class="text-white-50 small">XP Total</div>
-          <div class="fs-5"><strong><%= summary.points %></strong></div>
-        </div>
+    <div class="row g-3 mb-4"><div class="col-6 col-md-3"><div class="vs-card p-3 d-flex align-items-center justify-content-between"><div class="text-white-50 small">XP Total</div><div class="fs-5"><strong><%= summary.points %></strong></div></div></div><div class="col-6 col-md-3"><div class="vs-card p-3 d-flex align-items-center justify-content-between"><div class="text-white-50 small">Nível</div><div class="fs-5"><strong><%= summary.level %></strong></div></div></div><div class="col-6 col-md-3"><div class="vs-card p-3 d-flex align-items-center justify-content-between"><div class="text-white-50 small">Para o próximo nível</div><div class="fs-5"><strong><%= 100 - (summary.inLevel % 100) %> XP</strong></div></div></div><div class="col-6 col-md-3"><div class="vs-card p-3 d-flex align-items-center justify-content-between"><div class="text-white-50 small d-flex align-items-center gap-2"><i class="bi bi-fire text-warning"></i> Sequência diária</div><div class="fs-5"><strong><%= Number(summary.streak || 0) %> dias</strong></div></div></div></div></div>
       </div>
       <div class="col-6 col-md-4">
         <div class="vs-card p-3 d-flex align-items-center justify-content-between">
