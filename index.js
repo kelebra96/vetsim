@@ -37,7 +37,9 @@ app.use(async (req, res, next) => {
       );
       // Traz nome e avatar do usuário para exibir no navbar
       try {
-        const u = await User.findById(decoded.id).select("name avatarUrl type code points level semester xpBySemester").lean();
+        const u = await User.findById(decoded.id)
+          .select("name avatarUrl type code points level semester xpBySemester balance streakCount")
+          .lean();
         if (u) {
           let pts = Number(u.points || 0);
           let sem = Number(u.semester || 1);
@@ -50,17 +52,19 @@ app.use(async (req, res, next) => {
           if (sumSem > 0 || pts === 0) pts = sumSem;
           // Nível sempre baseado em pontos acumulados (começa em 1)
           const lvl = Math.max(1, Math.floor(pts / 100) + 1);
-          res.locals.user = {
-            id: decoded.id,
-            code: decoded.code,
-            role: decoded.role,
-            name: u.name,
-            avatarUrl: u.avatarUrl || "",
-            points: pts,
-            level: lvl,
-            semester: sem,
-            xpBySemester,
-          };
+            res.locals.user = {
+              id: decoded.id,
+              code: decoded.code,
+              role: decoded.role,
+              name: u.name,
+              avatarUrl: u.avatarUrl || "",
+              points: pts,
+              level: lvl,
+              semester: sem,
+              xpBySemester,
+              balance: Number(u.balance || 0),
+              streakCount: Number(u.streakCount || 0),
+            };
         } else {
           res.locals.user = { id: decoded.id, code: decoded.code, role: decoded.role };
         }
