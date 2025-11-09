@@ -62,21 +62,21 @@
         <% } %>
       </ul>
 
-      <div class="vs-hud d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 w-100 ms-lg-auto mt-3 mt-lg-0">
-        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start w-100 w-lg-auto">
+      <div class="vs-hud d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 ms-lg-auto mt-3 mt-lg-0">
+        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start">
           <% const __bal = (user && typeof user.balance === "number") ? Number(user.balance) : 0; %>
-          <span class="badge bg-dark border w-100 w-lg-auto text-center" title="Saldo VIDA" style="border-color: rgba(255,255,255,0.15) !important;">
+          <span class="badge bg-dark border text-center px-3" title="Saldo VIDA" style="border-color: rgba(255,255,255,0.15) !important;">
             <i class="bi bi-cash-coin me-1"></i>
             <%= __bal.toLocaleString("pt-BR", { style:"currency", currency:"BRL" }) %>
           </span>
         </div>
 
-        <div class="vs-streak w-100 w-lg-auto justify-content-center" title="Sequência diária">
+        <div class="vs-streak justify-content-center" title="Sequência diária">
           <i class="bi bi-fire" aria-hidden="true"></i>
           <span id="streak-value" aria-live="polite">0</span>
         </div>
 
-        <div class="d-flex flex-column align-items-center align-items-lg-start text-center text-lg-start w-100 w-lg-auto">
+        <div class="d-flex flex-column align-items-center align-items-lg-start text-center text-lg-start">
           <span class="vs-level">Nível <span id="level-value" data-lock="true"><%= (user && typeof user.level === "number") ? user.level : 1 %></span></span>
           <%
             const _sem = (user && typeof user.semester === "number") ? user.semester : 1;
@@ -91,19 +91,19 @@
           <small class="text-white-50"><%= _in %>/100 XP (Semestre <%= _sem %>)</small>
         </div>
 
-        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start w-100 w-lg-auto">
+        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start">
           <a class="nav-link" href="/me/xp">
             <i class="bi bi-trophy me-1"></i> Meu XP
           </a>
         </div>
 
-        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start w-100 w-lg-auto">
+        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start">
           <a class="nav-link" href="/profile">
             <i class="bi bi-person-circle me-1"></i> Meu Perfil
           </a>
         </div>
 
-        <div class="nav-item d-flex justify-content-center justify-content-lg-start w-100 w-lg-auto">
+        <div class="nav-item d-flex justify-content-center justify-content-lg-start">
           <a class="nav-link active d-flex align-items-center" href="/logout">
             <i class="bi bi-door-open me-1"></i> Logout
           </a>
