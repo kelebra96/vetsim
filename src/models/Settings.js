@@ -9,7 +9,7 @@ const SettingsSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-SettingsSchema.index({ key: 1 }, { unique: true });
+// índice já criado pelo unique: true no campo acima
 
 const Settings = mongoose.model("Settings", SettingsSchema);
 export default Settings;
