@@ -1,5 +1,6 @@
 .rc-page {
-  max-width: 1040px;
+  width: calc(100% - 60px);
+  max-width: 1320px;
   margin: 0 auto;
   padding: 1rem 0 2rem;
 }
@@ -265,6 +266,10 @@
 }
 
 @media (max-width: 576px) {
+  .rc-page {
+    width: calc(100% - 60px);
+  }
+
   .rc-page {
     padding-top: .6rem;
   }

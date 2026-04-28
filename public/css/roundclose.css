@@ -1,5 +1,6 @@
 .rcl-page {
-  max-width: 980px;
+  width: calc(100% - 60px);
+  max-width: 1320px;
   margin: 0 auto;
   padding: 1rem 0 2rem;
 }
@@ -210,6 +211,10 @@
 }
 
 @media (max-width: 576px) {
+  .rcl-page {
+    width: calc(100% - 60px);
+  }
+
   .rcl-page {
     padding-top: .6rem;
   }

@@ -90,6 +90,51 @@ function runSimulationScript(scriptPath, args) {
   });
 }
 
+function buildCastrationTimeline(roundHistory, fallbackDateKey) {
+  const timeline = {};
+  for (const h of roundHistory) {
+    const dateBase = h.updatedAt || h.createdAt;
+    const dateKey = dateBase
+      ? new Date(dateBase).toISOString().split("T")[0]
+      : fallbackDateKey;
+
+    if (!timeline[dateKey]) timeline[dateKey] = { f: 0, m: 0 };
+    timeline[dateKey].f += Number(h.quantFemales || 0);
+    timeline[dateKey].m += Number(h.quantMales || 0);
+  }
+  return timeline;
+}
+
+function buildRoundTimeline(roundHistory) {
+  const byRound = new Map();
+  for (const row of roundHistory) {
+    const r = Number(row.numberRound);
+    if (!Number.isFinite(r)) continue;
+    byRound.set(r, row);
+  }
+
+  const timeline = [];
+  for (let r = 1; r <= 4; r += 1) {
+    const row = byRound.get(r);
+    if (!row) {
+      timeline.push({ round: r, exists: false });
+      continue;
+    }
+    timeline.push({
+      round: r,
+      exists: true,
+      males: Number(row.quantMales || 0),
+      females: Number(row.quantFemales || 0),
+      total: Number(row.quantMales || 0) + Number(row.quantFemales || 0),
+      shelter: Number(row.shelter || 0),
+      status: row.status === false ? "closed" : "active",
+      updatedAt: row.updatedAt || row.createdAt || null,
+    });
+  }
+
+  return timeline;
+}
+
 // --- Controllers ---
 
 const createRound = async (req, res) => {
@@ -209,19 +254,31 @@ const update = async (req, res) => {
 
 const closeRound = async (req, res) => {
   const { semester, numberRound } = req.body;
+  const sem = Number(semester);
+  const nr = Number(numberRound);
 
-  if (!semester || !numberRound) {
+  if (!Number.isFinite(sem) || !Number.isFinite(nr) || sem < 1 || sem > 8 || nr < 1 || nr > 4) {
     req.flash("error", "Campos 'semester' e 'numberRound' são obrigatórios.");
     return res.redirect("/roundclose");
   }
 
   try {
-    await roundService.closeRoundForSemester(semester, numberRound);
+    await roundService.closeRoundForSemester(sem, nr);
 
-    const rounds = await roundService.findBySemesterAndNumber(
-      Number(semester),
-      Number(numberRound)
-    );
+    const rounds = await roundService.findBySemesterAndNumber(sem, nr);
+    const codes = rounds.map((r) => String(r.codeUser));
+    const historyRows = await Round.find({
+      semester: sem,
+      codeUser: { $in: codes },
+      numberRound: { $gte: 1, $lte: 4 },
+    }).sort({ codeUser: 1, numberRound: 1, updatedAt: 1 }).lean();
+
+    const historyByCode = new Map();
+    for (const row of historyRows) {
+      const key = String(row.codeUser);
+      if (!historyByCode.has(key)) historyByCode.set(key, []);
+      historyByCode.get(key).push(row);
+    }
 
     const results = [];
     let pythonFailed = false;
@@ -232,7 +289,9 @@ const closeRound = async (req, res) => {
       rounds.map(
         (round) =>
           new Promise((resolve) => {
-            const dados = { [today]: { f: round.quantFemales, m: round.quantMales } };
+            const userHistoryAll = historyByCode.get(String(round.codeUser)) || [round];
+            const userHistorySim = userHistoryAll.filter((h) => Number(h.numberRound) <= nr);
+            const dados = buildCastrationTimeline(userHistorySim, today);
             const args = ["--quant", "4", "--dataini", "2024-07-01", "--dados", JSON.stringify(dados)];
             runSimulationScript(scriptPath, args)
               .then((stdout) => {
@@ -245,11 +304,25 @@ const closeRound = async (req, res) => {
                   pythonFailed = true;
                   return;
                 }
+                const prev = userHistoryAll.find((h) => Number(h.numberRound) === nr - 1);
+                const curTotal = Number(round.quantMales || 0) + Number(round.quantFemales || 0);
+                const prevTotal = prev
+                  ? Number(prev.quantMales || 0) + Number(prev.quantFemales || 0)
+                  : 0;
+
                 results.push({
                   codeUser: round.codeUser,
                   nameusr: round.nameusr || "Desconhecido",
-                  numberRound,
-                  semester,
+                  numberRound: round.numberRound,
+                  semester: round.semester,
+                  compare: {
+                    hasPrevious: Boolean(prev),
+                    prevRound: prev ? prev.numberRound : null,
+                    deltaMales: Number(round.quantMales || 0) - Number(prev?.quantMales || 0),
+                    deltaFemales: Number(round.quantFemales || 0) - Number(prev?.quantFemales || 0),
+                    deltaTotal: curTotal - prevTotal,
+                  },
+                  timeline: buildRoundTimeline(userHistoryAll),
                   data: parsed,
                 });
               })
@@ -274,7 +347,7 @@ const closeRound = async (req, res) => {
       try { await awardPoints(req.user.id, 30, "close_round"); } catch (_e) {}
     }
 
-    res.render("round/graph", { results, numberRound, semester, warning });
+    res.render("round/graph", { results, numberRound: nr, semester: sem, warning });
   } catch (error) {
     console.error("Erro ao fechar round:", error);
     req.flash("error", "Erro ao fechar o round.");

@@ -264,7 +264,7 @@ const adjustBalance = async (req, res) => {
       req.flash('error', 'Usuário não encontrado.');
       return res.redirect('/users');
     }
-    let next = Number(u.balance || 0);
+    let next = Number.isFinite(Number(u.balance)) ? Number(u.balance) : 50000;
     if (action === 'add') next = next + amount;
     else if (action === 'remove') next = Math.max(0, next - amount);
     else {

@@ -242,6 +242,22 @@ body.vs-gradient {
   display: flex;
   align-items: center;
   gap: .45rem;
+  margin-right: auto;
+}
+.vs-fullscreen-toggle {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.vs-fullscreen-toggle:hover {
+  background: rgba(255,255,255,0.08);
+  color: #ffffff;
 }
 
 /* Overlay mobile */
@@ -265,6 +281,16 @@ body.vs-gradient {
   .vs-main {
     margin-left: 0;
     padding-top: calc(52px + 1.25rem);
+  }
+
+  /* Fallback de "tela cheia" no mobile quando a API real é bloqueada */
+  body.vs-force-fullscreen .vs-topbar {
+    position: sticky;
+    top: 0;
+  }
+  body.vs-force-fullscreen .vs-main {
+    padding-top: .9rem;
+    padding-bottom: .9rem;
   }
 }
 
@@ -304,6 +330,25 @@ body.vs-gradient {
   color: var(--vs-text-inverse);
   filter: brightness(1.05);
   border-color: rgba(255,255,255,0.25);
+}
+
+/* Base global de campos: evita texto colado nas bordas */
+input.form-control,
+select.form-select,
+textarea.form-control {
+  padding-left: .9rem;
+  padding-right: .9rem;
+}
+
+input.form-control,
+select.form-select {
+  min-height: 42px;
+}
+
+textarea.form-control {
+  min-height: 110px;
+  padding-top: .65rem;
+  padding-bottom: .65rem;
 }
 
 /* Cards glass */

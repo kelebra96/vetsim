@@ -1,5 +1,6 @@
 .sc-page {
-  max-width: 1120px;
+  width: calc(100% - 60px);
+  max-width: 1320px;
   margin: 0 auto;
   padding: 1rem 0 2rem;
 }
@@ -176,6 +177,10 @@
 }
 
 @media (max-width: 576px) {
+  .sc-page {
+    width: calc(100% - 60px);
+  }
+
   .sc-page {
     padding-top: .6rem;
   }

@@ -85,7 +85,7 @@
               <div class="col-12">
                 <div class="ue-balance">
                   <span>Saldo VIDA atual</span>
-                  <strong><%= Number(u.balance || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></strong>
+                  <strong><%= (Number.isFinite(Number(u.balance)) ? Number(u.balance) : 50000).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></strong>
                 </div>
               </div>
 
@@ -172,7 +172,7 @@
               <input type="hidden" name="amount" id="vidaAmount" value="0">
               <div class="form-text text-white-50" id="vidaPreview"></div>
             </div>
-            <small class="text-white-50">Saldo atual: <strong><%= Number(u.balance || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></strong></small>
+            <small class="text-white-50">Saldo atual: <strong><%= (Number.isFinite(Number(u.balance)) ? Number(u.balance) : 50000).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></strong></small>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

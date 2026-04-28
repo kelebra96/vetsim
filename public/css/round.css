@@ -1,4 +1,9 @@
 /* ── Rounds — estilos exclusivos de /rounds ── */
+.round-shell {
+  width: calc(100% - 60px);
+  max-width: 1320px;
+  margin: 0 auto;
+}
 
 /* Header da página */
 .rnd-header {
@@ -240,3 +245,7 @@
   color: rgba(255,255,255,0.55);
 }
 .rnd-chip strong { color: rgba(255,255,255,0.85); }
+
+@media (max-width: 768px) {
+  .round-shell { width: calc(100% - 60px); }
+}

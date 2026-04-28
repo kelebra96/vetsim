@@ -1,4 +1,9 @@
 /* ── Meu XP — estilos exclusivos de /me/xp ── */
+.xp-shell {
+  width: calc(100% - 60px);
+  max-width: 1320px;
+  margin: 0 auto;
+}
 
 /* Hero */
 .xp-hero {
@@ -207,6 +212,14 @@
   color: rgba(255,255,255,0.35);
   margin-top: .1rem;
 }
+.xp-panel-math {
+  margin-top: .45rem;
+  font-size: .72rem;
+  color: rgba(255,255,255,0.45);
+}
+.xp-panel-math strong {
+  color: rgba(255,255,255,0.82);
+}
 
 /* Botão de exportar */
 .btn-xp-export {
@@ -294,4 +307,57 @@
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
   margin-bottom: .85rem;
+}
+
+@media (max-width: 768px) {
+  .xp-shell { width: calc(100% - 40px); }
+  .xp-hero {
+    padding: 1.25rem 1rem 1.1rem;
+  }
+  .xp-bar-label {
+    flex-direction: column;
+    gap: .2rem;
+    align-items: flex-start;
+  }
+  .xp-panel-header {
+    padding: .9rem 1rem;
+  }
+  .xp-panel-math {
+    line-height: 1.45;
+  }
+  .btn-xp-export {
+    width: 100%;
+    justify-content: center;
+  }
+  .xp-event-row {
+    padding: .68rem 1rem;
+    flex-wrap: wrap;
+    gap: .55rem;
+  }
+  .xp-event-amount {
+    margin-left: 2.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .xp-shell { width: calc(100% - 24px); }
+  .xp-stats-row > [class*="col-6"] {
+    width: 100%;
+    flex: 0 0 100%;
+  }
+  .xp-stat {
+    padding: .9rem 1rem;
+  }
+  .xp-stat-val {
+    font-size: 1rem;
+  }
+  .xp-sem-grid {
+    grid-template-columns: 1fr;
+  }
+  .xp-sem-label .cur-tag {
+    font-size: .58rem;
+  }
+  .xp-event-amount {
+    margin-left: 0;
+  }
 }

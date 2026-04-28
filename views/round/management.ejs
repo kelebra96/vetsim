@@ -31,7 +31,7 @@
       const isOpen    = _round ? _round.status !== false : false;
     %>
 
-    <div style="max-width: 860px; margin: 0 auto;">
+    <div class="round-shell">
 
       <!-- ── Header ── -->
       <div class="rnd-header">
@@ -213,11 +213,59 @@
 
       <% } else { %>
 
-      <!-- ── Estado vazio ── -->
-      <div class="rnd-empty">
-        <div class="rnd-empty-icon"><i class="bi bi-hourglass-split"></i></div>
-        <h2 class="rnd-empty-title">Nenhum round disponível</h2>
-        <p class="rnd-empty-desc">Aguarde seu professor liberar o próximo round para o seu semestre.</p>
+      <!-- ── Estado vazio + custos visíveis ── -->
+      <div class="row g-4">
+        <div class="col-12 col-lg-7">
+          <div class="rnd-empty">
+            <div class="rnd-empty-icon"><i class="bi bi-hourglass-split"></i></div>
+            <h2 class="rnd-empty-title">Nenhum round disponível</h2>
+            <p class="rnd-empty-desc">Aguarde seu professor liberar o próximo round para o seu semestre.</p>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="rnd-cost-panel mb-3">
+            <div class="rnd-cost-panel-title"><i class="bi bi-receipt me-1"></i> Resumo de Custos</div>
+
+            <div class="rnd-cost-row">
+              <span class="rnd-cost-row-label"><i class="bi bi-gender-male"></i> Castração de machos</span>
+              <span class="rnd-cost-row-val"><%= (0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+
+            <div class="rnd-cost-row">
+              <span class="rnd-cost-row-label"><i class="bi bi-gender-female"></i> Castração de fêmeas</span>
+              <span class="rnd-cost-row-val"><%= (0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+
+            <div class="rnd-cost-row">
+              <span class="rnd-cost-row-label"><i class="bi bi-house-heart"></i> Abrigo</span>
+              <span class="rnd-cost-row-val"><%= (0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+
+            <div class="rnd-cost-row total">
+              <span class="rnd-cost-row-label"><i class="bi bi-sigma"></i> Total deste round</span>
+              <span class="rnd-cost-row-val"><%= (0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+          </div>
+
+          <div class="rnd-balance-panel">
+            <p style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:.65rem;">Tabela de Preços</p>
+
+            <div class="rnd-balance-row">
+              <span class="rnd-balance-label"><i class="bi bi-house-heart"></i> Abrigo / animal</span>
+              <span class="rnd-balance-val"><%= shelterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+            <hr class="rnd-balance-divider">
+            <div class="rnd-balance-row">
+              <span class="rnd-balance-label"><i class="bi bi-gender-male"></i> Castração macho</span>
+              <span class="rnd-balance-val"><%= maleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+            <hr class="rnd-balance-divider">
+            <div class="rnd-balance-row">
+              <span class="rnd-balance-label"><i class="bi bi-gender-female"></i> Castração fêmea</span>
+              <span class="rnd-balance-val"><%= femaleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <% } %>

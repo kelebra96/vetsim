@@ -64,9 +64,14 @@
                   <strong id="peakPop<%= i %>">-</strong>
                 </div>
                 <div class="rg-metric">
-                  <span>Variação</span>
+                  <span id="deltaLabel<%= i %>">Variação</span>
                   <strong id="deltaPop<%= i %>">-</strong>
                 </div>
+              </div>
+
+              <div class="rg-timeline-wrap">
+                <h3 class="rg-timeline-title">Linha do tempo dos rounds</h3>
+                <div class="rg-timeline" id="timeline<%= i %>"></div>
               </div>
 
               <div class="rg-charts">
@@ -147,6 +152,44 @@
         if (cls) el.classList.add(cls);
       }
 
+      function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      }
+
+      function renderTimeline(id, timeline, currentRound) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rows = Array.isArray(timeline) ? timeline : [];
+        if (rows.length === 0) {
+          el.innerHTML = '<div class="rg-tl-empty">Sem histórico de rounds.</div>';
+          return;
+        }
+
+        el.innerHTML = rows.map(function (item) {
+          const cls = [
+            'rg-tl-item',
+            item.exists ? 'exists' : 'missing',
+            Number(item.round) === Number(currentRound) ? 'current' : ''
+          ].join(' ').trim();
+
+          if (!item.exists) {
+            return '<div class="' + cls + '">' +
+              '<div class="rg-tl-round">Round ' + item.round + '</div>' +
+              '<div class="rg-tl-main">—</div>' +
+              '<div class="rg-tl-sub">Sem dados</div>' +
+            '</div>';
+          }
+
+          const statusLabel = item.status === 'closed' ? 'Fechado' : 'Ativo';
+          return '<div class="' + cls + '">' +
+            '<div class="rg-tl-round">Round ' + item.round + '</div>' +
+            '<div class="rg-tl-main">' + numberFmt.format(Number(item.total || 0)) + '</div>' +
+            '<div class="rg-tl-sub">' + statusLabel + ' • M ' + numberFmt.format(Number(item.males || 0)) + ' / F ' + numberFmt.format(Number(item.females || 0)) + '</div>' +
+          '</div>';
+        }).join('');
+      }
+
       function addDays(isoDate, days) {
         const d = new Date(isoDate + 'T00:00:00');
         d.setDate(d.getDate() + days);
@@ -208,8 +251,19 @@
 
           setMetric('finalPop' + i, numberFmt.format(last));
           setMetric('peakPop' + i, numberFmt.format(peak));
-          setMetric('deltaPop' + i, (delta >= 0 ? '+' : '') + numberFmt.format(delta), delta >= 0 ? 'is-positive' : 'is-negative');
+
+          const cmp = r.compare || null;
+          if (cmp && cmp.hasPrevious) {
+            const d = Number(cmp.deltaTotal || 0);
+            setText('deltaLabel' + i, 'Δ vs round anterior');
+            setMetric('deltaPop' + i, (d >= 0 ? '+' : '') + numberFmt.format(d), d >= 0 ? 'is-positive' : 'is-negative');
+          } else {
+            setText('deltaLabel' + i, 'Variação simulada');
+            setMetric('deltaPop' + i, (delta >= 0 ? '+' : '') + numberFmt.format(delta), delta >= 0 ? 'is-positive' : 'is-negative');
+          }
         }
+
+        renderTimeline('timeline' + i, r.timeline, r.numberRound);
 
         const rawDatasets = [
           {

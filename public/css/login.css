@@ -166,7 +166,7 @@
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,.11);
   background: rgba(0,0,0,.2);
-  padding: .45rem .65rem;
+  padding: .58rem .78rem .58rem 1.35rem;
 }
 
 .login-field i {
@@ -178,11 +178,23 @@
   background: transparent !important;
   color: #fff !important;
   box-shadow: none !important;
-  padding: .15rem 0 !important;
+  padding: .28rem 0 .28rem .18rem !important;
 }
 
 .login-field .form-control::placeholder {
   color: rgba(255,255,255,.26) !important;
+}
+
+/* Mantém tema escuro mesmo com autofill do navegador */
+.login-field .form-control:-webkit-autofill,
+.login-field .form-control:-webkit-autofill:hover,
+.login-field .form-control:-webkit-autofill:focus,
+.login-field .form-control:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(0,0,0,.2) inset !important;
+  box-shadow: 0 0 0 1000px rgba(0,0,0,.2) inset !important;
+  caret-color: #ffffff !important;
+  transition: background-color 9999s ease-out 0s;
 }
 
 .login-field:focus-within {

@@ -26,12 +26,14 @@
       const _streak = Number(_s.streak  || 0);
       const _next   = Math.max(0, 100 - (_in % 100));
       const _name   = (_s.name || (_u && _u.name) || 'Você').split(' ')[0];
+      const _listedSum = Number(_s.listedEventsSum || 0);
+      const _listedDiff = Number(_s.listedVsTotalDiff || 0);
 
       const _xpArr  = (_u && Array.isArray(_u.xpBySemester)) ? _u.xpBySemester : [];
       const _sem    = (_u && typeof _u.semester === 'number') ? _u.semester : 0;
     %>
 
-    <div style="max-width: 860px; margin: 0 auto;">
+    <div class="xp-shell">
 
       <!-- ── Alertas ── -->
       <% if (_msgs && _msgs.length > 0) { %>
@@ -75,7 +77,7 @@
 
       <!-- ── Estatísticas ── -->
       <p class="xp-section-title">Resumo</p>
-      <div class="row g-3 mb-4">
+      <div class="row g-3 mb-4 xp-stats-row">
         <div class="col-6 col-lg-3">
           <div class="xp-stat">
             <div class="xp-stat-icon purple"><i class="bi bi-star-fill"></i></div>
@@ -143,6 +145,11 @@
           <div>
             <div class="xp-panel-title"><i class="bi bi-clock-history me-2" style="color:var(--vs-accent)"></i>Histórico de XP</div>
             <div class="xp-panel-sub">Últimos <%= _events.length %> evento<%= _events.length !== 1 ? 's' : '' %></div>
+            <div class="xp-panel-math">
+              Total acumulado: <strong><%= _pts %> XP</strong> ·
+              Soma dos exibidos: <strong><%= _listedSum %> XP</strong> ·
+              Diferença: <strong><%= _listedDiff >= 0 ? '+' : '' %><%= _listedDiff %> XP</strong>
+            </div>
           </div>
           <button id="btnExportEvents" class="btn-xp-export">
             <i class="bi bi-download"></i> Exportar CSV

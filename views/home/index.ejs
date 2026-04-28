@@ -15,10 +15,10 @@
   <div class="vs-main">
     <%
       const _u = locals.user;
-      const _bal  = (_u && typeof _u.balance  === 'number') ? Number(_u.balance)  : 0;
-      const _lvl  = (_u && typeof _u.level    === 'number') ? Number(_u.level)    : 1;
-      const _str  = (_u && typeof _u.streakCount === 'number') ? Number(_u.streakCount) : 0;
-      const _sem  = (_u && typeof _u.semester === 'number') ? Number(_u.semester) : 1;
+      const _bal  = _u ? (Number.isFinite(Number(_u.balance)) ? Number(_u.balance) : 50000) : 0;
+      const _lvl  = _u ? Math.max(1, Number(_u.level || 1)) : 1;
+      const _str  = _u ? Number(_u.streakCount || 0) : 0;
+      const _sem  = _u ? Number(_u.semester || 1) : 1;
       const _xpArr = (_u && Array.isArray(_u.xpBySemester)) ? _u.xpBySemester : [];
       const _xpCur = Number(_xpArr[_sem - 1] || 0);
       const _xpIn  = ((_xpCur % 100) + 100) % 100;
@@ -28,9 +28,13 @@
       const _greet = _hour < 12 ? 'Bom dia' : _hour < 18 ? 'Boa tarde' : 'Boa noite';
       const _firstName = (_u && _u.name) ? _u.name.split(' ')[0] : 'Usuário';
       const _roleLabel = !_u ? '' : _u.role === 'admin' ? 'Administrador' : _u.role === 'teacher' ? 'Professor' : 'Aluno';
+      const _dash = locals.dashboard || null;
+      const _tl = (_dash && Array.isArray(_dash.timeline)) ? _dash.timeline : [];
+      const _dec = (_dash && Array.isArray(_dash.decisions)) ? _dash.decisions : [];
+      const _tot = (_dash && _dash.totals) ? _dash.totals : { castrations: 0, shelter: 0, cost: 0 };
     %>
 
-    <div style="max-width: 860px; margin: 0 auto;">
+    <div class="home-shell">
 
       <!-- ── Saudação ── -->
       <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
@@ -51,7 +55,7 @@
       </div>
 
       <!-- ── Estatísticas ── -->
-      <div class="row g-3 mb-4">
+      <div class="row g-3 mb-4 home-stats-row">
         <div class="col-6 col-lg-3">
           <div class="home-stat-card">
             <div class="home-stat-icon green"><i class="bi bi-cash-stack"></i></div>
@@ -88,6 +92,79 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- ── Dashboard de resultados ── -->
+      <div class="home-panel mb-4">
+        <div class="home-panel-head">
+          <div>
+            <p class="home-section-title mb-1">Resultados do Semestre</p>
+            <h2 class="home-panel-title">Desempenho e Decisões</h2>
+          </div>
+          <a href="/rounds" class="home-mini-link">abrir round <i class="bi bi-arrow-up-right"></i></a>
+        </div>
+
+        <% if (_dash && _tl.length) { %>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-4">
+            <div class="home-kpi">
+              <span>Total castrações</span>
+              <strong><%= _tot.castrations %></strong>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="home-kpi">
+              <span>Total em abrigo</span>
+              <strong><%= _tot.shelter %></strong>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="home-kpi">
+              <span>Custo acumulado</span>
+              <strong><%= Number(_tot.cost || 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}) %></strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-timeline mb-3">
+          <% _tl.forEach(function(t, i) { %>
+            <div class="home-tl-item">
+              <div class="home-tl-round">R<%= t.round %></div>
+              <div class="home-tl-main"><%= t.total %> castrações</div>
+              <div class="home-tl-sub"><%= t.males %>M · <%= t.females %>F · Abrigo <%= t.shelter %></div>
+              <% if (i > 0) { %>
+                <div class="home-tl-delta <%= t.deltaTotal >= 0 ? 'up' : 'down' %>">
+                  <i class="bi <%= t.deltaTotal >= 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right' %>"></i>
+                  <%= t.deltaTotal >= 0 ? '+' : '' %><%= t.deltaTotal %> vs anterior
+                </div>
+              <% } else { %>
+                <div class="home-tl-delta neutral">base inicial</div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+
+        <div class="home-decisions">
+          <% _dec.slice().reverse().forEach(function(d) { %>
+            <div class="home-decision-item">
+              <div class="home-decision-left">
+                <div class="home-decision-title"><%= d.title %></div>
+                <div class="home-decision-summary"><%= d.summary %></div>
+              </div>
+              <div class="home-decision-right">
+                <div class="home-decision-cost"><%= Number(d.cost || 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}) %></div>
+                <span class="home-decision-status <%= d.status %>"><%= d.status === 'closed' ? 'Fechado' : 'Aberto' %></span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <% } else { %>
+          <div class="home-empty">
+            <i class="bi bi-graph-up"></i>
+            <p>Você ainda não possui resultados registrados neste semestre.</p>
+            <a href="/rounds" class="btn-home-ghost">Registrar meu primeiro round</a>
+          </div>
+        <% } %>
       </div>
 
       <!-- ── Missões do Dia ── -->

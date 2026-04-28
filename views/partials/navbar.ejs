@@ -1,7 +1,7 @@
 <%
   const _p = locals.path || '';
   const _u = locals.user;
-  const _bal = (_u && typeof _u.balance === 'number') ? Number(_u.balance) : 0;
+  const _bal = _u ? (Number.isFinite(Number(_u.balance)) ? Number(_u.balance) : 50000) : 0;
   const _sem = (_u && typeof _u.semester === 'number') ? _u.semester : 1;
   const _xpArr = (_u && Array.isArray(_u.xpBySemester)) ? _u.xpBySemester : [];
   const _cur = Number(_xpArr[_sem - 1] || 0);
@@ -20,6 +20,9 @@
     <img src="/img/gato-preto.svg" alt="VetSim" width="22" height="22">
     VetSim
   </span>
+  <button class="vs-fullscreen-toggle" id="mobileFullscreenToggle" aria-label="Alternar tela cheia" title="Tela cheia">
+    <i class="bi bi-arrows-fullscreen" id="mobileFullscreenIcon"></i>
+  </button>
 </div>
 
 <!-- Overlay mobile -->
@@ -149,5 +152,165 @@
     }
     toggle && toggle.addEventListener('click', openSidebar);
     overlay && overlay.addEventListener('click', closeSidebar);
+  })();
+
+  (function () {
+    const btn = document.getElementById('mobileFullscreenToggle');
+    const icon = document.getElementById('mobileFullscreenIcon');
+    if (!btn || !icon) return;
+    const FS_PREF_KEY = 'vetsim_mobile_fullscreen_pref';
+    const FS_FALLBACK_KEY = 'vetsim_mobile_fullscreen_fallback';
+    function setPref(v) {
+      try { sessionStorage.setItem(FS_PREF_KEY, v ? '1' : '0'); } catch (_) {}
+      try { localStorage.setItem(FS_PREF_KEY, v ? '1' : '0'); } catch (_) {}
+    }
+    function getPref() {
+      try {
+        const s = sessionStorage.getItem(FS_PREF_KEY);
+        if (s === '1' || s === '0') return s === '1';
+      } catch (_) {}
+      try {
+        const l = localStorage.getItem(FS_PREF_KEY);
+        if (l === '1' || l === '0') return l === '1';
+      } catch (_) {}
+      return false;
+    }
+
+    const canFs = !!(
+      document.documentElement.requestFullscreen ||
+      document.documentElement.webkitRequestFullscreen ||
+      document.exitFullscreen ||
+      document.webkitExitFullscreen
+    );
+
+    if (!canFs) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    function isFullscreen() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+
+    function syncIcon() {
+      const open = isFullscreen();
+      icon.className = open ? 'bi bi-fullscreen-exit' : 'bi bi-arrows-fullscreen';
+      btn.setAttribute('aria-label', open ? 'Sair da tela cheia' : 'Entrar em tela cheia');
+      btn.setAttribute('title', open ? 'Sair da tela cheia' : 'Tela cheia');
+      if (open) setPref(true);
+    }
+
+    function setFallbackMode(on) {
+      try { sessionStorage.setItem(FS_FALLBACK_KEY, on ? '1' : '0'); } catch (_) {}
+      document.body.classList.toggle('vs-force-fullscreen', !!on);
+    }
+
+    (function restoreFallbackMode() {
+      try {
+        if (sessionStorage.getItem(FS_FALLBACK_KEY) === '1') {
+          document.body.classList.add('vs-force-fullscreen');
+        }
+      } catch (_) {}
+    })();
+
+    async function requestFullscreenSafe() {
+      const el = document.documentElement;
+      if (el.requestFullscreen) await el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    }
+
+    async function exitFullscreenSafe() {
+      if (document.exitFullscreen) await document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+
+    async function toggleFullscreen() {
+      try {
+        if (isFullscreen()) {
+          await exitFullscreenSafe();
+          setPref(false);
+          setFallbackMode(false);
+        } else {
+          try {
+            await requestFullscreenSafe();
+            setFallbackMode(false);
+          } catch (_) {
+            // Fallback para navegadores/páginas que negam fullscreen real.
+            setFallbackMode(true);
+          }
+          setPref(true);
+        }
+      } catch (_) {}
+      syncIcon();
+    }
+
+    // Persiste entre views: navegadores mobile exigem gesto para entrar em fullscreen.
+    // Mantém tentativas após navegação até conseguir restaurar.
+    (function restoreFullscreenOnGestureUntilSuccess() {
+      let bound = false;
+
+      function wantsFullscreen() {
+        return getPref();
+      }
+
+      function unbind() {
+        if (!bound) return;
+        document.removeEventListener('pointerdown', tryEnter, true);
+        document.removeEventListener('pointerup', tryEnter, true);
+        document.removeEventListener('touchstart', tryEnter, true);
+        document.removeEventListener('touchend', tryEnter, true);
+        document.removeEventListener('click', tryEnter, true);
+        bound = false;
+      }
+
+      function tryEnter() {
+        if (!wantsFullscreen()) return unbind();
+        if (isFullscreen()) return unbind();
+        try {
+          const el = document.documentElement;
+          const p = el.requestFullscreen ? el.requestFullscreen() : (el.webkitRequestFullscreen ? el.webkitRequestFullscreen() : null);
+          if (p && typeof p.then === 'function') {
+            p.then(function () {
+              setFallbackMode(false);
+              syncIcon();
+              if (isFullscreen()) unbind();
+            }).catch(function () {
+              setFallbackMode(true);
+              syncIcon();
+            });
+            return;
+          }
+        } catch (_) {}
+        if (!isFullscreen()) setFallbackMode(true);
+        syncIcon();
+        if (isFullscreen()) unbind();
+      }
+
+      function bind() {
+        if (bound || !wantsFullscreen() || isFullscreen()) return;
+        document.addEventListener('pointerdown', tryEnter, true);
+        document.addEventListener('pointerup', tryEnter, true);
+        document.addEventListener('touchstart', tryEnter, true);
+        document.addEventListener('touchend', tryEnter, true);
+        document.addEventListener('click', tryEnter, true);
+        bound = true;
+      }
+
+      bind();
+      // Alguns navegadores permitem restaurar fullscreen sem gesto após navegação.
+      // Tentamos também nesses eventos para cobrir mais páginas/dispositivos.
+      setTimeout(tryEnter, 0);
+      window.addEventListener('load', tryEnter);
+      window.addEventListener('pageshow', bind);
+      window.addEventListener('pageshow', tryEnter);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) { bind(); tryEnter(); }
+      });
+    })();
+
+    btn.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', syncIcon);
+    document.addEventListener('webkitfullscreenchange', syncIcon);
+    syncIcon();
   })();
 </script>

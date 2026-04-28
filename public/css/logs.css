@@ -1,5 +1,6 @@
 .lg-page {
-  max-width: 1220px;
+  width: calc(100% - 60px);
+  max-width: 1320px;
   margin: 0 auto;
   padding: 1rem 0 2rem;
 }
@@ -267,6 +268,10 @@
 }
 
 @media (max-width: 768px) {
+  .lg-page {
+    width: calc(100% - 60px);
+  }
+
   .lg-page {
     padding-top: .6rem;
   }

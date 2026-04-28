@@ -23,7 +23,7 @@
       const _email   = _doc.email   || '—';
       const _code    = _doc.code    != null ? _doc.code : '—';
       const _sem     = _doc.semester != null ? _doc.semester : '—';
-      const _bal     = Number(_doc.balance || 0);
+      const _bal     = Number.isFinite(Number(_doc.balance)) ? Number(_doc.balance) : 50000;
       const _avatar  = (_doc.avatarUrl && _doc.avatarUrl.length > 0) ? _doc.avatarUrl : '/img/gato-preto.svg';
       const _type    = _doc.type || 'student';
       const _isAdmin = _u.role === 'admin' || _u.role === 'teacher';
@@ -32,7 +32,7 @@
       const roleIcon  = _type === 'admin' ? 'bi-shield-lock-fill' : _type === 'teacher' ? 'bi-mortarboard-fill' : 'bi-person-fill';
     %>
 
-    <div style="max-width: 860px; margin: 0 auto;">
+    <div class="profile-shell">
 
       <!-- ── Alertas ── -->
       <% if (_msgs && _msgs.length > 0) { %>
