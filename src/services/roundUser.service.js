@@ -69,8 +69,10 @@ const createRoundsForSemester = async (numberRound, semester) => {
 };
 
 const closeRoundForSemester = async (semester, numberRound) => {
+  const sem = Number(semester);
+  const nr = Number(numberRound);
   const result = await Round.updateMany(
-    { semester, numberRound, status: true },
+    { semester: sem, numberRound: nr, status: true },
     { $set: { status: false, updatedAt: new Date() } }
   );
   return { message: "Round encerrado com sucesso.", modifiedCount: result.modifiedCount };
@@ -80,7 +82,11 @@ const findActiveRoundByUserCode = async (codeUser) => {
   return Round.findOne({ codeUser: String(codeUser), status: true });
 };
 
-const findBySemesterAndNumber = (semester, numberRound) => Round.find({ semester, numberRound });
+const findBySemesterAndNumber = (semester, numberRound) => {
+  const sem = Number(semester);
+  const nr = Number(numberRound);
+  return Round.find({ semester: sem, numberRound: nr }).sort({ codeUser: 1 }).lean();
+};
 
 const createService = (body) => Round.create(body);
 const findAllService = () => Round.find();
