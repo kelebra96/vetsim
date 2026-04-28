@@ -1,0 +1,227 @@
+.ue-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 1rem 0 2rem;
+}
+
+.ue-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .8rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ue-kicker {
+  margin: 0 0 .25rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--vs-accent);
+}
+
+.ue-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.35rem, 2.8vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -.3px;
+}
+
+.ue-subtitle {
+  margin: .42rem 0 0;
+  color: rgba(255,255,255,.5);
+  font-size: .86rem;
+}
+
+.ue-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.05);
+  color: rgba(255,255,255,.75);
+  border-radius: 8px;
+  text-decoration: none;
+  padding: .42rem .72rem;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+.ue-back:hover {
+  color: var(--vs-accent);
+  border-color: rgba(58,181,160,.35);
+  background: rgba(58,181,160,.12);
+}
+
+.ue-alert {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: #fff;
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+}
+
+.ue-alert-danger {
+  background: rgba(220,38,58,.14);
+  border-color: rgba(220,38,58,.28);
+}
+
+.ue-alert-success {
+  background: rgba(58,181,160,.14);
+  border-color: rgba(58,181,160,.28);
+}
+
+.ue-card {
+  background: linear-gradient(165deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.ue-card-head {
+  padding: .86rem 1.06rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+  flex-wrap: wrap;
+}
+
+.ue-card-head h2 {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  color: rgba(255,255,255,.82);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.ue-user-id {
+  font-size: .72rem;
+  color: rgba(255,255,255,.45);
+}
+
+.ue-card-body {
+  padding: 1rem 1.06rem 1.1rem;
+}
+
+.ue-label {
+  margin-bottom: .42rem;
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.42);
+}
+
+.ue-input {
+  background: rgba(0,0,0,.22) !important;
+  border: 1px solid rgba(255,255,255,.11) !important;
+  color: #fff !important;
+}
+
+.ue-input:focus {
+  border-color: rgba(58,181,160,.55) !important;
+  box-shadow: 0 0 0 3px rgba(58,181,160,.12) !important;
+}
+
+.ue-balance {
+  border: 1px solid rgba(58,181,160,.28);
+  background: rgba(58,181,160,.1);
+  border-radius: 10px;
+  padding: .65rem .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+}
+
+.ue-balance span {
+  color: rgba(255,255,255,.68);
+  font-size: .8rem;
+}
+
+.ue-balance strong {
+  color: var(--vs-accent);
+  font-size: .95rem;
+}
+
+.ue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.ue-btn {
+  border-radius: 9px;
+  border: 1px solid transparent;
+  padding: .52rem .84rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.ue-btn-cancel {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.75);
+}
+
+.ue-btn-cancel:hover {
+  color: #fff;
+}
+
+.ue-btn-secondary {
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.76);
+}
+
+.ue-btn-secondary:hover {
+  color: var(--vs-accent);
+  border-color: rgba(58,181,160,.35);
+  background: rgba(58,181,160,.12);
+}
+
+.ue-btn-save {
+  background: linear-gradient(90deg, var(--vs-accent), #5fd2be);
+  color: #07231d;
+}
+
+.ue-modal {
+  background: #13201d;
+  color: rgba(255,255,255,.88);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+@media (max-width: 768px) {
+  .ue-page {
+    padding-top: .6rem;
+  }
+
+  .ue-card-head,
+  .ue-card-body {
+    padding-left: .86rem;
+    padding-right: .86rem;
+  }
+
+  .ue-actions {
+    justify-content: stretch;
+  }
+
+  .ue-actions .ue-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

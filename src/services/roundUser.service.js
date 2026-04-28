@@ -12,14 +12,16 @@ const createRoundsForSemester = async (numberRound, semester) => {
     return { message: "Só é permitido criar rounds de 1 a 4 por semestre.", created: 0, blocked: true };
   }
 
-  // Regra: máximo 4 rounds distintos por semestre
-  const existingNumbers = await Round.distinct("numberRound", { semester: sem });
+  // Regra: máximo 4 rounds distintos por semestre — queries são independentes, rodam em paralelo
+  const [existingNumbers, users] = await Promise.all([
+    Round.distinct("numberRound", { semester: sem }),
+    User.find({ semester: sem, status: true }),
+  ]);
+
   const alreadyExists = existingNumbers.includes(nr);
   if (!alreadyExists && existingNumbers.length >= 4) {
     return { message: "Limite de 4 rounds por semestre já atingido.", created: 0, blocked: true };
   }
-
-  const users = await User.find({ semester: sem, status: true });
 
   if (!users.length) {
     return { message: "Nenhum usuário ativo encontrado para o semestre informado.", created: 0, blocked: true };
@@ -84,16 +86,8 @@ const createService = (body) => Round.create(body);
 const findAllService = () => Round.find();
 const findByIdService = (id) => Round.findById(id);
 
-const updateService = (
-  id,
-  numberRound,
-  codeUser,
-  semester,
-  quantMales,
-  quantFemales,
-  shelter,
-  status
-) => {
+const updateService = (id, fields = {}) => {
+  const { numberRound, codeUser, semester, quantMales, quantFemales, shelter, status } = fields;
   const update = {};
   if (numberRound !== undefined) update.numberRound = numberRound;
   if (codeUser !== undefined) update.codeUser = codeUser;

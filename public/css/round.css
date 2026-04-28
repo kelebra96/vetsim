@@ -1,30 +1,242 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+/* ── Rounds — estilos exclusivos de /rounds ── */
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-        
+/* Header da página */
+.rnd-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1.75rem;
 }
-body{
-    background: linear-gradient(to right, #20419A, #2CB79A) fixed;
+.rnd-header-title {
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -.3px;
+  margin: 0;
 }
-#form label{
-    color: #fff;
-    font-size: 20px;
-    font-weight: 600;
-    text-transform: uppercase;
+.rnd-header-sub {
+  font-size: .8rem;
+  color: rgba(255,255,255,0.40);
+  margin-top: .2rem;
+}
+.rnd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .3rem .85rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.rnd-badge.open   { background: rgba(58,181,160,0.14); color: var(--vs-accent); border: 1px solid rgba(58,181,160,0.25); }
+.rnd-badge.closed { background: rgba(220,38,58,0.12);  color: #f87171;          border: 1px solid rgba(220,38,58,0.20); }
 
+/* Inputs do formulário */
+.rnd-input-group {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  transition: border-color .18s;
 }
-#footer img{
-    width: 150px;
-    margin-top: 20px;
-    text-align: center ;
+.rnd-input-group:focus-within {
+  border-color: rgba(58,181,160,0.45);
 }
-#footer a{
-    color: #fff;
-    font-weight: 600;
-    text-transform: 1px 3px 10px #000;
+.rnd-input-label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: .55rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.rnd-input-label i {
+  font-size: .9rem;
+}
+.rnd-input-label .cost-hint {
+  margin-left: auto;
+  font-size: .7rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.30);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.rnd-field {
+  background: rgba(0,0,0,0.20) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  padding: .55rem .85rem !important;
+  transition: border-color .18s !important;
+}
+.rnd-field:focus {
+  border-color: rgba(58,181,160,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(58,181,160,0.12) !important;
+  background: rgba(0,0,0,0.28) !important;
+}
+.rnd-field::placeholder { color: rgba(255,255,255,0.20) !important; }
 
+/* Painel de resumo de custos */
+.rnd-cost-panel {
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  overflow: hidden;
 }
+.rnd-cost-panel-title {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding: .9rem 1.25rem .6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.rnd-cost-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .65rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.rnd-cost-row:last-child { border-bottom: none; }
+.rnd-cost-row-label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .8rem;
+  color: rgba(255,255,255,0.50);
+}
+.rnd-cost-row-label i { font-size: .85rem; }
+.rnd-cost-row-val {
+  font-size: .82rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.80);
+  font-variant-numeric: tabular-nums;
+}
+.rnd-cost-row.total {
+  background: rgba(58,181,160,0.06);
+  border-top: 1px solid rgba(58,181,160,0.15);
+}
+.rnd-cost-row.total .rnd-cost-row-label { color: var(--vs-accent); font-weight: 700; }
+.rnd-cost-row.total .rnd-cost-row-val   { color: var(--vs-accent); font-size: .9rem; }
+
+/* Painel de saldo */
+.rnd-balance-panel {
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+}
+.rnd-balance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .3rem 0;
+}
+.rnd-balance-label {
+  font-size: .78rem;
+  color: rgba(255,255,255,0.40);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.rnd-balance-val {
+  font-size: .85rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  font-variant-numeric: tabular-nums;
+}
+.rnd-balance-val.negative { color: #f87171; }
+.rnd-balance-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: .4rem 0;
+}
+
+/* Botão salvar */
+.btn-rnd-save {
+  width: 100%;
+  padding: .75rem 1.5rem;
+  font-size: .95rem;
+  font-weight: 700;
+  color: #071a17;
+  background: linear-gradient(90deg, var(--vs-accent), #52c8b4);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(58,181,160,0.25);
+  transition: transform .18s, box-shadow .18s, filter .18s;
+  cursor: pointer;
+}
+.btn-rnd-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(58,181,160,0.35);
+  filter: brightness(1.05);
+}
+.btn-rnd-save:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Estado vazio */
+.rnd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+}
+.rnd-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(255,255,255,0.25);
+}
+.rnd-empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.60);
+  margin: 0;
+}
+.rnd-empty-desc {
+  font-size: .85rem;
+  color: rgba(255,255,255,0.30);
+  max-width: 320px;
+  margin: 0;
+}
+
+/* Seção de informações do round */
+.rnd-info-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+.rnd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 6px;
+  padding: .25rem .65rem;
+  font-size: .75rem;
+  color: rgba(255,255,255,0.55);
+}
+.rnd-chip strong { color: rgba(255,255,255,0.85); }

@@ -1,62 +1,167 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-    <title>VetSim</title>
-    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/index.css">
-    <link rel="stylesheet" href="/css/theme.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>VetSim — Home</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/index.css">
 </head>
-<body>
-    <%- include('../partials/navbar') %>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <h1 class="mt-5">Bem-vindo ao VetSim!</h1>
-                <p class="lead">O simulador de veterinária mais divertido do Brasil!</p>
-            </div>
-        </div>
-        <div id="gato-curioso">
-            <img src="/img/gato-preto.svg" alt="Gato Preto" class="img-fluid">
-        </div>
+<body class="vs-gradient">
+  <%- include('../partials/navbar') %>
+  <div class="vs-main">
+    <%
+      const _u = locals.user;
+      const _bal  = (_u && typeof _u.balance  === 'number') ? Number(_u.balance)  : 0;
+      const _lvl  = (_u && typeof _u.level    === 'number') ? Number(_u.level)    : 1;
+      const _str  = (_u && typeof _u.streakCount === 'number') ? Number(_u.streakCount) : 0;
+      const _sem  = (_u && typeof _u.semester === 'number') ? Number(_u.semester) : 1;
+      const _xpArr = (_u && Array.isArray(_u.xpBySemester)) ? _u.xpBySemester : [];
+      const _xpCur = Number(_xpArr[_sem - 1] || 0);
+      const _xpIn  = ((_xpCur % 100) + 100) % 100;
+      const _isAdmin = _u && (_u.role === 'admin' || _u.role === 'teacher');
 
-        <div class="vs-missions">
-            <h2 class="vs-title h3">Gestões de Hoje</h2>
-            <div class="mt-1 d-grid gap-2">
-                <div class="vs-mission-item">
-                    <div><i class="bi bi-check2-circle me-2"></i>Acessar seu Round</div>
-                    <div class="points">+10 XP</div>
-                    <a href="/rounds" class="btn btn-sm btn-outline-light" data-xp="10" data-reason="Acessou o round">Ir</a>
-                </div>
-                <% if (user && (user.role === 'admin' || user.role === 'teacher')) { %>
-                <div class="vs-mission-item">
-                    <div><i class="bi bi-gear me-2"></i>Criar novo Round</div>
-                    <div class="points">+20 XP</div>
-                    <a href="/roundcreate" class="btn btn-sm btn-outline-light">Ir</a>
-                </div>
-                <div class="vs-mission-item">
-                    <div><i class="bi bi-flag me-2"></i>Fechar Round e gerar gráficos</div>
-                    <div class="points">+30 XP</div>
-                    <a href="/roundclose" class="btn btn-sm btn-outline-light">Ir</a>
-                </div>
-                <% } %>
-            </div>
-        </div>
+      const _hour = new Date().getHours();
+      const _greet = _hour < 12 ? 'Bom dia' : _hour < 18 ? 'Boa tarde' : 'Boa noite';
+      const _firstName = (_u && _u.name) ? _u.name.split(' ')[0] : 'Usuário';
+      const _roleLabel = !_u ? '' : _u.role === 'admin' ? 'Administrador' : _u.role === 'teacher' ? 'Professor' : 'Aluno';
+    %>
 
-        <div class="text-center mt-4 mb-5">
-            <a href="/rounds" class="btn btn-lg btn-vs-accent vs-cta w-100 w-md-auto" id="btnInicial" data-xp="10" data-reason="Primeiro acesso ao round">
-                Começar Minha Gestão
-                <i class="bi bi-rocket-takeoff"></i>
-            </a>
+    <div style="max-width: 860px; margin: 0 auto;">
+
+      <!-- ── Saudação ── -->
+      <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+          <p class="home-greeting-label">Dashboard</p>
+          <h1 class="home-greeting-title"><%= _greet %>, <%= _firstName %>!</h1>
+          <p class="home-greeting-sub">
+            <span class="badge rounded-pill" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);font-weight:500;font-size:.72rem">
+              <%= _roleLabel %>
+            </span>
+            &nbsp;Semestre <strong style="color:rgba(255,255,255,0.70)"><%= _sem %></strong>
+          </p>
         </div>
+        <div class="home-date pt-1">
+          <i class="bi bi-calendar3 me-1"></i>
+          <script>document.write(new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}))</script>
+        </div>
+      </div>
+
+      <!-- ── Estatísticas ── -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="home-stat-card">
+            <div class="home-stat-icon green"><i class="bi bi-cash-stack"></i></div>
+            <div>
+              <div class="home-stat-val"><%= _bal.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}) %></div>
+              <div class="home-stat-label">Saldo VIDA</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="home-stat-card">
+            <div class="home-stat-icon purple"><i class="bi bi-star-fill"></i></div>
+            <div>
+              <div class="home-stat-val">Nível <%= _lvl %></div>
+              <div class="home-stat-label"><%= _xpIn %>/100 XP</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="home-stat-card">
+            <div class="home-stat-icon amber"><i class="bi bi-fire"></i></div>
+            <div>
+              <div class="home-stat-val" id="stat-streak"><%= _str %></div>
+              <div class="home-stat-label">Dias seguidos</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="home-stat-card">
+            <div class="home-stat-icon blue"><i class="bi bi-mortarboard-fill"></i></div>
+            <div>
+              <div class="home-stat-val">Sem. <%= _sem %>/8</div>
+              <div class="home-stat-label">Progresso</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Missões do Dia ── -->
+      <p class="home-section-title">Missões de Hoje</p>
+      <div class="d-flex flex-column gap-2 mb-4">
+
+        <a href="/rounds" class="home-mission" data-xp="10" data-reason="Acessou o round">
+          <div class="home-mission-icon green"><i class="bi bi-arrow-repeat"></i></div>
+          <div>
+            <div class="home-mission-title">Acessar seu Round</div>
+            <div class="home-mission-desc">Registre machos, fêmeas e abrigo do seu semestre</div>
+          </div>
+          <div class="home-mission-xp">
+            <span class="xp-badge">+10 XP</span>
+            <i class="bi bi-chevron-right home-mission-arrow"></i>
+          </div>
+        </a>
+
+        <% if (_isAdmin) { %>
+        <a href="/roundcreate" class="home-mission">
+          <div class="home-mission-icon blue"><i class="bi bi-plus-circle-fill"></i></div>
+          <div>
+            <div class="home-mission-title">Criar novo Round</div>
+            <div class="home-mission-desc">Abra um round para todos os alunos do semestre</div>
+          </div>
+          <div class="home-mission-xp">
+            <span class="xp-badge">+20 XP</span>
+            <i class="bi bi-chevron-right home-mission-arrow"></i>
+          </div>
+        </a>
+
+        <a href="/roundclose" class="home-mission">
+          <div class="home-mission-icon amber"><i class="bi bi-flag-fill"></i></div>
+          <div>
+            <div class="home-mission-title">Fechar Round e gerar gráficos</div>
+            <div class="home-mission-desc">Encerre o round e visualize a simulação populacional</div>
+          </div>
+          <div class="home-mission-xp">
+            <span class="xp-badge">+30 XP</span>
+            <i class="bi bi-chevron-right home-mission-arrow"></i>
+          </div>
+        </a>
+        <% } %>
+
+      </div>
+
+      <!-- ── CTA ── -->
+      <div class="home-cta-wrap">
+        <a href="/rounds" class="btn-home-cta" id="btnInicial" data-xp="10" data-reason="Primeiro acesso ao round">
+          <i class="bi bi-rocket-takeoff"></i>
+          Começar Minha Gestão
+        </a>
+      </div>
 
     </div>
+
+    <!-- Mascote decorativo -->
+    <img src="/img/gato-preto.svg" alt="" class="home-mascot" aria-hidden="true">
+
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/gamification.js"></script>
- 
+    <script>
+      // Sincroniza card de streak com o valor atualizado pelo gamification.js
+      (function () {
+        const card = document.getElementById('stat-streak');
+        if (!card) return;
+        const observer = new MutationObserver(() => {
+          const sv = document.getElementById('streak-value');
+          if (sv) card.textContent = sv.textContent;
+        });
+        const sv = document.getElementById('streak-value');
+        if (sv) observer.observe(sv, { childList: true, subtree: true, characterData: true });
+      })();
+    </script>
+  </div>
 </body>
 </html>

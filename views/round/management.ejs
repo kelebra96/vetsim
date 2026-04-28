@@ -1,103 +1,262 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-    <title>VetSim</title>
-    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/round.css">
-    <link rel="stylesheet" href="/css/theme.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>Meu Round • VetSim</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/round.css">
 </head>
+<body class="vs-gradient">
+  <%- include('../partials/navbar') %>
+  <div class="vs-main">
+    <%
+      const _round   = locals.round || null;
+      const _costs   = locals.costs  || {};
+      const _msgs    = locals.messages || [];
+      const _success = locals.success  || '';
 
-<body>
-    <%- include('../partials/navbar') %>
-    <div class="container">
-        <div class="row">
-            <div class="col-12 col-lg-8">
-                <div class="card vs-card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Custos desta simulação</h5>
-                        <ul class="mb-0">
-                            <li>Criação de Abrigo: <strong>
-                                <%= (typeof costs !== 'undefined') ? Number(costs.shelterCost||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) : 'R$ 0,00' %>
-                            </strong></li>
-                            <li>Castração de machos: <strong>
-                                <%= (typeof costs !== 'undefined') ? Number(costs.maleNeuterCost||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) : 'R$ 0,00' %>
-                            </strong></li>
-                            <li>Castração de fêmeas: <strong>
-                                <%= (typeof costs !== 'undefined') ? Number(costs.femaleNeuterCost||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) : 'R$ 0,00' %>
-                            </strong></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+      const shelterCost      = Number(_costs.shelterCost      || 0);
+      const maleNeuterCost   = Number(_costs.maleNeuterCost   || 0);
+      const femaleNeuterCost = Number(_costs.femaleNeuterCost || 0);
+
+      const curShelter  = _round ? Number(_round.shelter     || 0) : 0;
+      const curMales    = _round ? Number(_round.quantMales   || 0) : 0;
+      const curFemales  = _round ? Number(_round.quantFemales || 0) : 0;
+
+      const totalCost = (curShelter * shelterCost) + (curMales * maleNeuterCost) + (curFemales * femaleNeuterCost);
+      const isOpen    = _round ? _round.status !== false : false;
+    %>
+
+    <div style="max-width: 860px; margin: 0 auto;">
+
+      <!-- ── Header ── -->
+      <div class="rnd-header">
+        <div>
+          <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--vs-accent);margin-bottom:.3rem;">Simulação</p>
+          <h1 class="rnd-header-title">Meu Round</h1>
+          <% if (_round) { %>
+          <div class="rnd-info-chips mt-2">
+            <span class="rnd-chip"><i class="bi bi-hash"></i> Round <strong><%= _round.numberRound %></strong></span>
+            <span class="rnd-chip"><i class="bi bi-mortarboard"></i> Semestre <strong><%= _round.semester %></strong></span>
+          </div>
+          <% } %>
         </div>
-        <% if (messages && messages.length> 0) { %>
-            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                <ul class="mb-0">
-                    <% messages.forEach(function(msg) { %>
-                        <li><%= msg %></li>
-                    <% }) %>
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-            </div>
+        <% if (_round) { %>
+        <span class="rnd-badge <%= isOpen ? 'open' : 'closed' %>">
+          <i class="bi bi-<%= isOpen ? 'unlock-fill' : 'lock-fill' %>"></i>
+          <%= isOpen ? 'Aberto' : 'Encerrado' %>
+        </span>
         <% } %>
+      </div>
 
-        <% if (success && success.length> 0) { %>
-            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                <%= success %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      <!-- ── Alertas ── -->
+      <% if (_msgs && _msgs.length > 0) { %>
+      <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="background:rgba(220,38,58,0.12);border:1px solid rgba(220,38,58,0.25);color:#f87171;border-radius:12px;">
+        <ul class="mb-0 ps-3">
+          <% _msgs.forEach(function(msg){ %><li><%= msg %></li><% }) %>
+        </ul>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+      <% } %>
+
+      <% if (_success && _success.length > 0) { %>
+      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="background:rgba(58,181,160,0.12);border:1px solid rgba(58,181,160,0.25);color:var(--vs-accent);border-radius:12px;">
+        <i class="bi bi-check-circle-fill me-2"></i><%= _success %>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+      <% } %>
+
+      <% if (_round) { %>
+
+      <!-- ── Layout principal ── -->
+      <div class="row g-4">
+
+        <!-- ── Coluna esquerda: formulário ── -->
+        <div class="col-12 col-lg-7">
+          <form action="/roundupdate/<%= _round._id %>" method="POST" id="form-round">
+
+            <!-- Machos -->
+            <div class="rnd-input-group mb-3">
+              <label class="rnd-input-label" for="quantMales">
+                <i class="bi bi-gender-male"></i> Machos Castrados
+                <span class="cost-hint">× <%= maleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %> / un.</span>
+              </label>
+              <input
+                type="number"
+                class="form-control rnd-field"
+                id="quantMales"
+                name="quantMales"
+                min="0"
+                required
+                value="<%= curMales %>"
+                data-cost="<%= maleNeuterCost %>"
+                data-target="cost-males"
+                <% if (!isOpen) { %>disabled<% } %>
+              >
             </div>
-        <% } %>
 
-        <fieldset class="mt-4">
-            <legend class="vs-title h4">Rounds Liberados</legend>
-            <div class="mb-3">
-                <% if (round) { %>
-                    <form action="/roundupdate/<%= round._id %>" method="POST" id="form-round-update">
-                        <div class="card vs-card mt-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Round Liberado</h5>
-                                <p class="card-text">Número: <%= round.numberRound %></p>
-                                <p class="card-text">Semestre: <%= round.semester %></p>
-
-                                <div class="form-group mb-3">
-                                    <label for="shelter">Abrigo</label>
-                                    <input type="number" class="form-control" id="shelter" name="shelter" min="0" required value="<%= round.shelter %>">
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="quantMales">Machos Castrados</label>
-                                    <input type="number" class="form-control" id="quantMales" name="quantMales" min="0" required value="<%= round.quantMales %>">
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="quantFemales">Fêmeas Castradas</label>
-                                    <input type="number" class="form-control" id="quantFemales" name="quantFemales" min="0" required value="<%= round.quantFemales %>">
-                                </div>
-
-                                <button type="submit" class="btn btn-success">Salvar Dados</button>
-                            </div>
-                        </div>
-                    </form>
-                <% } %>
+            <!-- Fêmeas -->
+            <div class="rnd-input-group mb-3">
+              <label class="rnd-input-label" for="quantFemales">
+                <i class="bi bi-gender-female"></i> Fêmeas Castradas
+                <span class="cost-hint">× <%= femaleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %> / un.</span>
+              </label>
+              <input
+                type="number"
+                class="form-control rnd-field"
+                id="quantFemales"
+                name="quantFemales"
+                min="0"
+                required
+                value="<%= curFemales %>"
+                data-cost="<%= femaleNeuterCost %>"
+                data-target="cost-females"
+                <% if (!isOpen) { %>disabled<% } %>
+              >
             </div>
-        </fieldset>
+
+            <!-- Abrigo -->
+            <div class="rnd-input-group mb-4">
+              <label class="rnd-input-label" for="shelter">
+                <i class="bi bi-house-heart-fill"></i> Animais no Abrigo
+                <span class="cost-hint">× <%= shelterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %> / un.</span>
+              </label>
+              <input
+                type="number"
+                class="form-control rnd-field"
+                id="shelter"
+                name="shelter"
+                min="0"
+                required
+                value="<%= curShelter %>"
+                data-cost="<%= shelterCost %>"
+                data-target="cost-shelter"
+                <% if (!isOpen) { %>disabled<% } %>
+              >
+            </div>
+
+            <% if (isOpen) { %>
+            <button type="submit" class="btn-rnd-save">
+              <i class="bi bi-floppy-fill me-2"></i>Salvar Dados do Round
+            </button>
+            <% } else { %>
+            <div style="text-align:center;padding:.75rem;background:rgba(220,38,58,0.08);border:1px solid rgba(220,38,58,0.18);border-radius:10px;font-size:.82rem;color:#f87171;">
+              <i class="bi bi-lock-fill me-1"></i> Este round foi encerrado e não pode ser editado.
+            </div>
+            <% } %>
+
+          </form>
+        </div>
+
+        <!-- ── Coluna direita: custos + saldo ── -->
+        <div class="col-12 col-lg-5">
+
+          <!-- Painel de custos -->
+          <div class="rnd-cost-panel mb-3">
+            <div class="rnd-cost-panel-title"><i class="bi bi-receipt me-1"></i> Resumo de Custos</div>
+
+            <div class="rnd-cost-row">
+              <span class="rnd-cost-row-label"><i class="bi bi-gender-male"></i> Castração de machos</span>
+              <span class="rnd-cost-row-val" id="cost-males">
+                <%= (curMales * maleNeuterCost).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %>
+              </span>
+            </div>
+
+            <div class="rnd-cost-row">
+              <span class="rnd-cost-row-label"><i class="bi bi-gender-female"></i> Castração de fêmeas</span>
+              <span class="rnd-cost-row-val" id="cost-females">
+                <%= (curFemales * femaleNeuterCost).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %>
+              </span>
+            </div>
+
+            <div class="rnd-cost-row">
+              <span class="rnd-cost-row-label"><i class="bi bi-house-heart"></i> Abrigo</span>
+              <span class="rnd-cost-row-val" id="cost-shelter">
+                <%= (curShelter * shelterCost).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %>
+              </span>
+            </div>
+
+            <div class="rnd-cost-row total">
+              <span class="rnd-cost-row-label"><i class="bi bi-sigma"></i> Total deste round</span>
+              <span class="rnd-cost-row-val" id="cost-total">
+                <%= totalCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %>
+              </span>
+            </div>
+          </div>
+
+          <!-- Painel de tabela de custos unitários -->
+          <div class="rnd-balance-panel">
+            <p style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:.65rem;">Tabela de Preços</p>
+
+            <div class="rnd-balance-row">
+              <span class="rnd-balance-label"><i class="bi bi-house-heart"></i> Abrigo / animal</span>
+              <span class="rnd-balance-val"><%= shelterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+            <hr class="rnd-balance-divider">
+            <div class="rnd-balance-row">
+              <span class="rnd-balance-label"><i class="bi bi-gender-male"></i> Castração macho</span>
+              <span class="rnd-balance-val"><%= maleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+            <hr class="rnd-balance-divider">
+            <div class="rnd-balance-row">
+              <span class="rnd-balance-label"><i class="bi bi-gender-female"></i> Castração fêmea</span>
+              <span class="rnd-balance-val"><%= femaleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <% } else { %>
+
+      <!-- ── Estado vazio ── -->
+      <div class="rnd-empty">
+        <div class="rnd-empty-icon"><i class="bi bi-hourglass-split"></i></div>
+        <h2 class="rnd-empty-title">Nenhum round disponível</h2>
+        <p class="rnd-empty-desc">Aguarde seu professor liberar o próximo round para o seu semestre.</p>
+      </div>
+
+      <% } %>
+
     </div>
-      
+
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/gamification.js"></script>
     <script>
-      (function(){
-        document.querySelectorAll('.alert').forEach(function(el){
-          setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+      // Calculadora de custo em tempo real
+      (function () {
+        const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        function recalc() {
+          let total = 0;
+          document.querySelectorAll('input[data-cost]').forEach(function (inp) {
+            const qty  = Math.max(0, parseInt(inp.value, 10) || 0);
+            const cost = parseFloat(inp.dataset.cost) || 0;
+            const sub  = qty * cost;
+            total += sub;
+            const el = document.getElementById(inp.dataset.target);
+            if (el) el.textContent = fmt(sub);
+          });
+          const totEl = document.getElementById('cost-total');
+          if (totEl) totEl.textContent = fmt(total);
+        }
+
+        document.querySelectorAll('input[data-cost]').forEach(function (inp) {
+          inp.addEventListener('input', recalc);
+        });
+
+        // Auto-dismiss alerts
+        document.querySelectorAll('.alert').forEach(function (el) {
+          setTimeout(function () {
+            try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {}
+          }, 5000);
         });
       })();
     </script>
-
+  </div>
 </body>
-
 </html>

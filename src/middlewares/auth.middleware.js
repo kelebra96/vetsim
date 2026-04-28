@@ -22,7 +22,9 @@ export function authenticate(req, res, next) {
     req.user = {
       id: decoded.id,
       code: decoded.code,
-      role: decoded.role,
+      // Usa o role do banco (populado pelo middleware global) se disponível;
+      // garante que mudanças de papel no banco tenham efeito sem re-login.
+      role: res.locals.user?.role || decoded.role,
     };
 
     next();

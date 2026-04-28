@@ -1,222 +1,256 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--<meta http-equiv="refresh" content="3">-->
-    <link rel="icon" type="img/svg+xml" href="/gato-preto.svg" />
-    <title>VetSim</title>
-    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/bootstrap-icons/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/theme.css">
-    <link rel="stylesheet" href="/css/register.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <title>Cadastro • VetSim</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/register.css">
 </head>
-
 <body class="vs-gradient">
-    <% const __errors = (messages && messages.length) ? messages : []; %>
-    <% const __success = (typeof success !== 'undefined' && success.length) ? success : []; %>
-    <% if (__errors.length > 0) { %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <ul class="mb-0">
-          <% __errors.forEach(function(message) { %>
-            <li><%= message %></li>
-          <% }); %>
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
+  <%
+    const __errors  = (locals.messages && messages.length) ? messages : [];
+    const __success = (locals.success  && success.length)  ? success  : [];
+    const __isStaff = locals.user && (user.role === 'teacher' || user.role === 'admin');
+  %>
+  <%- include('../partials/navbar') %>
+  <div class="vs-main">
+  <div class="reg-page">
+    <div class="reg-card">
 
-    <% if (__success.length > 0) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <%= __success[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      <!-- ── Header ── -->
+      <div class="reg-card-header">
+        <div class="reg-logo"><i class="bi bi-heart-pulse-fill"></i></div>
+        <h1 class="reg-title">Criar conta</h1>
+        <p class="reg-sub">Preencha os dados abaixo para se cadastrar no VetSim</p>
       </div>
-    <% } %>
-                    <div class="card mt-3" id="cardlogin">
-                        <div class="text-center" id="card-header">
-                            <img src="/img/felinos.png" class="card-img-top" alt="VetSim Logo">
-                            <h1 class="card-title">VetSim</h1>
-                            <div class="row d-flex" id="register-text">
-                                <div class="col">
-                                    <span class="card-text">Vamos realizar o seu cadastro!</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body mx-1">
-                            <form action="/createuser" method="POST">
-                                <div class="row g-2 mx-3">
-                                    <div class="col-12 col-md-8">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" name="name" required
-                                                placeholder="Informe seu nome" id="nameInput">
-                                            <label for="nameInput">Nome</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" name="code" required
-                                                placeholder="Informe seu código" id="codeInput"
-                                                min="0" max="9999999" step="1" pattern="\d{1,7}">
-                                            <label for="codeInput">Código</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row g-2 mx-3">
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" name="email" required
-                                                placeholder="Digite seu e-mail" id="emailInput">
-                                            <label for="emailInput">E-mail</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-2">
-                                        <div class="form-floating mb-2">
-                                            <input type="number" class="form-control" name="semester" required
-                                                placeholder="Informe seu semestre" min="1" max="8" id="semesterInput">
-                                            <label for="semesterInput">Semestre</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-4">
-                                        <div class="form-floating mb-2">
-                                            <input type="password" class="form-control" name="password" required
-                                                placeholder="Informe sua senha" id="passwordInput">
-                                            <label for="passwordInput">Senha</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <fieldset>
-                                    <legend class="text-center">Status</legend>
-                                    <div class="row g-2 mx-3">
-                                        <div class="col-12 col-md-6">
-                                            <div class="form-floating mb-2">
-                                                <select class="form-select" name="status" required id="statusSelect">
-                                                    <option value="true" selected>Ativo</option>
-                                                    <option value="false">Inativo</option>
-                                                </select>
-                                                <label for="statusSelect">Status da conta</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="form-floating mb-2">
-                                                <select class="form-select" name="type" required id="typeSelect">
-                                                    <option value="student" selected>Aluno</option>
-                                                    <option value="teacher">Professor</option>
-                                                    <option value="admin">Administrador</option>
-                                                </select>
-                                                <label for="typeSelect">Tipo de usuário</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                                <div class="d-grid gap-2 mx-3">
-                                    <button type="submit" class="btn btn-primary btn-lg mt-3">Cadastrar</button>
-                                </div>
-                            </form>
-                            <div class="mt-auto mt-3" id="footer">
-                                <div class="d-flex justify-content-center">
-                                    <img src="/img/baraomaua.svg" alt="Barão Mauá" class="text-center">
-                                </div>
-                                  <div class="cadastro">
-                                      <p class="text-center">Já se cadastrou? Vamos nos <a href="/">conectar</a>!</p>
-                                      <% if (user && (user.role==='teacher' || user.role==='admin')) { %>
-                                      <p class="text-center"><a href="#" data-bs-toggle="modal" data-bs-target="#importStudentsModal">Importar alunos (.CSV ou .XLSX)</a></p>
-                                      <% } %>
-                                  </div>
-                            </div>
-                        </div>
-                    </div>
-                    <% if (user && (user.role==='teacher' || user.role==='admin')) { %>
-                    <!-- Modal Importar Alunos (estilizado) -->
-                    <div class="modal fade" id="importStudentsModal" tabindex="-1" aria-labelledby="importStudentsLabel" aria-hidden="true">
-                      <div class="modal-dialog modal-lg modal-dialog-centered">
-                        <div class="modal-content vs-modal">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="importStudentsLabel"><i class="bi bi-people me-2"></i>Importar alunos (.csv ou .xlsx)</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                          </div>
-                          <div class="modal-body">
-                            <p class="text-white-50 small mb-2">Campos obrigatórios: Nome do aluno, Código do aluno, E-mail, Semestre, Senha. Status e Tipo de Usuário serão definidos como Ativo e Aluno por padrão.</p>
-                            <ul class="text-white-50 small mb-3">
-                              <li>Planilha: primeira linha deve ser o cabeçalho.</li>
-                              <li>CSV: separador vírgula.</li>
-                              <li>Colunas aceitas (flexíveis): Nome, Código, E-mail, Semestre, Senha.</li>
-                            </ul>
-                            <form id="importForm" action="/importstudents" method="POST" enctype="multipart/form-data">
-                              <div class="vs-dropzone" id="dropzone">
-                                <i class="bi bi-upload" style="font-size:1.5rem"></i>
-                                <div class="mt-2">Arraste o arquivo aqui ou <span class="text-decoration-underline">clique para selecionar</span></div>
-                                <small class="d-block">Formatos aceitos: .csv, .xlsx</small>
-                                <input id="fileInput" type="file" name="file" accept=".csv,.xlsx" hidden required />
-                                <div id="fileName" class="small mt-2 text-white-50"></div>
-                                <a id="templateLink" href="#" class="small d-inline-block mt-2"><i class="bi bi-filetype-xlsx me-1"></i>Baixar modelo de planilha</a>
-                              </div>
-                              <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button class="btn btn-vs-dark" type="submit"><i class="bi bi-upload me-1"></i> Importar Alunos</button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <% } %>
-                    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-                    <script>
-                      // Auto-dismiss alerts after 5s
-                      (function(){
-                        const els = document.querySelectorAll('.alert');
-                        els.forEach(function(el){
-                          setTimeout(function(){
-                            try {
-                              const ai = bootstrap.Alert.getOrCreateInstance(el);
-                              ai.close();
-                            } catch(_){}
-                          }, 5000);
-                        });
-                      })();
-                    </script>
-                    <script>
-                      (function(){
-                        const params = new URLSearchParams(window.location.search);
-                        if (params.get('import') === '1') {
-                          const el = document.getElementById('importStudentsModal');
-                          if (el && window.bootstrap) {
-                            const m = new bootstrap.Modal(el);
-                            m.show();
-                          }
-                        }
-                      })();
-                    </script>
-                    <script>
-                      // Dropzone interactions + template CSV/XLSX link
-                      (function(){
-                        const dz = document.getElementById('dropzone');
-                        const fi = document.getElementById('fileInput');
-                        const fn = document.getElementById('fileName');
-                        const tl = document.getElementById('templateLink');
-                        if (!dz || !fi) return;
-                        const openPicker = () => fi.click();
-                        dz.addEventListener('click', openPicker);
-                        dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.classList.add('dragover'); });
-                        dz.addEventListener('dragleave', ()=> dz.classList.remove('dragover'));
-                        dz.addEventListener('drop', (e)=>{
-                          e.preventDefault(); dz.classList.remove('dragover');
-                          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-                            fi.files = e.dataTransfer.files;
-                            if (fn) fn.textContent = e.dataTransfer.files[0].name;
-                          }
-                        });
-                        fi.addEventListener('change', ()=>{ if (fn && fi.files[0]) fn.textContent = fi.files[0].name; });
-                        if (tl) {
-                          const header = ['Nome','Código','E-mail','Semestre','Senha'];
-                          const sample = 'Nome,Código,E-mail,Semestre,Senha\nAna Lima,1001,ana@example.com,1,Senha@123\n';
-                          const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
-                          tl.href = URL.createObjectURL(blob);
-                          tl.download = 'modelo_alunos.csv';
-                        }
-                      })();
-                    </script>
+
+      <!-- ── Body ── -->
+      <div class="reg-card-body">
+
+        <!-- Alertas -->
+        <% if (__errors.length > 0) { %>
+        <div class="reg-alert error">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <ul class="mb-0 ps-2">
+            <% __errors.forEach(m => { %><li><%= m %></li><% }) %>
+          </ul>
+        </div>
+        <% } %>
+        <% if (__success.length > 0) { %>
+        <div class="reg-alert success">
+          <i class="bi bi-check-circle-fill"></i>
+          <%= __success[0] %>
+        </div>
+        <% } %>
+
+        <form action="/createuser" method="POST">
+
+          <!-- Dados pessoais -->
+          <p class="reg-section-label">Dados pessoais</p>
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-8">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="nameInput"><i class="bi bi-person-fill"></i> Nome</label>
+                <input type="text" class="reg-input form-control" id="nameInput" name="name"
+                       required minlength="2" maxlength="80" placeholder="Seu nome completo">
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="codeInput"><i class="bi bi-hash"></i> Código</label>
+                <input type="number" class="reg-input form-control" id="codeInput" name="code"
+                       required min="1" max="9999999" step="1" placeholder="Ex: 1001">
+              </div>
+            </div>
+          </div>
+
+          <!-- Acesso -->
+          <p class="reg-section-label">Acesso</p>
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="emailInput"><i class="bi bi-envelope-fill"></i> E-mail</label>
+                <input type="email" class="reg-input form-control" id="emailInput" name="email"
+                       required placeholder="seu@email.com">
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="passwordInput"><i class="bi bi-lock-fill"></i> Senha</label>
+                <div class="reg-pw-wrap">
+                  <input type="password" class="reg-input form-control" id="passwordInput" name="password"
+                         required placeholder="Mínimo 6 caracteres">
+                  <button type="button" class="reg-pw-toggle" id="pwToggle" tabindex="-1" aria-label="Mostrar senha">
+                    <i class="bi bi-eye-fill" id="pwToggleIcon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configurações da conta -->
+          <p class="reg-section-label">Configurações da conta</p>
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="semesterInput"><i class="bi bi-mortarboard-fill"></i> Semestre</label>
+                <select class="reg-input form-select" id="semesterInput" name="semester" required>
+                  <% for(let i = 1; i <= 8; i++) { %>
+                  <option value="<%= i %>"><%= i %>º Semestre</option>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="typeSelect"><i class="bi bi-shield-fill"></i> Tipo</label>
+                <select class="reg-input form-select" id="typeSelect" name="type" required>
+                  <option value="student" selected>Aluno</option>
+                  <option value="teacher">Professor</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="reg-field-wrap">
+                <label class="reg-label" for="statusSelect"><i class="bi bi-toggle-on"></i> Status</label>
+                <select class="reg-input form-select" id="statusSelect" name="status" required>
+                  <option value="true" selected>Ativo</option>
+                  <option value="false">Inativo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-reg-submit">
+            <i class="bi bi-person-plus-fill me-2"></i>Criar Conta
+          </button>
+
+        </form>
+      </div>
+
+      <!-- ── Footer ── -->
+      <div class="reg-card-footer">
+        <a href="/" class="reg-footer-link">
+          <i class="bi bi-arrow-left me-1"></i> Já tem conta? <strong>Entrar</strong>
+        </a>
+        <% if (__isStaff) { %>
+        <button class="btn-reg-import" data-bs-toggle="modal" data-bs-target="#importStudentsModal">
+          <i class="bi bi-file-earmark-arrow-up-fill"></i> Importar via planilha
+        </button>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Modal importar alunos (apenas staff) ── -->
+  <% if (__isStaff) { %>
+  <div class="modal fade reg-modal" id="importStudentsModal" tabindex="-1" aria-labelledby="importStudentsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="importStudentsLabel">
+            <i class="bi bi-people-fill me-2" style="color:var(--vs-accent)"></i>Importar Alunos
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:.82rem;color:rgba(255,255,255,0.50);margin-bottom:.75rem;">
+            Campos obrigatórios: <strong style="color:rgba(255,255,255,0.70)">Nome, Código, E-mail, Semestre, Senha</strong>.
+            Status e tipo serão definidos como <em>Ativo</em> e <em>Aluno</em> por padrão.
+          </p>
+          <ul style="font-size:.78rem;color:rgba(255,255,255,0.40);margin-bottom:1.25rem;padding-left:1.25rem;">
+            <li>A primeira linha deve ser o cabeçalho.</li>
+            <li>CSV: separador vírgula &nbsp;|&nbsp; XLSX: qualquer planilha.</li>
+          </ul>
+          <form id="importForm" action="/importstudents" method="POST" enctype="multipart/form-data">
+            <div class="reg-dropzone" id="dropzone">
+              <div class="dz-icon"><i class="bi bi-cloud-upload-fill"></i></div>
+              <div>Arraste o arquivo aqui ou <span style="color:var(--vs-accent);text-decoration:underline">clique para selecionar</span></div>
+              <small class="d-block mt-1">Formatos aceitos: .csv, .xlsx</small>
+              <input id="fileInput" type="file" name="file" accept=".csv,.xlsx" hidden required>
+              <div id="fileName" style="font-size:.78rem;color:var(--vs-accent);margin-top:.6rem;"></div>
+              <a id="templateLink" href="#" style="font-size:.75rem;color:rgba(255,255,255,0.35);display:inline-block;margin-top:.5rem;text-decoration:none;">
+                <i class="bi bi-filetype-csv me-1"></i>Baixar modelo CSV
+              </a>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+              <button class="btn btn-sm" type="submit"
+                      style="background:linear-gradient(90deg,var(--vs-accent),#52c8b4);color:#071a17;font-weight:700;border:none;border-radius:8px;padding:.4rem 1.1rem;">
+                <i class="bi bi-upload me-1"></i> Importar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  </div><!-- /.vs-main -->
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      // Auto-dismiss alertas
+      document.querySelectorAll('.alert').forEach(function (el) {
+        setTimeout(function () {
+          try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {}
+        }, 5000);
+      });
+
+      // Toggle visibilidade senha
+      const pwToggle = document.getElementById('pwToggle');
+      const pwInput  = document.getElementById('passwordInput');
+      const pwIcon   = document.getElementById('pwToggleIcon');
+      if (pwToggle && pwInput) {
+        pwToggle.addEventListener('click', function () {
+          const isPass = pwInput.type === 'password';
+          pwInput.type = isPass ? 'text' : 'password';
+          pwIcon.className = isPass ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill';
+        });
+      }
+
+      // Dropzone
+      const dz = document.getElementById('dropzone');
+      const fi = document.getElementById('fileInput');
+      const fn = document.getElementById('fileName');
+      const tl = document.getElementById('templateLink');
+      if (dz && fi) {
+        dz.addEventListener('click', function (e) {
+          if (!e.target.closest('#templateLink')) fi.click();
+        });
+        dz.addEventListener('dragover',  function (e) { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', function ()  { dz.classList.remove('dragover'); });
+        dz.addEventListener('drop', function (e) {
+          e.preventDefault(); dz.classList.remove('dragover');
+          if (e.dataTransfer?.files?.[0]) {
+            fi.files = e.dataTransfer.files;
+            if (fn) fn.textContent = e.dataTransfer.files[0].name;
+          }
+        });
+        fi.addEventListener('change', function () {
+          if (fn && fi.files[0]) fn.textContent = fi.files[0].name;
+        });
+      }
+      if (tl) {
+        const sample = 'Nome,Código,E-mail,Semestre,Senha\nAna Lima,1001,ana@example.com,1,Senha@123\n';
+        const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
+        tl.href = URL.createObjectURL(blob);
+        tl.download = 'modelo_alunos.csv';
+      }
+
+      // Abre modal se ?import=1
+      if (new URLSearchParams(window.location.search).get('import') === '1') {
+        const el = document.getElementById('importStudentsModal');
+        if (el && window.bootstrap) new bootstrap.Modal(el).show();
+      }
+    })();
+  </script>
 </body>
-
 </html>

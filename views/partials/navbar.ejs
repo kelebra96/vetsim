@@ -1,121 +1,153 @@
-<nav class="navbar navbar-expand-lg navbar-dark" id="navbarHome" style="background-color:#000000 !important;">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="/home">
-      <% if (user) { %>
-        <span class="navbar-avatar">
-          <img src="<%= user.avatarUrl && user.avatarUrl.length ? user.avatarUrl : '/img/gato-preto.svg' %>" alt="Avatar do usuário" loading="lazy">
-        </span>
-        <span class="navbar-name"><%= user.name || 'Usuário' %></span>
-      <% } else { %>
-        <span class="navbar-name">VetSim</span>
-      <% } %>
-    </a>
+<%
+  const _p = locals.path || '';
+  const _u = locals.user;
+  const _bal = (_u && typeof _u.balance === 'number') ? Number(_u.balance) : 0;
+  const _sem = (_u && typeof _u.semester === 'number') ? _u.semester : 1;
+  const _xpArr = (_u && Array.isArray(_u.xpBySemester)) ? _u.xpBySemester : [];
+  const _cur = Number(_xpArr[_sem - 1] || 0);
+  const _in = ((_cur % 100) + 100) % 100;
+  const _pct = Math.min(100, Math.max(0, _in));
+  const _isAdmin = _u && (_u.role === 'admin' || _u.role === 'teacher');
+  function _active(route) { return _p === route ? 'vs-nav-active' : ''; }
+%>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Alternar navegação">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<!-- Mobile topbar -->
+<div class="vs-topbar d-lg-none">
+  <button class="vs-sidebar-toggle" id="sidebarToggle" aria-label="Abrir menu">
+    <i class="bi bi-list"></i>
+  </button>
+  <span class="vs-topbar-brand">
+    <img src="/img/gato-preto.svg" alt="VetSim" width="22" height="22">
+    VetSim
+  </span>
+</div>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/home">Home</a>
-        </li>
-        <% if (user && (user.role === "admin" || user.role === "teacher")) { %>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Usuários
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/register">Criação</a></li>
-              <li><a class="dropdown-item" href="/users">Atualização</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/users">Lista de Usuários</a></li>
-            </ul>
-          </li>
-        <% } %>
-        <li class="nav-item">
-          <a class="nav-link active" href="/sobre">Sobre</a>
-        </li>
-        <% if (user && (user.role === "admin" || user.role === "teacher")) { %>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Rounds
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/roundcreate">Criação</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/roundclose">Fechar Round</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/roundsadmin">Por Semestre</a></li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Configurações
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/settings/costs">Custos</a></li>
-              <li><a class="dropdown-item" href="/logs">Logs de Ações</a></li>
-            </ul>
-          </li>
-        <% } %>
-      </ul>
+<!-- Overlay mobile -->
+<div class="vs-sidebar-overlay" id="sidebarOverlay"></div>
 
-      <div class="vs-hud d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 ms-lg-auto mt-3 mt-lg-0">
-        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start">
-          <% const __bal = (user && typeof user.balance === "number") ? Number(user.balance) : 0; %>
-          <span class="badge bg-dark border text-center px-3" title="Saldo VIDA" style="border-color: rgba(255,255,255,0.15) !important;">
-            <i class="bi bi-cash-coin me-1"></i>
-            <%= __bal.toLocaleString("pt-BR", { style:"currency", currency:"BRL" }) %>
-          </span>
-        </div>
+<!-- Sidebar -->
+<aside class="vs-sidebar" id="vsSidebar">
 
-        <div class="vs-streak justify-content-center" title="Sequência diária">
-          <i class="bi bi-fire" aria-hidden="true"></i>
-          <span id="streak-value" aria-live="polite">0</span>
-        </div>
+  <!-- Brand -->
+  <div class="vs-sb-brand">
+    <img src="/img/gato-preto.svg" alt="logo" width="30" height="30">
+    <span class="vs-sb-brand-name">VetSim</span>
+  </div>
 
-        <div class="d-flex flex-column align-items-center align-items-lg-start text-center text-lg-start">
-          <span class="vs-level">Nível <span id="level-value" data-lock="true"><%= (user && typeof user.level === "number") ? user.level : 1 %></span></span>
-          <%
-            const _sem = (user && typeof user.semester === "number") ? user.semester : 1;
-            const _xpArr = (user && Array.isArray(user.xpBySemester)) ? user.xpBySemester : [];
-            const _cur = (_xpArr[_sem-1] || 0);
-            const _in = ((_cur % 100) + 100) % 100;
-            const _pct = Math.min(100, Math.max(0, _in));
-          %>
-          <div class="vs-xpbar">
-            <div class="fill" id="xp-progress-inner" data-lock="true" style="width: <%= _pct %>%;"></div>
-          </div>
-          <small class="text-white-50"><%= _in %>/100 XP (Semestre <%= _sem %>)</small>
-        </div>
+  <!-- Perfil do usuário -->
+  <% if (_u) { %>
+  <div class="vs-sb-profile">
+    <div class="vs-sb-avatar">
+      <img src="<%= _u.avatarUrl && _u.avatarUrl.length ? _u.avatarUrl : '/img/gato-preto.svg' %>" alt="Avatar">
+    </div>
+    <div class="vs-sb-profile-info">
+      <span class="vs-sb-name"><%= _u.name || 'Usuário' %></span>
+      <span class="vs-sb-role"><%= _u.role === 'admin' ? 'Administrador' : _u.role === 'teacher' ? 'Professor' : 'Aluno' %> · Sem. <%= _sem %></span>
+    </div>
+  </div>
 
-        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start">
-          <a class="nav-link" href="/me/xp">
-            <i class="bi bi-trophy me-1"></i> Meu XP
-          </a>
-        </div>
-
-        <div class="nav-item d-flex align-items-center justify-content-center justify-content-lg-start">
-          <a class="nav-link" href="/profile">
-            <i class="bi bi-person-circle me-1"></i> Meu Perfil
-          </a>
-        </div>
-
-        <div class="nav-item d-flex justify-content-center justify-content-lg-start">
-          <a class="nav-link active d-flex align-items-center" href="/logout">
-            <i class="bi bi-door-open me-1"></i> Logout
-          </a>
-        </div>
+  <!-- HUD -->
+  <div class="vs-sb-hud">
+    <div class="vs-sb-hud-row">
+      <i class="bi bi-cash-coin vs-sb-hud-icon"></i>
+      <span class="vs-sb-hud-label">Saldo VIDA</span>
+      <span class="vs-sb-hud-val"><%= _bal.toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></span>
+    </div>
+    <div class="vs-sb-hud-row">
+      <i class="bi bi-fire vs-sb-hud-icon" style="color:#d4890a"></i>
+      <span class="vs-sb-hud-label">Sequência</span>
+      <span class="vs-sb-hud-val" id="streak-value"><%= (_u && _u.streakCount) || 0 %></span>
+    </div>
+    <div class="vs-sb-hud-xp">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <span class="vs-sb-hud-label">Nível <strong id="level-value" data-lock="true"><%= (_u && _u.level) || 1 %></strong></span>
+        <span class="vs-sb-hud-val" style="font-size:.7rem"><%= _in %>/100 XP</span>
+      </div>
+      <div class="vs-xpbar w-100">
+        <div class="fill" id="xp-progress-inner" data-lock="true" style="width:<%= _pct %>%"></div>
       </div>
     </div>
   </div>
-</nav>
+  <% } %>
+
+  <!-- Navegação -->
+  <nav class="vs-sb-nav">
+    <p class="vs-sb-nav-label">Principal</p>
+    <a href="/home" class="vs-sb-link <%= _active('/home') %>">
+      <i class="bi bi-house-door-fill"></i> Home
+    </a>
+    <a href="/rounds" class="vs-sb-link <%= _active('/rounds') %>">
+      <i class="bi bi-arrow-repeat"></i> Meu Round
+    </a>
+    <a href="/me/xp" class="vs-sb-link <%= _active('/me/xp') %>">
+      <i class="bi bi-trophy-fill"></i> Meu XP
+    </a>
+    <a href="/profile" class="vs-sb-link <%= _active('/profile') %>">
+      <i class="bi bi-person-fill"></i> Meu Perfil
+    </a>
+
+    <% if (_isAdmin) { %>
+    <p class="vs-sb-nav-label mt-3">Gestão</p>
+    <a href="/register" class="vs-sb-link <%= _active('/register') %>">
+      <i class="bi bi-person-plus-fill"></i> Criar Usuário
+    </a>
+    <a href="/users" class="vs-sb-link <%= _active('/users') %>">
+      <i class="bi bi-people-fill"></i> Usuários
+    </a>
+    <a href="/roundcreate" class="vs-sb-link <%= _active('/roundcreate') %>">
+      <i class="bi bi-plus-circle-fill"></i> Criar Round
+    </a>
+    <a href="/roundclose" class="vs-sb-link <%= _active('/roundclose') %>">
+      <i class="bi bi-flag-fill"></i> Fechar Round
+    </a>
+    <a href="/roundsadmin" class="vs-sb-link <%= _active('/roundsadmin') %>">
+      <i class="bi bi-grid-3x3-gap-fill"></i> Rounds por Semestre
+    </a>
+
+    <p class="vs-sb-nav-label mt-3">Sistema</p>
+    <a href="/settings/costs" class="vs-sb-link <%= _active('/settings/costs') %>">
+      <i class="bi bi-gear-fill"></i> Configurações
+    </a>
+    <a href="/logs" class="vs-sb-link <%= _active('/logs') %>">
+      <i class="bi bi-journal-text"></i> Logs de Ações
+    </a>
+    <% } %>
+
+    <p class="vs-sb-nav-label mt-3">Outros</p>
+    <a href="/sobre" class="vs-sb-link <%= _active('/sobre') %>">
+      <i class="bi bi-info-circle-fill"></i> Sobre
+    </a>
+  </nav>
+
+  <!-- Logout -->
+  <div class="vs-sb-footer">
+    <a href="/logout" class="vs-sb-link vs-sb-logout">
+      <i class="bi bi-box-arrow-left"></i> Sair
+    </a>
+  </div>
+
+</aside>
 
 <div id="toast-container"></div>
 <script>
-  // Expor XP real do servidor para sincronizar localStorage entre abas
-  window.__serverXP = <%= (user && typeof user.points === "number") ? Number(user.points) : 0 %>;
-  window.__serverStreak = <%= (user && typeof user.streakCount === "number") ? Number(user.streakCount) : 0 %>;
+  window.__serverXP = <%= (_u && typeof _u.points === 'number') ? Number(_u.points) : 0 %>;
+  window.__serverStreak = <%= (_u && typeof _u.streakCount === 'number') ? Number(_u.streakCount) : 0 %>;
+
+  (function () {
+    const toggle = document.getElementById('sidebarToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    const sidebar = document.getElementById('vsSidebar');
+    function openSidebar() {
+      sidebar.classList.add('vs-sidebar-open');
+      overlay.classList.add('vs-sidebar-overlay-show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('vs-sidebar-open');
+      overlay.classList.remove('vs-sidebar-overlay-show');
+      document.body.style.overflow = '';
+    }
+    toggle && toggle.addEventListener('click', openSidebar);
+    overlay && overlay.addEventListener('click', closeSidebar);
+  })();
 </script>

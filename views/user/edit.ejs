@@ -4,110 +4,148 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-  <title>Editar Usuário - VetSim</title>
+  <title>Editar Usuário • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/users-edit.css">
 </head>
 <body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <h1 class="vs-title h4 mb-0">Editar Usuário</h1>
-      <a class="btn btn-outline-light btn-sm" href="/users"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
-    </div>
 
-    <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <%= messages[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
-    <% if (success && success.length>0) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <%= success[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
+  <div class="vs-main">
+    <div class="ue-page">
+      <header class="ue-header">
+        <div>
+          <p class="ue-kicker">Administração</p>
+          <h1 class="ue-title">Editar Usuário</h1>
+          <p class="ue-subtitle">Atualize dados cadastrais, perfil e estado operacional da conta.</p>
+        </div>
+        <a class="ue-back" href="/users"><i class="bi bi-arrow-left"></i> Voltar</a>
+      </header>
 
-    <div class="vs-card p-3">
-      <form action="/users/edit/<%= u._id %>" method="POST">
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <label class="form-label">Nome</label>
-            <input type="text" name="name" class="form-control" value="<%= u.name %>" required>
-          </div>
-          <div class="col-6 col-md-3">
-            <label class="form-label">Código</label>
-            <input type="number" name="code" class="form-control" value="<%= u.code %>" min="1" step="1">
-          </div>
-          <div class="col-6 col-md-3">
-            <label class="form-label">Semestre</label>
-            <input type="number" name="semester" class="form-control" value="<%= u.semester %>" min="1" max="8">
-          </div>
-          <div class="col-12 col-md-6">
-            <label class="form-label">E-mail</label>
-            <input type="email" name="email" class="form-control" value="<%= u.email %>" required>
-          </div>
-          <div class="col-6 col-md-3">
-            <label class="form-label">Tipo</label>
-            <select name="type" class="form-select">
-              <option value="student" <%= u.type==='student'?'selected':'' %>>Aluno</option>
-              <option value="teacher" <%= u.type==='teacher'?'selected':'' %>>Professor</option>
-              <option value="admin" <%= u.type==='admin'?'selected':'' %>>Admin</option>
-            </select>
-          </div>
-          <div class="col-6 col-md-3">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select">
-              <option value="1" <%= u.status ? 'selected' : '' %>>Ativo</option>
-              <option value="0" <%= !u.status ? 'selected' : '' %>>Inativo</option>
-            </select>
-          </div>
+      <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-dismissible fade show ue-alert ue-alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div><%= messages[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
-        <div class="d-flex justify-content-end gap-2 mt-3">
-          <a class="btn btn-secondary" href="/users">Cancelar</a>
-          <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#resetPassModal"><i class="bi bi-key me-1"></i>Redefinir Senha</button>
-          <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#adjustVidaModal"><i class="bi bi-cash-coin me-1"></i>Ajustar VIDA</button>
-          <button type="submit" class="btn btn-vs-dark"><i class="bi bi-check2 me-1"></i>Salvar</button>
+      <% } %>
+
+      <% if (success && success.length > 0) { %>
+        <div class="alert alert-dismissible fade show ue-alert ue-alert-success" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div><%= success[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
-      </form>
-    </div>
-    <!-- Modal Reset Password -->
-    <div class="modal fade" id="resetPassModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content vs-modal">
-          <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-key me-2"></i>Redefinir Senha</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-          </div>
-          <form action="/users/<%= u._id %>/resetpass" method="POST">
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Nova senha</label>
-                <input type="password" class="form-control" name="password" minlength="6" required>
+      <% } %>
+
+      <section class="ue-card">
+        <div class="ue-card-head">
+          <h2><i class="bi bi-person-lines-fill"></i> Dados do usuário</h2>
+          <span class="ue-user-id">ID: <%= u._id %></span>
+        </div>
+
+        <div class="ue-card-body">
+          <form action="/users/edit/<%= u._id %>" method="POST">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="ue-label">Nome</label>
+                <input type="text" name="name" class="form-control ue-input" value="<%= u.name %>" required>
               </div>
-              <div class="mb-1">
-                <label class="form-label">Confirmar senha</label>
-                <input type="password" class="form-control" name="confirm" minlength="6" required>
+              <div class="col-6 col-md-3">
+                <label class="ue-label">Código</label>
+                <input type="number" name="code" class="form-control ue-input" value="<%= u.code %>" min="1" step="1">
               </div>
-              <small class="text-white-50">Mínimo 6 caracteres.</small>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-vs-dark"><i class="bi bi-check2 me-1"></i>Confirmar</button>
+              <div class="col-6 col-md-3">
+                <label class="ue-label">Semestre</label>
+                <input type="number" name="semester" class="form-control ue-input" value="<%= u.semester %>" min="1" max="8">
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="ue-label">E-mail</label>
+                <input type="email" name="email" class="form-control ue-input" value="<%= u.email %>" required>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="ue-label">Tipo</label>
+                <select name="type" class="form-select ue-input">
+                  <option value="student" <%= u.type==='student'?'selected':'' %>>Aluno</option>
+                  <option value="teacher" <%= u.type==='teacher'?'selected':'' %>>Professor</option>
+                  <option value="admin" <%= u.type==='admin'?'selected':'' %>>Admin</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="ue-label">Status</label>
+                <select name="status" class="form-select ue-input">
+                  <option value="1" <%= u.status ? 'selected' : '' %>>Ativo</option>
+                  <option value="0" <%= !u.status ? 'selected' : '' %>>Inativo</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <div class="ue-balance">
+                  <span>Saldo VIDA atual</span>
+                  <strong><%= Number(u.balance || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></strong>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="ue-actions">
+                  <a class="btn ue-btn ue-btn-cancel" href="/users">Cancelar</a>
+                  <button type="button" class="btn ue-btn ue-btn-secondary" data-bs-toggle="modal" data-bs-target="#resetPassModal">
+                    <i class="bi bi-key"></i>
+                    Redefinir senha
+                  </button>
+                  <button type="button" class="btn ue-btn ue-btn-secondary" data-bs-toggle="modal" data-bs-target="#adjustVidaModal">
+                    <i class="bi bi-cash-coin"></i>
+                    Ajustar VIDA
+                  </button>
+                  <button type="submit" class="btn ue-btn ue-btn-save">
+                    <i class="bi bi-check2"></i>
+                    Salvar alterações
+                  </button>
+                </div>
+              </div>
             </div>
           </form>
         </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal fade" id="resetPassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content ue-modal">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-key me-2"></i>Redefinir senha</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <form action="/users/<%= u._id %>/resetpass" method="POST">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nova senha</label>
+              <input type="password" class="form-control ue-input" name="password" minlength="6" required>
+            </div>
+            <div class="mb-1">
+              <label class="form-label">Confirmar senha</label>
+              <input type="password" class="form-control ue-input" name="confirm" minlength="6" required>
+            </div>
+            <small class="text-white-50">Mínimo 6 caracteres.</small>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn ue-btn ue-btn-save"><i class="bi bi-check2 me-1"></i>Confirmar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-  <!-- Modal Ajustar VIDA -->
+
   <div class="modal fade" id="adjustVidaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content vs-modal">
+      <div class="modal-content ue-modal">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Ajustar Saldo VIDA</h5>
+          <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Ajustar saldo VIDA</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
         <form action="/users/<%= u._id %>/balance" method="POST">
@@ -129,7 +167,7 @@
               <label class="form-label">Valor</label>
               <div class="input-group">
                 <span class="input-group-text">R$</span>
-                <input type="text" id="vidaAmount_display" class="form-control" inputmode="decimal" autocomplete="off" required>
+                <input type="text" id="vidaAmount_display" class="form-control ue-input" inputmode="decimal" autocomplete="off" required>
               </div>
               <input type="hidden" name="amount" id="vidaAmount" value="0">
               <div class="form-text text-white-50" id="vidaPreview"></div>
@@ -138,30 +176,34 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-vs-dark"><i class="bi bi-check2 me-1"></i>Confirmar</button>
+            <button type="submit" class="btn ue-btn ue-btn-save"><i class="bi bi-check2 me-1"></i>Confirmar</button>
           </div>
         </form>
       </div>
     </div>
   </div>
+
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <div id="toast-container"></div>
   <script>
-    // Máscara BRL no modal de VIDA
     (function(){
+      document.querySelectorAll('.alert').forEach(function(el){
+        setTimeout(function(){ try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {} }, 5000);
+      });
+
       const nf = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const cf = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-      const toNumber = (str) => {
+      const toNumber = function(str) {
         if (str == null) return 0;
         const s = String(str).replace(/[^0-9,\.]/g, '').replace(/\./g, '').replace(',', '.');
         const n = parseFloat(s);
         return isNaN(n) ? 0 : n;
       };
+
       const d = document.getElementById('vidaAmount_display');
       const h = document.getElementById('vidaAmount');
       const p = document.getElementById('vidaPreview');
       if (d && h) {
-        const sync = ()=>{
+        const sync = function(){
           const n = toNumber(d.value);
           h.value = n.toFixed(2);
           d.value = nf.format(n);
@@ -169,9 +211,8 @@
         };
         d.addEventListener('input', sync);
         d.addEventListener('blur', sync);
-        // init
-        d.value = nf.format(Number(h.value||0));
-        if (p) p.textContent = cf.format(Number(h.value||0));
+        d.value = nf.format(Number(h.value || 0));
+        if (p) p.textContent = cf.format(Number(h.value || 0));
       }
     })();
   </script>

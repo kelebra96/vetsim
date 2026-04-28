@@ -1,4 +1,8 @@
 import roundService from "../services/roundUser.service.js";
+import Round from "../models/RoundUser.js";
+import User from "../models/User.js";
+import BulkActionLog from "../models/BulkActionLog.js";
+import Settings from "../models/Settings.js";
 import path from "path";
 import { execFile } from "child_process";
 import { fileURLToPath } from "url";
@@ -8,13 +12,94 @@ import { awardPoints } from "../services/gamification.service.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// --- Helpers ---
+
+function parseRoundFilter({ semester, numberRound, status }) {
+  const sem = Number(semester);
+  const nr = (numberRound !== undefined && numberRound !== "") ? Number(numberRound) : undefined;
+  const statusParam = typeof status === "string" ? status : "";
+  return { sem, nr, statusParam };
+}
+
+function buildRoundFilter(sem, nr, statusParam) {
+  const filter = { semester: sem };
+  if (Number.isFinite(nr)) filter.numberRound = nr;
+  if (statusParam === "active") filter.status = true;
+  if (statusParam === "closed") filter.status = false;
+  return filter;
+}
+
+function buildAdminRedirectUrl(sem, nr) {
+  const params = new URLSearchParams({ semester: String(sem) });
+  if (Number.isFinite(nr)) params.set("numberRound", String(nr));
+  return `/roundsadmin?${params}`;
+}
+
+async function logBulkAction(userId, action, { semester, numberRound, statusFilter, affectedCount }) {
+  try {
+    await BulkActionLog.create({
+      user: userId,
+      action,
+      semester,
+      numberRound: Number.isFinite(numberRound) ? numberRound : undefined,
+      statusFilter,
+      affectedCount,
+    });
+  } catch (err) {
+    console.warn("BulkActionLog.create failed:", err.message);
+  }
+}
+
+async function loadCosts() {
+  try {
+    const cfg = await Settings.findOne({ key: "costs" }).lean();
+    if (!cfg) return { shelterCost: 0, maleNeuterCost: 0, femaleNeuterCost: 0 };
+    return {
+      shelterCost: Number(cfg.shelterCost || 0),
+      maleNeuterCost: Number(cfg.maleNeuterCost || 0),
+      femaleNeuterCost: Number(cfg.femaleNeuterCost || 0),
+    };
+  } catch (err) {
+    console.warn("Could not load Settings.costs, using defaults:", err.message);
+    return { shelterCost: 0, maleNeuterCost: 0, femaleNeuterCost: 0 };
+  }
+}
+
+function runSimulationScript(scriptPath, args) {
+  const candidates = [process.env.PYTHON_BIN, "python3", "python"].filter(Boolean);
+
+  return new Promise((resolve, reject) => {
+    let idx = 0;
+    const tryNext = (lastErr) => {
+      if (idx >= candidates.length) {
+        return reject(lastErr || new Error("Nenhum interpretador Python disponível."));
+      }
+
+      const cmd = candidates[idx++];
+      execFile(cmd, [scriptPath, ...args], (error, stdout) => {
+        if (error) {
+          // Tenta próximo binário só quando o comando não existe.
+          if (error.code === "ENOENT") return tryNext(error);
+          return reject(error);
+        }
+        resolve(stdout);
+      });
+    };
+
+    tryNext();
+  });
+}
+
+// --- Controllers ---
+
 const createRound = async (req, res) => {
   let hvThreshold = 200;
   try {
-    const Settings = (await import("../models/Settings.js")).default;
     const cfg = await Settings.findOne({ key: "costs" }).lean();
-    if (cfg && typeof cfg.highVolumeThreshold === 'number') hvThreshold = cfg.highVolumeThreshold;
-  } catch (_e) {}
+    if (cfg && typeof cfg.highVolumeThreshold === "number") hvThreshold = cfg.highVolumeThreshold;
+  } catch (err) {
+    console.warn("Could not load Settings for hvThreshold:", err.message);
+  }
   res.render("round/create", {
     messages: req.flash("error"),
     success: req.flash("success"),
@@ -36,13 +121,12 @@ const create = async (req, res) => {
       req.flash("error", result.message || "Regra de criação de rounds violada.");
       return res.redirect("/roundcreate");
     }
-    const created = typeof result?.created === 'number' ? result.created : 0;
-    const ignored = typeof result?.ignored === 'number' ? result.ignored : 0;
+    const created = typeof result?.created === "number" ? result.created : 0;
+    const ignored = typeof result?.ignored === "number" ? result.ignored : 0;
     const baseMsg = result?.message || "Round criado com sucesso.";
     req.flash("success", `${baseMsg} (${created} criados, ${ignored} já existentes)`);
-    // Award XP to admin/teacher who created
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'teacher')) {
-      try { await awardPoints(req.user.id, 20, 'create_round'); } catch(_e){}
+    if (req.user && (req.user.role === "admin" || req.user.role === "teacher")) {
+      try { await awardPoints(req.user.id, 20, "create_round"); } catch (_e) {}
     }
     return res.redirect("/roundcreate");
   } catch (error) {
@@ -60,33 +144,13 @@ const rounds = async (req, res) => {
   }
 
   try {
-    // Carrega custos configurados
-    let costs = { shelterCost: 0, maleNeuterCost: 0, femaleNeuterCost: 0 };
-    try {
-      const Settings = (await import("../models/Settings.js")).default;
-      const cfg = await Settings.findOne({ key: "costs" }).lean();
-      if (cfg) {
-        costs = {
-          shelterCost: Number(cfg.shelterCost || 0),
-          maleNeuterCost: Number(cfg.maleNeuterCost || 0),
-          femaleNeuterCost: Number(cfg.femaleNeuterCost || 0),
-        };
-      }
-    } catch (_e) {}
-    const round = await roundService.findActiveRoundByUserCode(userCode);
-
-    if (!round) {
-      req.flash("error", "Nenhum round disponível para você no momento.");
-      return res.render("round/management", {
-        round: null,
-        messages: req.flash("error"),
-        success: req.flash("success"),
-        costs,
-      });
-    }
+    const [costs, round] = await Promise.all([
+      loadCosts(),
+      roundService.findActiveRoundByUserCode(userCode),
+    ]);
 
     return res.render("round/management", {
-      round,
+      round: round || null,
       messages: req.flash("error"),
       success: req.flash("success"),
       costs,
@@ -122,16 +186,11 @@ const update = async (req, res) => {
   const { quantMales, quantFemales, shelter } = req.body;
 
   try {
-    const updated = await roundService.updateService(
-      id,
-      undefined, // numberRound
-      undefined, // codeUser
-      undefined, // semester
-      Number(quantMales),
-      Number(quantFemales),
-      Number(shelter),
-      undefined // status
-    );
+    const updated = await roundService.updateService(id, {
+      quantMales: Number(quantMales),
+      quantFemales: Number(quantFemales),
+      shelter: Number(shelter),
+    });
 
     if (!updated) {
       req.flash("error", "Round não encontrado ou não pôde ser atualizado.");
@@ -139,8 +198,7 @@ const update = async (req, res) => {
     }
 
     req.flash("success", "Dados do round atualizados com sucesso!");
-    // Award XP to the actor (student) once per update action
-    if (req.user) { try { await awardPoints(req.user.id, 15, 'update_round'); } catch(_e){} }
+    if (req.user) { try { await awardPoints(req.user.id, 15, "update_round"); } catch (_e) {} }
     return res.redirect("/rounds");
   } catch (error) {
     console.error("Erro ao atualizar round:", error);
@@ -167,76 +225,56 @@ const closeRound = async (req, res) => {
 
     const results = [];
     let pythonFailed = false;
+    const scriptPath = path.resolve(__dirname, "../../script.py");
+    const today = new Date().toISOString().split("T")[0];
 
-    for (const round of rounds) {
-      const dados = {
-        [new Date().toISOString().split("T")[0]]: {
-          f: round.quantFemales,
-          m: round.quantMales,
-        },
-      };
-
-      const scriptPath = path.resolve(__dirname, "../../script.py");
-      const args = [
-        "--quant",
-        "4",
-        "--dataini",
-        "2024-07-01",
-        "--dados",
-        JSON.stringify(dados),
-      ];
-
-      console.log(`Executando: python ${scriptPath} ${args.join(" ")}`);
-
-      await new Promise((resolve) => {
-        execFile("python", [scriptPath, ...args], (error, stdout) => {
-          if (error) {
-            pythonFailed = true;
-            return resolve();
-          }
-
-          if (!stdout) {
-            pythonFailed = true;
-            return resolve();
-          }
-
-          try {
-            const parsed = JSON.parse(stdout);
-            results.push({
-              codeUser: round.codeUser,
-              nameusr: round.nameusr || "Desconhecido",
-              numberRound,
-              semester,
-              data: parsed,
-            });
-          } catch (_err) {
-            pythonFailed = true;
-          }
-          return resolve();
-        });
-      });
-    }
+    await Promise.all(
+      rounds.map(
+        (round) =>
+          new Promise((resolve) => {
+            const dados = { [today]: { f: round.quantFemales, m: round.quantMales } };
+            const args = ["--quant", "4", "--dataini", "2024-07-01", "--dados", JSON.stringify(dados)];
+            runSimulationScript(scriptPath, args)
+              .then((stdout) => {
+                if (!stdout) {
+                  pythonFailed = true;
+                  return;
+                }
+                const parsed = JSON.parse(stdout);
+                if (!parsed || typeof parsed !== "object" || parsed.error) {
+                  pythonFailed = true;
+                  return;
+                }
+                results.push({
+                  codeUser: round.codeUser,
+                  nameusr: round.nameusr || "Desconhecido",
+                  numberRound,
+                  semester,
+                  data: parsed,
+                });
+              })
+              .catch(() => {
+                pythonFailed = true;
+              })
+              .finally(resolve);
+          })
+      )
+    );
 
     const warning = pythonFailed
-      ? "Dependências Python/numpy ausentes. Exibindo a página sem gráficos."
+      ? "Não foi possível gerar todos os gráficos automaticamente. Exibindo resultados parciais."
       : null;
 
     if (pythonFailed && results.length === 0) {
-      req.flash("error", warning);
+      req.flash("error", "Não foi possível gerar os gráficos deste fechamento. Verifique a instalação do Python 3 no servidor.");
       return res.redirect("/roundclose");
     }
 
-    // Award XP to admin/teacher who closed the round
-    if (req.user && (req.user.role === 'admin' || req.user.role === 'teacher')) {
-      try { await awardPoints(req.user.id, 30, 'close_round'); } catch(_e){}
+    if (req.user && (req.user.role === "admin" || req.user.role === "teacher")) {
+      try { await awardPoints(req.user.id, 30, "close_round"); } catch (_e) {}
     }
 
-    res.render("round/graph", {
-      results,
-      numberRound,
-      semester,
-      warning,
-    });
+    res.render("round/graph", { results, numberRound, semester, warning });
   } catch (error) {
     console.error("Erro ao fechar round:", error);
     req.flash("error", "Erro ao fechar o round.");
@@ -260,26 +298,26 @@ export default {
   update,
   closeRound,
   roundCloseForm,
+
   async roundsExisting(req, res) {
     try {
       const semester = Number(req.query.semester);
       if (!Number.isFinite(semester)) {
         return res.status(400).json({ message: "Semestre inválido" });
       }
-      const Round = (await import("../models/RoundUser.js")).default;
       const existing = await Round.distinct("numberRound", { semester });
       res.json({ existing });
     } catch (e) {
       res.status(500).json({ message: "Erro ao consultar rounds", error: e?.message || String(e) });
     }
   },
+
   async roundsList(req, res) {
     try {
       const semester = Number(req.query.semester);
       if (!Number.isFinite(semester)) {
         return res.status(400).json({ message: "Semestre inválido" });
       }
-      const Round = (await import("../models/RoundUser.js")).default;
       const data = await Round.aggregate([
         { $match: { semester } },
         {
@@ -300,45 +338,38 @@ export default {
       }));
       res.json({ list });
     } catch (e) {
-      res
-        .status(500)
-        .json({ message: "Erro ao listar rounds", error: e?.message || String(e) });
+      res.status(500).json({ message: "Erro ao listar rounds", error: e?.message || String(e) });
     }
   },
+
   async semesterUsersCount(req, res) {
     try {
       const semester = Number(req.query.semester);
       if (!Number.isFinite(semester)) {
         return res.status(400).json({ message: "Semestre inválido" });
       }
-      const User = (await import("../models/User.js")).default;
       const activeUsers = await User.countDocuments({ semester, status: true });
       res.json({ activeUsers });
     } catch (e) {
-      res
-        .status(500)
-        .json({ message: "Erro ao contar usuários ativos", error: e?.message || String(e) });
+      res.status(500).json({ message: "Erro ao contar usuários ativos", error: e?.message || String(e) });
     }
   },
+
   async roundsAdminView(req, res) {
     try {
-      const Round = (await import("../models/RoundUser.js")).default;
-      const semester = Number(req.query.semester);
-      const numberRound = req.query.numberRound !== undefined ? Number(req.query.numberRound) : undefined;
-      const statusParam = typeof req.query.status === 'string' ? req.query.status : '';
+      const { sem, nr, statusParam } = parseRoundFilter(req.query);
       let list = [];
       let existing = [];
-      if (Number.isFinite(semester)) {
-        const filter = { semester };
-        existing = await Round.distinct("numberRound", { semester });
-        if (Number.isFinite(numberRound)) filter.numberRound = numberRound;
-        if (statusParam === 'active') filter.status = true;
-        if (statusParam === 'closed') filter.status = false;
-        list = await Round.find(filter).sort({ numberRound: 1, codeUser: 1 }).lean();
+      if (Number.isFinite(sem)) {
+        const filter = buildRoundFilter(sem, nr, statusParam);
+        [existing, list] = await Promise.all([
+          Round.distinct("numberRound", { semester: sem }),
+          Round.find(filter).sort({ numberRound: 1, codeUser: 1 }).lean(),
+        ]);
       }
       res.render("round/admin", {
-        semester: Number.isFinite(semester) ? semester : "",
-        numberRound: Number.isFinite(numberRound) ? numberRound : "",
+        semester: Number.isFinite(sem) ? sem : "",
+        numberRound: Number.isFinite(nr) ? nr : "",
         statusParam,
         existing,
         list,
@@ -350,168 +381,110 @@ export default {
       return res.redirect("/home");
     }
   },
+
   async exportCsv(req, res) {
     try {
-      const Round = (await import("../models/RoundUser.js")).default;
-      const semester = Number(req.query.semester);
-      const numberRound = req.query.numberRound !== undefined && req.query.numberRound !== '' ? Number(req.query.numberRound) : undefined;
-      const statusParam = typeof req.query.status === 'string' ? req.query.status : '';
-      if (!Number.isFinite(semester)) {
+      const { sem, nr, statusParam } = parseRoundFilter(req.query);
+      if (!Number.isFinite(sem)) {
         return res.status(400).send("Parâmetro 'semester' é obrigatório");
       }
-      const filter = { semester };
-      if (Number.isFinite(numberRound)) filter.numberRound = numberRound;
-      if (statusParam === 'active') filter.status = true;
-      if (statusParam === 'closed') filter.status = false;
-      const rows = await Round.find(filter).sort({ numberRound: 1, codeUser: 1 }).lean();
+      const filter = buildRoundFilter(sem, nr, statusParam);
+      const headers = ["semester", "numberRound", "codeUser", "nameusr", "quantMales", "quantFemales", "shelter", "status", "createdAt", "updatedAt"];
+      const fname = `rounds_sem_${sem}_n_${Number.isFinite(nr) ? nr : "all"}_status_${statusParam || "all"}.csv`;
 
-      const headers = [
-        'semester','numberRound','codeUser','nameusr','quantMales','quantFemales','shelter','status','createdAt','updatedAt'
-      ];
-      const csv = [headers.join(',')].concat(
-        rows.map(r => [
-          r.semester,
-          r.numberRound,
-          r.codeUser,
-          (r.nameusr||'').toString().replace(/"/g,'""'),
-          r.quantMales,
-          r.quantFemales,
-          r.shelter,
-          r.status ? 'true' : 'false',
-          r.createdAt ? new Date(r.createdAt).toISOString() : '',
-          r.updatedAt ? new Date(r.updatedAt).toISOString() : '',
-        ].map(v => {
-          const s = (v===undefined || v===null) ? '' : String(v);
-          return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
-        }).join(','))
-      ).join('\n');
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${fname}"`);
+      res.write(headers.join(",") + "\n");
 
-      const fname = `rounds_sem_${semester}_n_${Number.isFinite(numberRound)?numberRound:'all'}_status_${statusParam||'all'}.csv`;
-      res.setHeader('Content-Type','text/csv; charset=utf-8');
-      res.setHeader('Content-Disposition',`attachment; filename="${fname}"`);
-      res.send(csv);
+      const cursor = Round.find(filter).sort({ numberRound: 1, codeUser: 1 }).lean().cursor();
+      for await (const r of cursor) {
+        const row = [
+          r.semester, r.numberRound, r.codeUser,
+          (r.nameusr || "").toString().replace(/"/g, '""'),
+          r.quantMales, r.quantFemales, r.shelter,
+          r.status ? "true" : "false",
+          r.createdAt ? new Date(r.createdAt).toISOString() : "",
+          r.updatedAt ? new Date(r.updatedAt).toISOString() : "",
+        ].map((v) => {
+          const s = (v === undefined || v === null) ? "" : String(v);
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        }).join(",");
+        res.write(row + "\n");
+      }
+      res.end();
     } catch (e) {
-      res.status(500).send('Erro ao exportar CSV');
+      res.status(500).send("Erro ao exportar CSV");
     }
   },
+
   async bulkClose(req, res) {
     try {
-      const semester = Number(req.body.semester);
-      const numberRound = req.body.numberRound !== undefined && req.body.numberRound !== '' ? Number(req.body.numberRound) : undefined;
-      if (!Number.isFinite(semester)) {
-        req.flash('error','Semestre inválido');
-        return res.redirect('/roundsadmin');
+      const { sem, nr } = parseRoundFilter(req.body);
+      if (!Number.isFinite(sem)) {
+        req.flash("error", "Semestre inválido");
+        return res.redirect("/roundsadmin");
       }
-      const Round = (await import("../models/RoundUser.js")).default;
-      const filter = { semester, status: true };
-      if (Number.isFinite(numberRound)) filter.numberRound = numberRound;
+      const filter = { semester: sem, status: true };
+      if (Number.isFinite(nr)) filter.numberRound = nr;
       const upd = await Round.updateMany(filter, { $set: { status: false, updatedAt: new Date() } });
-      // Log de auditoria
-      try {
-        const BulkActionLog = (await import("../models/BulkActionLog.js")).default;
-        await BulkActionLog.create({
-          user: req.user.id,
-          action: 'bulk_close',
-          semester,
-          numberRound: Number.isFinite(numberRound) ? numberRound : undefined,
-          statusFilter: 'active',
-          affectedCount: upd.modifiedCount || 0,
-        });
-      } catch(_e) {}
-      req.flash('success', `Fechou ${upd.modifiedCount||0} round(s) do filtro.`);
-      const q = new URLSearchParams({ semester: String(semester), numberRound: Number.isFinite(numberRound)? String(numberRound): '' }).toString();
-      return res.redirect(`/roundsadmin?${q}`);
+      logBulkAction(req.user.id, "bulk_close", { semester: sem, numberRound: nr, statusFilter: "active", affectedCount: upd.modifiedCount || 0 });
+      req.flash("success", `Fechou ${upd.modifiedCount || 0} round(s) do filtro.`);
+      return res.redirect(buildAdminRedirectUrl(sem, nr));
     } catch (e) {
-      req.flash('error','Erro ao fechar rounds do filtro.');
-      return res.redirect('/roundsadmin');
+      req.flash("error", "Erro ao fechar rounds do filtro.");
+      return res.redirect("/roundsadmin");
     }
   },
+
   async bulkReopen(req, res) {
     try {
-      const semester = Number(req.body.semester);
-      const numberRound = req.body.numberRound !== undefined && req.body.numberRound !== '' ? Number(req.body.numberRound) : undefined;
-      if (!Number.isFinite(semester)) {
-        req.flash('error','Semestre inválido');
-        return res.redirect('/roundsadmin');
+      const { sem, nr } = parseRoundFilter(req.body);
+      if (!Number.isFinite(sem)) {
+        req.flash("error", "Semestre inválido");
+        return res.redirect("/roundsadmin");
       }
-      const Round = (await import("../models/RoundUser.js")).default;
-      const filter = { semester, status: false };
-      if (Number.isFinite(numberRound)) filter.numberRound = numberRound;
+      const filter = { semester: sem, status: false };
+      if (Number.isFinite(nr)) filter.numberRound = nr;
       const upd = await Round.updateMany(filter, { $set: { status: true, updatedAt: new Date() } });
-      // Log de auditoria
-      try {
-        const BulkActionLog = (await import("../models/BulkActionLog.js")).default;
-        await BulkActionLog.create({
-          user: req.user.id,
-          action: 'bulk_reopen',
-          semester,
-          numberRound: Number.isFinite(numberRound) ? numberRound : undefined,
-          statusFilter: 'closed',
-          affectedCount: upd.modifiedCount || 0,
-        });
-      } catch(_e) {}
-      req.flash('success', `Reabriu ${upd.modifiedCount||0} round(s) do filtro.`);
-      const q = new URLSearchParams({ semester: String(semester), numberRound: Number.isFinite(numberRound)? String(numberRound): '' }).toString();
-      return res.redirect(`/roundsadmin?${q}`);
+      logBulkAction(req.user.id, "bulk_reopen", { semester: sem, numberRound: nr, statusFilter: "closed", affectedCount: upd.modifiedCount || 0 });
+      req.flash("success", `Reabriu ${upd.modifiedCount || 0} round(s) do filtro.`);
+      return res.redirect(buildAdminRedirectUrl(sem, nr));
     } catch (e) {
-      req.flash('error','Erro ao reabrir rounds do filtro.');
-      return res.redirect('/roundsadmin');
+      req.flash("error", "Erro ao reabrir rounds do filtro.");
+      return res.redirect("/roundsadmin");
     }
   },
+
   async bulkDelete(req, res) {
     try {
-      const semester = Number(req.body.semester);
-      const numberRound = req.body.numberRound !== undefined && req.body.numberRound !== '' ? Number(req.body.numberRound) : undefined;
-      const statusParam = typeof req.body.status === 'string' ? req.body.status : '';
-      if (!Number.isFinite(semester)) {
-        req.flash('error','Semestre inválido');
-        return res.redirect('/roundsadmin');
+      const { sem, nr, statusParam } = parseRoundFilter(req.body);
+      if (!Number.isFinite(sem)) {
+        req.flash("error", "Semestre inválido");
+        return res.redirect("/roundsadmin");
       }
-      const Round = (await import("../models/RoundUser.js")).default;
-      const filter = { semester };
-      if (Number.isFinite(numberRound)) filter.numberRound = numberRound;
-      if (statusParam === 'active') filter.status = true;
-      if (statusParam === 'closed') filter.status = false;
+      const filter = buildRoundFilter(sem, nr, statusParam);
       const del = await Round.deleteMany(filter);
-      // Log de auditoria
-      try {
-        const BulkActionLog = (await import("../models/BulkActionLog.js")).default;
-        await BulkActionLog.create({
-          user: req.user.id,
-          action: 'bulk_delete',
-          semester,
-          numberRound: Number.isFinite(numberRound) ? numberRound : undefined,
-          statusFilter: statusParam || '',
-          affectedCount: del.deletedCount || 0,
-        });
-      } catch(_e) {}
-      req.flash('success', `Excluiu ${del.deletedCount||0} round(s) do filtro.`);
-      const q = new URLSearchParams({
-        semester: String(semester),
-        numberRound: Number.isFinite(numberRound)? String(numberRound): '',
-        status: statusParam || ''
-      }).toString();
-      return res.redirect(`/roundsadmin?${q}`);
+      logBulkAction(req.user.id, "bulk_delete", { semester: sem, numberRound: nr, statusFilter: statusParam || "", affectedCount: del.deletedCount || 0 });
+      req.flash("success", `Excluiu ${del.deletedCount || 0} round(s) do filtro.`);
+      const params = new URLSearchParams({ semester: String(sem) });
+      if (Number.isFinite(nr)) params.set("numberRound", String(nr));
+      if (statusParam) params.set("status", statusParam);
+      return res.redirect(`/roundsadmin?${params}`);
     } catch (e) {
-      req.flash('error','Erro ao excluir rounds do filtro.');
-      return res.redirect('/roundsadmin');
+      req.flash("error", "Erro ao excluir rounds do filtro.");
+      return res.redirect("/roundsadmin");
     }
   },
+
   async countFiltered(req, res) {
     try {
-      const Round = (await import("../models/RoundUser.js")).default;
-      const semester = Number(req.query.semester);
-      const numberRound = req.query.numberRound !== undefined && req.query.numberRound !== '' ? Number(req.query.numberRound) : undefined;
-      const statusParam = typeof req.query.status === 'string' ? req.query.status : '';
-      if (!Number.isFinite(semester)) return res.status(400).json({ message: "Semestre inválido" });
-      const filter = { semester };
-      if (Number.isFinite(numberRound)) filter.numberRound = numberRound;
-      if (statusParam === 'active') filter.status = true;
-      if (statusParam === 'closed') filter.status = false;
+      const { sem, nr, statusParam } = parseRoundFilter(req.query);
+      if (!Number.isFinite(sem)) return res.status(400).json({ message: "Semestre inválido" });
+      const filter = buildRoundFilter(sem, nr, statusParam);
       const count = await Round.countDocuments(filter);
       return res.json({ count });
     } catch (e) {
-      return res.status(500).json({ message: 'Erro ao contar registros', error: e?.message || String(e) });
+      return res.status(500).json({ message: "Erro ao contar registros", error: e?.message || String(e) });
     }
   },
 };

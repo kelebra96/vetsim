@@ -4,105 +4,174 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-  <title>VetSim - Custos</title>
+  <title>Configurar Custos • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/settings-costs.css">
 </head>
 <body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <h1 class="vs-title h3 mb-3">Configurar Custos</h1>
-    <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger"><%= messages[0] %></div>
-    <% } %>
-    <% if (success && success.length>0) { %>
-      <div class="alert alert-success"><%= success[0] %></div>
-    <% } %>
 
-    <div class="card vs-card">
-      <div class="card-body">
-        <form action="/settings/costs" method="POST" novalidate>
-          <div class="row g-3">
-            <div class="col-12 col-md-4">
-              <label class="form-label">Criação de Abrigo</label>
-              <div class="input-group">
-                <span class="input-group-text">R$</span>
-                <input type="text" id="shelterCost_display" class="form-control js-brl" inputmode="decimal" autocomplete="off">
+  <div class="vs-main">
+    <div class="sc-page">
+      <header class="sc-header">
+        <div>
+          <p class="sc-kicker">Configuração de sistema</p>
+          <h1 class="sc-title">Custos da Simulação</h1>
+          <p class="sc-subtitle">Defina os custos base utilizados nas rodadas e no painel administrativo.</p>
+        </div>
+      </header>
+
+      <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-dismissible fade show sc-alert sc-alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div><%= messages[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <% if (success && success.length > 0) { %>
+        <div class="alert alert-dismissible fade show sc-alert sc-alert-success" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div><%= success[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <section class="sc-card">
+        <div class="sc-card-head">
+          <h2><i class="bi bi-currency-dollar"></i> Parâmetros de custo</h2>
+        </div>
+
+        <div class="sc-card-body">
+          <form action="/settings/costs" method="POST" novalidate>
+            <div class="row g-3">
+              <div class="col-12 col-md-6 col-xl-3">
+                <label class="sc-label" for="shelterCost_display">Criação de abrigo</label>
+                <div class="input-group sc-group">
+                  <span class="input-group-text">R$</span>
+                  <input type="text" id="shelterCost_display" class="form-control sc-input js-brl" inputmode="decimal" autocomplete="off">
+                </div>
+                <input type="hidden" name="shelterCost" id="shelterCost" value="<%= (costs && costs.shelterCost) || 0 %>">
+                <p class="sc-preview" id="shelterPreview"></p>
               </div>
-              <input type="hidden" name="shelterCost" id="shelterCost" value="<%= (costs && costs.shelterCost) || 0 %>">
-              <div class="form-text text-white-50" id="shelterPreview"></div>
-            </div>
-            <div class="col-12 col-md-4">
-              <label class="form-label">Castrar Macho</label>
-              <div class="input-group">
-                <span class="input-group-text">R$</span>
-                <input type="text" id="maleNeuterCost_display" class="form-control js-brl" inputmode="decimal" autocomplete="off">
+
+              <div class="col-12 col-md-6 col-xl-3">
+                <label class="sc-label" for="maleNeuterCost_display">Castrar macho</label>
+                <div class="input-group sc-group">
+                  <span class="input-group-text">R$</span>
+                  <input type="text" id="maleNeuterCost_display" class="form-control sc-input js-brl" inputmode="decimal" autocomplete="off">
+                </div>
+                <input type="hidden" name="maleNeuterCost" id="maleNeuterCost" value="<%= (costs && costs.maleNeuterCost) || 0 %>">
+                <p class="sc-preview" id="malePreview"></p>
               </div>
-              <input type="hidden" name="maleNeuterCost" id="maleNeuterCost" value="<%= (costs && costs.maleNeuterCost) || 0 %>">
-              <div class="form-text text-white-50" id="malePreview"></div>
-            </div>
-            <div class="col-12 col-md-4">
-              <label class="form-label">Castrar Fêmea</label>
-              <div class="input-group">
-                <span class="input-group-text">R$</span>
-                <input type="text" id="femaleNeuterCost_display" class="form-control js-brl" inputmode="decimal" autocomplete="off">
+
+              <div class="col-12 col-md-6 col-xl-3">
+                <label class="sc-label" for="femaleNeuterCost_display">Castrar fêmea</label>
+                <div class="input-group sc-group">
+                  <span class="input-group-text">R$</span>
+                  <input type="text" id="femaleNeuterCost_display" class="form-control sc-input js-brl" inputmode="decimal" autocomplete="off">
+                </div>
+                <input type="hidden" name="femaleNeuterCost" id="femaleNeuterCost" value="<%= (costs && costs.femaleNeuterCost) || 0 %>">
+                <p class="sc-preview" id="femalePreview"></p>
               </div>
-              <input type="hidden" name="femaleNeuterCost" id="femaleNeuterCost" value="<%= (costs && costs.femaleNeuterCost) || 0 %>">
-              <div class="form-text text-white-50" id="femalePreview"></div>
+
+              <div class="col-12 col-md-6 col-xl-3">
+                <label class="sc-label" for="highVolumeThreshold">Limite de aviso (registros)</label>
+                <input type="number" name="highVolumeThreshold" id="highVolumeThreshold" class="form-control sc-input" min="0" step="1" required value="<%= (costs && costs.highVolumeThreshold) || 200 %>">
+                <p class="sc-help">Alerta exibido quando a previsão de criação de round ultrapassar esse valor.</p>
+              </div>
+
+              <div class="col-12">
+                <div class="sc-summary">
+                  <div class="sc-summary-item">
+                    <span>Abrigo</span>
+                    <strong id="sumShelter">R$ 0,00</strong>
+                  </div>
+                  <div class="sc-summary-item">
+                    <span>Macho</span>
+                    <strong id="sumMale">R$ 0,00</strong>
+                  </div>
+                  <div class="sc-summary-item">
+                    <span>Fêmea</span>
+                    <strong id="sumFemale">R$ 0,00</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button class="btn sc-btn-save" type="submit">
+                  <i class="bi bi-save2-fill"></i>
+                  Salvar custos
+                </button>
+              </div>
             </div>
-            <div class="col-12 col-md-4">
-              <label class="form-label">Limite de aviso (registros)</label>
-              <input type="number" name="highVolumeThreshold" id="highVolumeThreshold" class="form-control" min="0" step="1" required value="<%= (costs && costs.highVolumeThreshold) || 200 %>">
-              <div class="form-text">Exibe alerta na criação de rounds quando a previsão ultrapassar este limite.</div>
-            </div>
-          </div>
-          <div class="d-grid gap-2 mt-4">
-            <button class="btn btn-vs-accent vs-cta" type="submit"><i class="bi bi-save2 me-1"></i> Salvar Custos</button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      </section>
     </div>
   </div>
+
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     (function(){
-      // Auto-dismiss alerts
       document.querySelectorAll('.alert').forEach(function(el){
-        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        setTimeout(function(){ try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {} }, 5000);
       });
-      // BRL format helpers
+
       const nf = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const cf = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-      const toNumber = (str) => {
+
+      const toNumber = function(str) {
         if (str == null) return 0;
         const s = String(str).replace(/[^0-9,\.]/g, '').replace(/\./g, '').replace(',', '.');
         const n = parseFloat(s);
         return isNaN(n) ? 0 : n;
       };
+
+      function updateSummary() {
+        const s = toNumber(document.getElementById('shelterCost')?.value || 0);
+        const m = toNumber(document.getElementById('maleNeuterCost')?.value || 0);
+        const f = toNumber(document.getElementById('femaleNeuterCost')?.value || 0);
+        const sumShelter = document.getElementById('sumShelter');
+        const sumMale = document.getElementById('sumMale');
+        const sumFemale = document.getElementById('sumFemale');
+        if (sumShelter) sumShelter.textContent = cf.format(s);
+        if (sumMale) sumMale.textContent = cf.format(m);
+        if (sumFemale) sumFemale.textContent = cf.format(f);
+      }
+
       function initCurrency(idHidden, idDisplay, idPreview){
         const h = document.getElementById(idHidden);
         const d = document.getElementById(idDisplay);
         const p = idPreview ? document.getElementById(idPreview) : null;
         if (!h || !d) return;
-        const syncFromHidden = () => {
+
+        const syncFromHidden = function() {
           const n = toNumber(h.value || 0);
           d.value = nf.format(n);
           if (p) p.textContent = cf.format(n);
+          updateSummary();
         };
-        const syncFromDisplay = () => {
+
+        const syncFromDisplay = function() {
           const n = toNumber(d.value);
           h.value = n.toFixed(2);
           d.value = nf.format(n);
           if (p) p.textContent = cf.format(n);
+          updateSummary();
         };
+
         d.addEventListener('input', syncFromDisplay);
         d.addEventListener('blur', syncFromDisplay);
         syncFromHidden();
       }
+
       initCurrency('shelterCost','shelterCost_display','shelterPreview');
       initCurrency('maleNeuterCost','maleNeuterCost_display','malePreview');
       initCurrency('femaleNeuterCost','femaleNeuterCost_display','femalePreview');
+      updateSummary();
     })();
   </script>
 </body>

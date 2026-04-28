@@ -4,199 +4,234 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-  <title>Administração de Rounds</title>
+  <title>Administração de Rounds • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/roundsadmin.css">
 </head>
 <body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <h1 class="vs-title h3 mb-3">Rounds por Semestre</h1>
-    <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger"><%= messages[0] %></div>
-    <% } %>
-    <% if (success && success.length>0) { %>
-      <div class="alert alert-success"><%= success[0] %></div>
-    <% } %>
 
-    <div class="card vs-card mb-3">
-      <div class="card-body">
-        <h5 class="card-title mb-1"><i class="bi bi-funnel me-2"></i>Filtros</h5>
-        <p class="text-white-50 small mb-3">Selecione semestre, round e status para listar, exportar e operar em lote.</p>
-        <form class="row g-3" method="GET" action="/roundsadmin" id="filter-form">
-      <div class="col-12 col-md-4">
-        <label class="form-label">Semestre</label>
-        <select class="form-select" name="semester" required>
-          <option value="" <%= !semester && !(user && user.semester) ? 'selected' : '' %> disabled>Selecionar...</option>
-          <% for (let i=1;i<=8;i++){ %>
-            <option value="<%= i %>" <%= (semester ? Number(semester)===i : (user && Number(user.semester)===i)) ? 'selected' : '' %>><%= i %><%= (user && Number(user.semester)===i) ? ' (Atual)' : '' %></option>
-          <% } %>
-        </select>
-        <% if (user && user.semester) { %>
-          <div class="form-text">Seu semestre: <span class="badge text-bg-info"><%= user.semester %></span></div>
-        <% } %>
-      </div>
-      <div class="col-12 col-md-4">
-        <label class="form-label">Número do Round</label>
-        <select class="form-select" name="numberRound">
-          <option value="" <%= !numberRound ? 'selected' : '' %>>Todos</option>
-          <% [1,2,3,4].forEach(n => { %>
-            <option value="<%= n %>" <%= Number(numberRound)===n ? 'selected' : '' %> <%= (Array.isArray(existing) && existing.indexOf(n)===-1 && semester) ? 'disabled' : '' %>><%= n %></option>
-          <% }) %>
-        </select>
-      </div>
-      <div class="col-12 col-md-4">
-        <label class="form-label">Status</label>
-        <select class="form-select" name="status">
-          <option value="" <%= !statusParam ? 'selected' : '' %>>Todos</option>
-          <option value="active" <%= statusParam==='active' ? 'selected' : '' %>>Ativos</option>
-          <option value="closed" <%= statusParam==='closed' ? 'selected' : '' %>>Fechados</option>
-        </select>
-      </div>
-      <div class="col-12 col-md-4 d-flex align-items-end gap-2">
-        <button class="btn btn-vs-accent vs-cta w-100" type="submit"><i class="bi bi-search me-1"></i> Filtrar</button>
-        <a class="btn btn-dark w-100" id="btn-export" href="#"><i class="bi bi-download me-1"></i> Exportar CSV</a>
-      </div>
-    </form>
-    <div id="live-count" class="text-white-50 small mt-2"></div>
-      </div>
-    </div>
-    <div class="card vs-card mb-3">
-      <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <% const __total = Array.isArray(list) ? list.length : 0; const __ativos = Array.isArray(list) ? list.filter(r=>r.status).length : 0; const __fechados = __total - __ativos; %>
-        <h5 class="card-title w-100 mb-1">
-          <i class="bi bi-lightning-charge me-2"></i>Ações em Massa
-          <span class="badge text-bg-info ms-2">Total: <%= __total %></span>
-          <span class="badge text-bg-success ms-2">Ativos: <%= __ativos %></span>
-          <span class="badge text-bg-warning ms-2">Fechados: <%= __fechados %></span>
-        </h5>
-        <p class="text-white-50 small w-100 mb-2">As ações abaixo afetam todos os registros do filtro atual. Revise o resumo antes de confirmar.</p>
-        <div class="text-white-50 small">
-        <% if (semester) { %>
-          Filtro atual — Semestre: <strong><%= semester %></strong>
-          <% if (numberRound) { %> | Round: <strong><%= numberRound %></strong><% } %>
-          <% if (statusParam) { %> | Status: <strong><%= statusParam==='active'?'Ativos':'Fechados' %></strong><% } %>
-        <% } else { %>
-          Selecione filtros para ações em massa
-        <% } %>
-      </div>
-        <div class="w-100"><hr class="opacity-25 my-2"></div>
-        <div class="d-flex flex-wrap gap-2">
-        <form method="POST" action="/roundsadmin/close" id="close-form" class="m-0">
-          <input type="hidden" name="semester" id="close-semester" value="<%= semester %>">
-          <input type="hidden" name="numberRound" id="close-numberRound" value="<%= numberRound %>">
-          <button class="btn btn-danger" id="btn-open-close-modal" type="button" <%= (semester && statusParam !== 'closed') ? '' : 'disabled' %> title="Fecha apenas rounds ativos do filtro" data-bs-toggle="modal" data-bs-target="#closeConfirmModal">
-            <i class="bi bi-x-circle me-1"></i> Fechar ativos
-          </button>
-        </form>
-        <form method="POST" action="/roundsadmin/reopen" id="reopen-form" class="m-0">
-          <input type="hidden" name="semester" id="reopen-semester" value="<%= semester %>">
-          <input type="hidden" name="numberRound" id="reopen-numberRound" value="<%= numberRound %>">
-          <button class="btn btn-warning" id="btn-open-reopen-modal" type="button" <%= (semester && statusParam !== 'active') ? '' : 'disabled' %> title="Reabre apenas rounds fechados do filtro" data-bs-toggle="modal" data-bs-target="#reopenConfirmModal">
-            <i class="bi bi-arrow-counterclockwise me-1"></i> Reabrir fechados
-          </button>
-        </form>
-        <form method="POST" action="/roundsadmin/delete" id="delete-form" class="m-0 d-flex align-items-center gap-2">
-          <input type="hidden" name="semester" id="delete-semester" value="<%= semester %>">
-          <input type="hidden" name="numberRound" id="delete-numberRound" value="<%= numberRound %>">
-          <input type="hidden" name="status" id="delete-status" value="<%= statusParam %>">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="delete-confirm">
-            <label class="form-check-label text-white-50" for="delete-confirm">Confirmo que entendo</label>
-          </div>
-          <button class="btn btn-outline-danger" id="btn-delete-filter" type="button" disabled title="Selecione um semestre e marque a confirmação" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-            <i class="bi bi-trash me-1"></i> Excluir filtro
-          </button>
-        </form>
-      </div>
-      </div>
-    </div>
+  <div class="vs-main">
+    <div class="ra-page">
+      <% const __total = Array.isArray(list) ? list.length : 0; %>
+      <% const __ativos = Array.isArray(list) ? list.filter(r => r.status).length : 0; %>
+      <% const __fechados = __total - __ativos; %>
 
-    <% if (Array.isArray(list) && list.length>0) { %>
-      <div class="card vs-card">
-        <div class="card-body">
-          <div class="mb-2 d-flex flex-wrap align-items-center gap-2 text-white-50">
-            <% const total = list.length; const ativos = list.filter(r=>r.status).length; const fechados = total - ativos; %>
-            <span>
-              Total registros: <a href="#" id="lnk-total" class="link-light text-decoration-underline"><strong><%= total %></strong></a>
-            </span>
-            <span class="badge text-bg-info">Total: <%= total %></span>
-            <span>
-              | Ativos: <a href="#" id="lnk-ativos" class="link-success text-decoration-underline"><strong><%= ativos %></strong></a>
-            </span>
-            <span class="badge text-bg-success">Ativos: <%= ativos %></span>
-            <span>
-              | Fechados: <a href="#" id="lnk-fechados" class="link-warning text-decoration-underline"><strong><%= fechados %></strong></a>
-            </span>
-            <span class="badge text-bg-warning">Fechados: <%= fechados %></span>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-dark table-striped align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>Semestre</th>
-                  <th>Round</th>
-                  <th>Código</th>
-                  <th>Nome</th>
-                  <th>Macho</th>
-                  <th>Fêmea</th>
-                  <th>Abrigo</th>
-                  <th>Status</th>
-                  <th>Atualizado em</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% list.forEach(r => { %>
-                  <tr>
-                    <td><%= r.semester %></td>
-                    <td><%= r.numberRound %></td>
-                    <td><%= r.codeUser %></td>
-                    <td><%= r.nameusr %></td>
-                    <td><%= r.quantMales %></td>
-                    <td><%= r.quantFemales %></td>
-                    <td><%= r.shelter %></td>
-                    <td>
-                      <% if (r.status) { %>
-                        <span class="badge text-bg-success">Ativo</span>
-                      <% } else { %>
-                        <span class="badge text-bg-secondary">Fechado</span>
-                      <% } %>
-                    </td>
-                    <td><%= r.updatedAt ? new Date(r.updatedAt).toLocaleString('pt-BR') : '-' %></td>
-                  </tr>
+      <header class="ra-header">
+        <div>
+          <p class="ra-kicker">Operações acadêmicas</p>
+          <h1 class="ra-title">Rounds por Semestre</h1>
+          <p class="ra-subtitle">Filtre, exporte e execute operações em massa com confirmação.</p>
+        </div>
+        <div class="ra-header-stats">
+          <span class="ra-pill"><i class="bi bi-collection"></i> Total: <strong><%= __total %></strong></span>
+          <span class="ra-pill is-active"><i class="bi bi-check-circle"></i> Ativos: <strong><%= __ativos %></strong></span>
+          <span class="ra-pill is-closed"><i class="bi bi-lock"></i> Fechados: <strong><%= __fechados %></strong></span>
+        </div>
+      </header>
+
+      <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-dismissible fade show ra-alert ra-alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div><%= messages[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <% if (success && success.length > 0) { %>
+        <div class="alert alert-dismissible fade show ra-alert ra-alert-success" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div><%= success[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <section class="ra-card mb-3">
+        <div class="ra-card-head">
+          <h2><i class="bi bi-funnel-fill"></i> Filtros</h2>
+        </div>
+        <div class="ra-card-body">
+          <form class="row g-3" method="GET" action="/roundsadmin" id="filter-form">
+            <div class="col-12 col-md-4">
+              <label class="ra-label">Semestre</label>
+              <select class="form-select ra-input" name="semester" required>
+                <option value="" <%= !semester && !(user && user.semester) ? 'selected' : '' %> disabled>Selecionar...</option>
+                <% for (let i=1;i<=8;i++){ %>
+                  <option value="<%= i %>" <%= (semester ? Number(semester)===i : (user && Number(user.semester)===i)) ? 'selected' : '' %>><%= i %><%= (user && Number(user.semester)===i) ? ' (Atual)' : '' %></option>
+                <% } %>
+              </select>
+              <% if (user && user.semester) { %>
+                <p class="ra-field-hint">Seu semestre: <span class="ra-chip"><%= user.semester %></span></p>
+              <% } %>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="ra-label">Número do Round</label>
+              <select class="form-select ra-input" name="numberRound">
+                <option value="" <%= !numberRound ? 'selected' : '' %>>Todos</option>
+                <% [1,2,3,4].forEach(n => { %>
+                  <option value="<%= n %>" <%= Number(numberRound)===n ? 'selected' : '' %> <%= (Array.isArray(existing) && existing.indexOf(n)===-1 && semester) ? 'disabled' : '' %>><%= n %></option>
                 <% }) %>
-              </tbody>
-            </table>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="ra-label">Status</label>
+              <select class="form-select ra-input" name="status">
+                <option value="" <%= !statusParam ? 'selected' : '' %>>Todos</option>
+                <option value="active" <%= statusParam==='active' ? 'selected' : '' %>>Ativos</option>
+                <option value="closed" <%= statusParam==='closed' ? 'selected' : '' %>>Fechados</option>
+              </select>
+            </div>
+            <div class="col-12 col-lg-7 d-flex gap-2 flex-wrap">
+              <button class="btn ra-btn ra-btn-filter" type="submit"><i class="bi bi-search"></i> Filtrar</button>
+              <a class="btn ra-btn ra-btn-export" id="btn-export" href="#"><i class="bi bi-download"></i> Exportar CSV</a>
+            </div>
+            <div class="col-12 col-lg-5 d-flex align-items-center justify-content-lg-end">
+              <div id="live-count" class="ra-live-count"></div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="ra-card mb-3">
+        <div class="ra-card-head">
+          <h2><i class="bi bi-lightning-charge-fill"></i> Ações em Massa</h2>
+        </div>
+        <div class="ra-card-body">
+          <p class="ra-context">
+            <% if (semester) { %>
+              Filtro atual: Semestre <strong><%= semester %></strong>
+              <% if (numberRound) { %> | Round <strong><%= numberRound %></strong><% } %>
+              <% if (statusParam) { %> | Status <strong><%= statusParam==='active'?'Ativos':'Fechados' %></strong><% } %>
+            <% } else { %>
+              Selecione um semestre para habilitar operações em massa.
+            <% } %>
+          </p>
+
+          <div class="ra-actions">
+            <form method="POST" action="/roundsadmin/close" id="close-form" class="m-0">
+              <input type="hidden" name="semester" id="close-semester" value="<%= semester %>">
+              <input type="hidden" name="numberRound" id="close-numberRound" value="<%= numberRound %>">
+              <button class="btn ra-btn ra-btn-close" id="btn-open-close-modal" type="button" <%= (semester && statusParam !== 'closed') ? '' : 'disabled' %> data-bs-toggle="modal" data-bs-target="#closeConfirmModal">
+                <i class="bi bi-lock-fill"></i> Fechar ativos
+              </button>
+            </form>
+
+            <form method="POST" action="/roundsadmin/reopen" id="reopen-form" class="m-0">
+              <input type="hidden" name="semester" id="reopen-semester" value="<%= semester %>">
+              <input type="hidden" name="numberRound" id="reopen-numberRound" value="<%= numberRound %>">
+              <button class="btn ra-btn ra-btn-reopen" id="btn-open-reopen-modal" type="button" <%= (semester && statusParam !== 'active') ? '' : 'disabled' %> data-bs-toggle="modal" data-bs-target="#reopenConfirmModal">
+                <i class="bi bi-arrow-counterclockwise"></i> Reabrir fechados
+              </button>
+            </form>
+
+            <form method="POST" action="/roundsadmin/delete" id="delete-form" class="m-0 d-flex align-items-center gap-2 flex-wrap">
+              <input type="hidden" name="semester" id="delete-semester" value="<%= semester %>">
+              <input type="hidden" name="numberRound" id="delete-numberRound" value="<%= numberRound %>">
+              <input type="hidden" name="status" id="delete-status" value="<%= statusParam %>">
+              <div class="form-check ra-check">
+                <input class="form-check-input" type="checkbox" id="delete-confirm">
+                <label class="form-check-label" for="delete-confirm">Confirmo que entendo</label>
+              </div>
+              <button class="btn ra-btn ra-btn-delete" id="btn-delete-filter" type="button" disabled data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                <i class="bi bi-trash3"></i> Excluir filtro
+              </button>
+            </form>
           </div>
         </div>
-      </div>
-    <% } else if (semester) { %>
-      <div class="card vs-card"><div class="card-body"><div class="alert alert-info mb-0">Nenhum registro encontrado para o filtro.</div></div></div>
-    <% } else { %>
-      <div class="card vs-card"><div class="card-body"><div class="text-white-50 mb-0">Selecione um semestre para exibir os rounds.</div></div></div>
-    <% } %>
+      </section>
+
+      <% if (Array.isArray(list) && list.length > 0) { %>
+        <section class="ra-card">
+          <div class="ra-card-head ra-card-head-table">
+            <h2><i class="bi bi-table"></i> Registros</h2>
+            <div class="ra-links">
+              <a href="#" id="lnk-total">Total: <strong><%= __total %></strong></a>
+              <a href="#" id="lnk-ativos">Ativos: <strong><%= __ativos %></strong></a>
+              <a href="#" id="lnk-fechados">Fechados: <strong><%= __fechados %></strong></a>
+            </div>
+          </div>
+          <div class="ra-card-body pt-2">
+            <div class="table-responsive">
+              <table class="table ra-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Semestre</th>
+                    <th>Round</th>
+                    <th>Código</th>
+                    <th>Nome</th>
+                    <th>Macho</th>
+                    <th>Fêmea</th>
+                    <th>Abrigo</th>
+                    <th>Status</th>
+                    <th>Atualizado em</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% list.forEach(r => { %>
+                    <tr>
+                      <td><%= r.semester %></td>
+                      <td><%= r.numberRound %></td>
+                      <td><%= r.codeUser %></td>
+                      <td><%= r.nameusr %></td>
+                      <td><%= r.quantMales %></td>
+                      <td><%= r.quantFemales %></td>
+                      <td><%= r.shelter %></td>
+                      <td>
+                        <% if (r.status) { %>
+                          <span class="ra-status active">Ativo</span>
+                        <% } else { %>
+                          <span class="ra-status closed">Fechado</span>
+                        <% } %>
+                      </td>
+                      <td><%= r.updatedAt ? new Date(r.updatedAt).toLocaleString('pt-BR') : '-' %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      <% } else if (semester) { %>
+        <section class="ra-card">
+          <div class="ra-card-body">
+            <div class="ra-empty">
+              <i class="bi bi-funnel"></i>
+              <p>Nenhum registro encontrado para o filtro.</p>
+            </div>
+          </div>
+        </section>
+      <% } else { %>
+        <section class="ra-card">
+          <div class="ra-card-body">
+            <div class="ra-empty">
+              <i class="bi bi-compass"></i>
+              <p>Selecione um semestre para exibir os rounds.</p>
+            </div>
+          </div>
+        </section>
+      <% } %>
+    </div>
   </div>
 
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Modal de confirmação de exclusão -->
+
   <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content ra-modal">
         <div class="modal-header">
           <h5 class="modal-title" id="deleteConfirmLabel">Confirmar exclusão do filtro</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="mb-2">Você está prestes a excluir TODOS os rounds que correspondem ao filtro abaixo:</p>
+          <p class="mb-2">Você está prestes a excluir todos os rounds do filtro:</p>
           <ul class="list-unstyled mb-2">
             <li>Semestre: <strong id="sum-semester">-</strong></li>
             <li>Round: <strong id="sum-numberRound">Todos</strong></li>
             <li>Status: <strong id="sum-status">Todos</strong></li>
           </ul>
-          <div class="alert alert-danger small" role="alert">
-            Esta ação é permanente e não pode ser desfeita.
-          </div>
+          <div class="alert alert-danger small" role="alert">Esta ação é permanente e não pode ser desfeita.</div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="modal-delete-confirm">
             <label class="form-check-label" for="modal-delete-confirm">Confirmo que entendo os riscos</label>
@@ -210,16 +245,16 @@
       </div>
     </div>
   </div>
-  <!-- Modal de confirmação de fechamento -->
+
   <div class="modal fade" id="closeConfirmModal" tabindex="-1" aria-labelledby="closeConfirmLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content ra-modal">
         <div class="modal-header">
           <h5 class="modal-title" id="closeConfirmLabel">Confirmar fechamento de rounds ativos</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="mb-2">Esta ação fechará todos os rounds ATIVOS do filtro:</p>
+          <p class="mb-2">Esta ação fechará todos os rounds ativos do filtro:</p>
           <ul class="list-unstyled mb-2">
             <li>Semestre: <strong id="close-sem-sum">-</strong></li>
             <li>Round: <strong id="close-nr-sum">Todos</strong></li>
@@ -238,16 +273,15 @@
     </div>
   </div>
 
-  <!-- Modal de confirmação de reabertura -->
   <div class="modal fade" id="reopenConfirmModal" tabindex="-1" aria-labelledby="reopenConfirmLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content ra-modal">
         <div class="modal-header">
           <h5 class="modal-title" id="reopenConfirmLabel">Confirmar reabertura de rounds fechados</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p class="mb-2">Esta ação reabrirá todos os rounds FECHADOS do filtro:</p>
+          <p class="mb-2">Esta ação reabrirá todos os rounds fechados do filtro:</p>
           <ul class="list-unstyled mb-2">
             <li>Semestre: <strong id="reopen-sem-sum">-</strong></li>
             <li>Round: <strong id="reopen-nr-sum">Todos</strong></li>
@@ -265,6 +299,7 @@
       </div>
     </div>
   </div>
+
   <script>
     (function(){
       const form = document.getElementById('filter-form');
@@ -281,6 +316,7 @@
       }
       form && form.addEventListener('change', updateExportHref);
       updateExportHref();
+
       async function updateLiveCount(){
         if (!form) return;
         const sem = form.querySelector('select[name="semester"]').value;
@@ -295,15 +331,15 @@
             const d = r.ok ? await r.json() : { count: 0 };
             return Number(d.count || 0);
           }
-          const [all, act, clo] = await Promise.all([
-            fetchCount(''), fetchCount('active'), fetchCount('closed')
-          ]);
-          if (el) el.textContent = `Prévia: Total ${all} | Ativos ${act} | Fechados ${clo}`;
+          const all = await fetchCount('');
+          const act = await fetchCount('active');
+          const clo = await fetchCount('closed');
+          if (el) el.textContent = 'Prévia: Total ' + all + ' | Ativos ' + act + ' | Fechados ' + clo;
         } catch(_e){ if (el) el.textContent = 'Não foi possível obter a prévia agora.'; }
       }
       form && form.addEventListener('change', updateLiveCount);
       updateLiveCount();
-      // Sync hidden fields for close form
+
       const closeSem = document.getElementById('close-semester');
       const closeNr = document.getElementById('close-numberRound');
       const reopenSem = document.getElementById('reopen-semester');
@@ -324,7 +360,6 @@
           deleteNr.value = closeNr.value;
           deleteSt.value = form.querySelector('select[name="status"]').value || '';
         }
-        // Enable/disable delete button based on filters and confirmation checkbox
         const btnDel = document.getElementById('btn-delete-filter');
         const conf = document.getElementById('delete-confirm');
         if (btnDel && conf) {
@@ -336,7 +371,7 @@
       const confCb = document.getElementById('delete-confirm');
       confCb && confCb.addEventListener('change', syncClose);
       syncClose();
-      // Links de contagem: abrir modais
+
       function openModalById(id){
         const el = document.getElementById(id);
         if (!el) return;
@@ -349,7 +384,7 @@
       if (lnkTotal) lnkTotal.addEventListener('click', function(e){ e.preventDefault(); if (!closeSem.value) return; openModalById('deleteConfirmModal'); });
       if (lnkAt) lnkAt.addEventListener('click', function(e){ e.preventDefault(); if (!closeSem.value) return; openModalById('closeConfirmModal'); });
       if (lnkFe) lnkFe.addEventListener('click', function(e){ e.preventDefault(); if (!closeSem.value) return; openModalById('reopenConfirmModal'); });
-      // Modal: excluir — preencher resumo e controlar confirmação
+
       const modalEl = document.getElementById('deleteConfirmModal');
       if (modalEl) {
         modalEl.addEventListener('show.bs.modal', async function(){
@@ -367,15 +402,14 @@
             btn.disabled = true;
             cb.onchange = function(){ btn.disabled = !cb.checked; };
           }
-          // Buscar contagem para o resumo
           try {
             const q = new URLSearchParams({ semester: sem, numberRound: nr, status: st }).toString();
             const resp = await fetch('/roundsadmin/count?' + q);
             if (resp.ok) {
               const data = await resp.json();
               const c = Number(data.count || 0);
-              if (info) info.textContent = `Registros a excluir: ${c}`;
-              if (btn) btn.disabled = btn.disabled || (c === 0); // não permite excluir se não há registros
+              if (info) info.textContent = 'Registros a excluir: ' + c;
+              if (btn) btn.disabled = btn.disabled || (c === 0);
             } else {
               if (info) info.textContent = 'Registros a excluir: -';
             }
@@ -386,13 +420,12 @@
         const btnModal = document.getElementById('btn-modal-delete');
         if (btnModal) {
           btnModal.addEventListener('click', function(){
-            // Submete o form de exclusão real
             const formDelete = document.getElementById('delete-form');
             if (formDelete) formDelete.submit();
           });
         }
       }
-      // Modal: fechar — contar ativos e confirmar
+
       const closeModalEl = document.getElementById('closeConfirmModal');
       if (closeModalEl) {
         closeModalEl.addEventListener('show.bs.modal', async function(){
@@ -409,14 +442,14 @@
             const resp = await fetch('/roundsadmin/count?' + q);
             const data = resp.ok ? await resp.json() : { count: 0 };
             const c = Number(data.count || 0);
-            if (info) info.textContent = `Registros a fechar: ${c}`;
+            if (info) info.textContent = 'Registros a fechar: ' + c;
             if (btn) btn.disabled = btn.disabled || (c === 0);
           } catch (e) { if (info) info.textContent = 'Registros a fechar: -'; }
         });
         const btnClose = document.getElementById('btn-modal-close');
         if (btnClose) btnClose.addEventListener('click', function(){ const f = document.getElementById('close-form'); if (f) f.submit(); });
       }
-      // Modal: reabrir — contar fechados e confirmar
+
       const reopenModalEl = document.getElementById('reopenConfirmModal');
       if (reopenModalEl) {
         reopenModalEl.addEventListener('show.bs.modal', async function(){
@@ -433,7 +466,7 @@
             const resp = await fetch('/roundsadmin/count?' + q);
             const data = resp.ok ? await resp.json() : { count: 0 };
             const c = Number(data.count || 0);
-            if (info) info.textContent = `Registros a reabrir: ${c}`;
+            if (info) info.textContent = 'Registros a reabrir: ' + c;
             if (btn) btn.disabled = btn.disabled || (c === 0);
           } catch (e) { if (info) info.textContent = 'Registros a reabrir: -'; }
         });

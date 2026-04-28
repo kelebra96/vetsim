@@ -29,7 +29,7 @@ export default { myXP };
 // Persist streak across devices
 export const getStreak = async (req, res) => {
   try {
-    const u = await (await import('../models/User.js')).default.findById(req.user.id).select('streakCount streakLast').lean();
+    const u = await User.findById(req.user.id).select('streakCount streakLast').lean();
     return res.json({ streak: Number(u?.streakCount || 0), last: u?.streakLast || null });
   } catch (e) {
     return res.status(500).json({ streak: 0, last: null });
@@ -38,7 +38,6 @@ export const getStreak = async (req, res) => {
 
 export const tickStreakToday = async (req, res) => {
   try {
-    const User = (await import('../models/User.js')).default;
     const u = await User.findById(req.user.id).select('streakCount streakLast').lean();
     const now = new Date();
     const today = now.toDateString();

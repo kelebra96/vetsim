@@ -28,6 +28,7 @@ import jwt from "jsonwebtoken";
 import User from "./src/models/User.js";
 
 app.use(async (req, res, next) => {
+  res.locals.path = req.path;
   const token = req.cookies?.token;
   if (token) {
     try {
@@ -55,7 +56,7 @@ app.use(async (req, res, next) => {
             res.locals.user = {
               id: decoded.id,
               code: decoded.code,
-              role: decoded.role,
+              role: u.type,          // sempre do banco, não do token
               name: u.name,
               avatarUrl: u.avatarUrl || "",
               points: pts,
