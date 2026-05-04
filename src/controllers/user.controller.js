@@ -1,5 +1,5 @@
 import userService from "../services/user.service.js";
-import * as xlsx from "xlsx";
+import ExcelJS from "exceljs";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
@@ -53,7 +53,7 @@ const create = async (req, res) => {
   }
 
   try {
-    const user = await userService.createService(req.body);
+    const user = await userService.createService({ name, code, email, semester, password, type: "student" });
     if (!user) {
       req.flash("error", "Erro ao criar usuário.");
       return res.redirect("/");
@@ -71,7 +71,7 @@ const findAll = async (req, res) => {
   try {
     const users = await userService.findAllService();
     if (users.length === 0) {
-      return res.status(400).send({ message: "There are no registered users" });
+      return res.status(200).send([]);
     }
     res.send(users);
   } catch (err) {
@@ -92,7 +92,7 @@ const update = async (req, res) => {
   try {
     const { name, code, email, semester, password, status } = req.body;
     if (!name && !code && !email && !semester && !password && !status) {
-      return res.status(400).send({ menssage: "Submit at least one field for update" });
+      return res.status(400).send({ message: "Submit at least one field for update" });
     }
     const { id } = req.params || {};
     await userService.updateService(id, name, code, email, semester, password, status);
@@ -152,7 +152,7 @@ const importCsv = async (req, res) => {
 
 const listView = async (req, res) => {
   try {
-    const users = await User.find().lean();
+    const users = await User.find().select("name code email semester type status avatarUrl").sort({ name: 1 }).lean();
     res.render("user/list", {
       users,
       messages: req.flash("error"),
@@ -216,7 +216,8 @@ const adminUpdate = async (req, res) => {
     const { name, code, email, semester, type, status } = req.body;
     const update = {};
     if (typeof name === 'string' && name.trim().length >= 2) update.name = name.trim().slice(0, 80);
-    if (code !== undefined && code !== '') update.code = Number(code);
+    const parsedCode = Number(code);
+    if (code !== undefined && code !== '' && Number.isFinite(parsedCode) && parsedCode > 0) update.code = parsedCode;
     if (typeof email === 'string' && email.trim()) update.email = email.trim().toLowerCase();
     if (semester !== undefined && semester !== '') update.semester = Number(semester);
     if (type && ['student','teacher','admin'].includes(type)) update.type = type;
@@ -263,7 +264,7 @@ const adjustBalance = async (req, res) => {
       req.flash('error', 'Usuário não encontrado.');
       return res.redirect('/users');
     }
-    let next = Number(u.balance || 0);
+    let next = Number.isFinite(Number(u.balance)) ? Number(u.balance) : 50000;
     if (action === 'add') next = next + amount;
     else if (action === 'remove') next = Math.max(0, next - amount);
     else {
@@ -344,10 +345,24 @@ export async function importStudents(req, res) {
 
     const rows = [];
     if (filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
-      const wb = xlsx.read(buf, { type: 'buffer' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = xlsx.utils.sheet_to_json(ws, { defval: '' });
-      json.forEach(obj => rows.push(obj));
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buf);
+      const worksheet = workbook.worksheets[0];
+      const headers = [];
+      worksheet.getRow(1).eachCell((cell, colNum) => {
+        headers[colNum] = (cell.value || '').toString().trim();
+      });
+      worksheet.eachRow((row, rowNum) => {
+        if (rowNum === 1) return;
+        const obj = {};
+        row.eachCell((cell, colNum) => {
+          if (headers[colNum]) {
+            const v = cell.value;
+            obj[headers[colNum]] = (v !== null && v !== undefined) ? String(v).trim() : '';
+          }
+        });
+        if (Object.keys(obj).length > 0) rows.push(obj);
+      });
     } else {
       // CSV fallback (comma-separated)
       const csv = buf.toString('utf-8');
@@ -366,12 +381,14 @@ export async function importStudents(req, res) {
       }
     }
 
-    let created = 0, skipped = 0, errors = 0;
-    let skippedMissing = 0, skippedInvalidEmail = 0, skippedDupFile = 0, skippedDupDB = 0, skippedInvalidNum = 0;
+    // Pre-map all rows to avoid N+1 DB queries for duplicate checking
+    const mappedRows = [];
     const seenEmails = new Set();
+    let skipped = 0, errors = 0;
+    let skippedMissing = 0, skippedInvalidEmail = 0, skippedDupFile = 0, skippedDupDB = 0, skippedInvalidNum = 0;
     const details = [];
+
     for (const r of rows) {
-      // Map flexible headers
       const mapped = {};
       for (const [k, v] of Object.entries(r)) {
         const key = normKey(k);
@@ -380,10 +397,9 @@ export async function importStudents(req, res) {
         else if (['email','e-mail','mail'].includes(key)) mapped.email = normalize(v).toLowerCase();
         else if (['semester','semestre'].includes(key)) mapped.semester = v;
         else if (['password','senha'].includes(key)) mapped.password = normalize(v);
-        else if (['status','ativo'].includes(key)) mapped.status = v; // optional
-        else if (['type','tipo','tipousuario'].includes(key)) mapped.type = v; // optional
+        else if (['status','ativo'].includes(key)) mapped.status = v;
+        else if (['type','tipo','tipousuario'].includes(key)) mapped.type = v;
       }
-      // Coerce and defaults
       const rawEmail = normalize(mapped.email || '').toLowerCase();
       mapped.email = rawEmail;
       mapped.code = Number(mapped.code);
@@ -391,7 +407,6 @@ export async function importStudents(req, res) {
       if (mapped.status === undefined || mapped.status === '') mapped.status = true; else mapped.status = String(mapped.status).toLowerCase() === 'true' || mapped.status === 1 || mapped.status === '1';
       if (!mapped.type) mapped.type = 'student';
 
-      // Validations
       const missing = (!mapped.name || !mapped.code || !mapped.email || !mapped.semester || !mapped.password);
       if (missing) { skipped++; skippedMissing++; details.push(`Linha com campos ausentes para email '${rawEmail || '-'}'`); continue; }
       if (!Number.isFinite(mapped.code) || mapped.code <= 0 || !Number.isFinite(mapped.semester) || mapped.semester < 1 || mapped.semester > 8) {
@@ -399,17 +414,24 @@ export async function importStudents(req, res) {
       if (!isValidEmail(rawEmail)) { skipped++; skippedInvalidEmail++; details.push(`Email inválido: '${rawEmail}'`); continue; }
       if (seenEmails.has(rawEmail)) { skipped++; skippedDupFile++; details.push(`Email duplicado no arquivo: '${rawEmail}'`); continue; }
       seenEmails.add(rawEmail);
+      mappedRows.push(mapped);
+    }
 
-      // Check duplicate in DB
-      const exists = await User.findOne({ email: rawEmail }).select('_id email').lean();
-      if (exists) { skipped++; skippedDupDB++; details.push(`Email já cadastrado: '${rawEmail}'`); continue; }
+    // Single DB call to find all already-existing emails (replaces N individual findOne calls)
+    const existingDocs = await User.find({ email: { $in: [...seenEmails] } }).select('email').lean();
+    const existingEmailSet = new Set(existingDocs.map(d => d.email));
 
+    let created = 0;
+    for (const mapped of mappedRows) {
+      if (existingEmailSet.has(mapped.email)) {
+        skipped++; skippedDupDB++; details.push(`Email já cadastrado: '${mapped.email}'`); continue;
+      }
       try {
         await userService.createService(mapped);
         created++;
       } catch (e) {
         errors++;
-        details.push(`Erro ao criar '${rawEmail}': ${e?.message || e}`);
+        details.push(`Erro ao criar '${mapped.email}': ${e?.message || e}`);
       }
     }
 

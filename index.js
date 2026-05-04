@@ -28,6 +28,7 @@ import jwt from "jsonwebtoken";
 import User from "./src/models/User.js";
 
 app.use(async (req, res, next) => {
+  res.locals.path = req.path;
   const token = req.cookies?.token;
   if (token) {
     try {
@@ -41,6 +42,13 @@ app.use(async (req, res, next) => {
           .select("name avatarUrl type code points level semester xpBySemester balance streakCount")
           .lean();
         if (u) {
+          const DEFAULT_BALANCE = 50000;
+          const balanceNum = Number(u.balance);
+          const safeBalance = Number.isFinite(balanceNum) ? balanceNum : DEFAULT_BALANCE;
+          if (!Number.isFinite(balanceNum)) {
+            // Backfill para usuários legados sem campo balance.
+            User.findByIdAndUpdate(decoded.id, { $set: { balance: DEFAULT_BALANCE, updatedAt: new Date() } }).catch(() => {});
+          }
           let pts = Number(u.points || 0);
           let sem = Number(u.semester || 1);
           let xpBySemester = Array.isArray(u.xpBySemester) ? u.xpBySemester : [];
@@ -55,14 +63,14 @@ app.use(async (req, res, next) => {
             res.locals.user = {
               id: decoded.id,
               code: decoded.code,
-              role: decoded.role,
+              role: u.type,          // sempre do banco, não do token
               name: u.name,
               avatarUrl: u.avatarUrl || "",
               points: pts,
               level: lvl,
               semester: sem,
               xpBySemester,
-              balance: Number(u.balance || 0),
+              balance: safeBalance,
               streakCount: Number(u.streakCount || 0),
             };
         } else {

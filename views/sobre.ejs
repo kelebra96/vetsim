@@ -8,49 +8,286 @@
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    /* ── Hero ── */
+    .sobre-hero {
+      padding: 4.5rem 1rem 3.5rem;
+      text-align: center;
+    }
+    .sobre-hero .hero-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 2.2rem;
+      color: var(--vs-accent);
+    }
+    .sobre-hero h1 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-bottom: .6rem;
+    }
+    .sobre-hero .lead {
+      color: rgba(255,255,255,0.65);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ── Divisor ── */
+    .sobre-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin: 0 auto 2.5rem;
+      max-width: 900px;
+    }
+
+    /* ── Seção ── */
+    .sobre-section-title {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--vs-accent);
+      margin-bottom: .4rem;
+    }
+    .sobre-section-heading {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Cards de recurso ── */
+    .feature-card {
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px;
+      padding: 1.5rem;
+      height: 100%;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(58,181,160,0.40);
+      transform: translateY(-2px);
+    }
+    .feature-card .feat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(58,181,160,0.12);
+      border: 1px solid rgba(58,181,160,0.20);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--vs-accent);
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .feature-card h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: .35rem;
+    }
+    .feature-card p {
+      font-size: .85rem;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 0;
+      line-height: 1.55;
+    }
+
+    /* ── Badge de versão ── */
+    .vs-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(58,181,160,0.12);
+      border: 1px solid rgba(58,181,160,0.25);
+      border-radius: 999px;
+      padding: .25rem .75rem;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--vs-accent);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Card de contato ── */
+    .contact-card {
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+    .contact-card .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--vs-accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: .95rem;
+      transition: opacity .15s;
+    }
+    .contact-card .contact-link:hover { opacity: .75; }
+
+    /* ── Stack de tecnologia ── */
+    .tech-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 6px;
+      padding: .25rem .6rem;
+      font-size: .75rem;
+      color: rgba(255,255,255,0.70);
+      font-weight: 500;
+    }
+
+    /* ── Footer da página ── */
+    .sobre-footer {
+      text-align: center;
+      padding: 2rem 1rem 3rem;
+      color: rgba(255,255,255,0.28);
+      font-size: .8rem;
+    }
+    .sobre-shell {
+      width: calc(100% - 60px);
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body class="vs-gradient">
   <%- include('partials/navbar') %>
+  <div class="vs-main">
 
-  <div class="container py-4">
-    <div class="row justify-content-center">
-      <div class="col-12 col-lg-10 col-xxl-8">
-        <div class="card vs-card mb-3">
-          <div class="card-body">
-            <h1 class="vs-title h3 mb-2">Sobre o VetSim</h1>
-            <p class="text-white-50 mb-0">
-              VetSim é um simulador acadêmico pensado para apoiar atividades de gestão e tomada de decisão em cenários de clínica e abrigo veterinário. 
-              O sistema oferece rounds por semestre, acompanhamento de custos, métricas por turma e recursos gamificados para engajamento.
-            </p>
+  <div class="sobre-shell">
+
+    <!-- ── Hero ── -->
+    <div class="sobre-hero">
+      <div class="hero-icon">
+        <i class="bi bi-heart-pulse-fill"></i>
+      </div>
+      <div class="vs-badge-pill">
+        <i class="bi bi-tag-fill"></i> v1.0.0 — Beta
+      </div>
+      <h1>VetSim</h1>
+      <p class="lead">
+        Simulador acadêmico de gestão veterinária com gamificação, controle de rounds por semestre e análise de população animal.
+      </p>
+    </div>
+
+    <hr class="sobre-divider">
+
+    <!-- ── Recursos ── -->
+    <section class="mb-5">
+      <div class="text-center mb-4">
+        <p class="sobre-section-title">Funcionalidades</p>
+        <h2 class="sobre-section-heading">Tudo que você precisa para simular</h2>
+      </div>
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="feature-card">
+            <div class="feat-icon"><i class="bi bi-arrow-repeat"></i></div>
+            <h3>Rounds por Semestre</h3>
+            <p>Até 4 rounds por semestre, criados pelo professor e gerenciados por cada aluno individualmente.</p>
           </div>
         </div>
-
-        <div class="card vs-card mb-3">
-          <div class="card-body">
-            <h2 class="h5 mb-2">Recursos</h2>
-            <ul class="mb-0">
-              <li>Criação e gerenciamento de rounds por semestre</li>
-              <li>Custos configuráveis (abrigo e castrações)</li>
-              <li>Relatórios e gráficos por turma</li>
-              <li>Gamificação com XP, nível e histórico</li>
-            </ul>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="feature-card">
+            <div class="feat-icon"><i class="bi bi-cash-stack"></i></div>
+            <h3>Custos Configuráveis</h3>
+            <p>Valores de abrigo e castrações definidos pelo administrador, refletindo cenários reais de clínica e abrigo.</p>
           </div>
         </div>
-
-        <div class="card vs-card mb-3">
-          <div class="card-body">
-            <h2 class="h5 mb-2">Contato</h2>
-            <p class="mb-1">Dúvidas e sugestões:</p>
-            <ul class="mb-0">
-              <li>E-mail: <a href="mailto:kelebra96@gmail.com">kelebra96@gmail.com</a></li>
-            </ul>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="feature-card">
+            <div class="feat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <h3>Gráficos de População</h3>
+            <p>Simulação de dinâmica populacional gerada automaticamente ao fechar cada round, com visualização em gráfico.</p>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="feature-card">
+            <div class="feat-icon"><i class="bi bi-trophy-fill"></i></div>
+            <h3>Gamificação</h3>
+            <p>Sistema de XP por semestre, níveis, sequência diária e histórico de pontuação para engajar os alunos.</p>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="feature-card">
+            <div class="feat-icon"><i class="bi bi-people-fill"></i></div>
+            <h3>Gestão de Turmas</h3>
+            <p>Importação em massa via CSV/XLSX, ativação, desativação e controle de saldo VIDA por aluno.</p>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="feature-card">
+            <div class="feat-icon"><i class="bi bi-shield-lock-fill"></i></div>
+            <h3>Controle de Acesso</h3>
+            <p>Três perfis distintos — administrador, professor e aluno — com permissões independentes por rota.</p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <hr class="sobre-divider">
+
+    <!-- ── Tecnologia ── -->
+    <section class="mb-5">
+      <div class="text-center mb-4">
+        <p class="sobre-section-title">Tecnologia</p>
+        <h2 class="sobre-section-heading">Construído com</h2>
+      </div>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <span class="tech-pill"><i class="bi bi-filetype-js"></i> Node.js</span>
+        <span class="tech-pill"><i class="bi bi-server"></i> Express 5</span>
+        <span class="tech-pill"><i class="bi bi-database-fill"></i> MongoDB</span>
+        <span class="tech-pill"><i class="bi bi-file-earmark-code"></i> EJS</span>
+        <span class="tech-pill"><i class="bi bi-bootstrap-fill"></i> Bootstrap 5</span>
+        <span class="tech-pill"><i class="bi bi-bar-chart-fill"></i> Chart.js</span>
+        <span class="tech-pill"><i class="bi bi-filetype-py"></i> Python (simulação)</span>
+        <span class="tech-pill"><i class="bi bi-key-fill"></i> JWT</span>
+      </div>
+    </section>
+
+    <hr class="sobre-divider">
+
+    <!-- ── Contato ── -->
+    <section class="mb-5">
+      <div class="text-center mb-4">
+        <p class="sobre-section-title">Contato</p>
+        <h2 class="sobre-section-heading">Fale com a gente</h2>
+      </div>
+      <div class="contact-card text-center">
+        <p style="color:rgba(255,255,255,0.60); font-size:.9rem; margin-bottom:1.25rem;">
+          Dúvidas, sugestões ou relato de problemas? Entre em contato diretamente.
+        </p>
+        <a href="mailto:kelebra96@gmail.com" class="contact-link">
+          <i class="bi bi-envelope-fill"></i>
+          kelebra96@gmail.com
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="sobre-footer">
+    &copy; <%= new Date().getFullYear() %> VetSim &mdash; Todos os direitos reservados
   </div>
 
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/gamification.js"></script>
+  </div>
 </body>
 </html>
-

@@ -4,177 +4,217 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-  <title>Meu XP</title>
+  <title>Meu XP • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/xp.css">
 </head>
 <body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container py-4">
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
-      <h1 class="vs-title h4 mb-0">Meu XP</h1>
-      <button id="btnExportEvents" class="btn btn-vs-dark btn-sm w-100 w-md-auto">
-        <i class="bi bi-download me-1"></i> Exportar histórico CSV
-      </button>
+  <div class="vs-main">
+    <%
+      const _s      = locals.summary || {};
+      const _events = locals.events  || [];
+      const _msgs   = locals.messages || [];
+      const _ok     = locals.success  || '';
+      const _u      = locals.user    || null;
+
+      const _pts    = Number(_s.points  || 0);
+      const _lvl    = Number(_s.level   || 1);
+      const _in     = Number(_s.inLevel || 0);
+      const _streak = Number(_s.streak  || 0);
+      const _next   = Math.max(0, 100 - (_in % 100));
+      const _name   = (_s.name || (_u && _u.name) || 'Você').split(' ')[0];
+      const _listedSum = Number(_s.listedEventsSum || 0);
+      const _listedDiff = Number(_s.listedVsTotalDiff || 0);
+
+      const _xpArr  = (_u && Array.isArray(_u.xpBySemester)) ? _u.xpBySemester : [];
+      const _sem    = (_u && typeof _u.semester === 'number') ? _u.semester : 0;
+    %>
+
+    <div class="xp-shell">
+
+      <!-- ── Alertas ── -->
+      <% if (_msgs && _msgs.length > 0) { %>
+      <div class="alert alert-dismissible fade show mb-4" role="alert"
+           style="background:rgba(220,38,58,0.12);border:1px solid rgba(220,38,58,0.25);color:#f87171;border-radius:12px;">
+        <% _msgs.forEach(m => { %><div><i class="bi bi-exclamation-circle-fill me-2"></i><%= m %></div><% }) %>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      </div>
+      <% } %>
+      <% if (_ok && _ok.length > 0) { %>
+      <div class="alert alert-dismissible fade show mb-4" role="alert"
+           style="background:rgba(58,181,160,0.12);border:1px solid rgba(58,181,160,0.25);color:var(--vs-accent);border-radius:12px;">
+        <i class="bi bi-check-circle-fill me-2"></i><%= _ok %>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      </div>
+      <% } %>
+
+      <!-- ── Hero ── -->
+      <div class="xp-hero">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+          <div>
+            <p class="xp-hero-name">Gamificação</p>
+            <h1 class="xp-hero-level">Nível <%= _lvl %></h1>
+            <p class="xp-hero-sub">Olá, <strong style="color:rgba(255,255,255,0.75)"><%= _name %></strong> — continue acumulando XP!</p>
+          </div>
+          <span class="xp-level-badge">
+            <i class="bi bi-star-fill"></i> Nível <%= _lvl %>
+          </span>
+        </div>
+
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-label">
+            <span><strong><%= _in %></strong> / 100 XP no nível atual</span>
+            <span>faltam <strong><%= _next %> XP</strong> para o próximo</span>
+          </div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" style="width:<%= Math.min(100, Math.max(0, _in)) %>%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Estatísticas ── -->
+      <p class="xp-section-title">Resumo</p>
+      <div class="row g-3 mb-4 xp-stats-row">
+        <div class="col-6 col-lg-3">
+          <div class="xp-stat">
+            <div class="xp-stat-icon purple"><i class="bi bi-star-fill"></i></div>
+            <div>
+              <div class="xp-stat-val"><%= _pts %></div>
+              <div class="xp-stat-label">XP Total</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="xp-stat">
+            <div class="xp-stat-icon green"><i class="bi bi-trophy-fill"></i></div>
+            <div>
+              <div class="xp-stat-val">Nível <%= _lvl %></div>
+              <div class="xp-stat-label"><%= _in %>/100 XP</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="xp-stat">
+            <div class="xp-stat-icon amber"><i class="bi bi-fire"></i></div>
+            <div>
+              <div class="xp-stat-val"><%= _streak %></div>
+              <div class="xp-stat-label">Dias seguidos</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="xp-stat">
+            <div class="xp-stat-icon blue"><i class="bi bi-lightning-charge-fill"></i></div>
+            <div>
+              <div class="xp-stat-val"><%= _next %> XP</div>
+              <div class="xp-stat-label">Para o próximo nível</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── XP por semestre ── -->
+      <% if (_xpArr.length > 0) { %>
+      <p class="xp-section-title">XP por semestre</p>
+      <div class="xp-sem-grid mb-4">
+        <% for (let i = 1; i <= 8; i++) {
+             const val  = Number(_xpArr[i - 1] || 0);
+             const pct  = Math.min(100, Math.max(0, val % 100));
+             const isCur = _sem === i;
+        %>
+        <div class="xp-sem-card <%= isCur ? 'current' : '' %>">
+          <div class="xp-sem-label">
+            Sem. <%= i %>
+            <% if (isCur) { %><span class="cur-tag">Atual</span><% } %>
+          </div>
+          <div class="xp-sem-val"><%= val %> XP</div>
+          <div class="xp-sem-bar">
+            <div class="xp-sem-bar-fill" style="width:<%= pct %>%"></div>
+          </div>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- ── Histórico de eventos ── -->
+      <div class="xp-panel">
+        <div class="xp-panel-header">
+          <div>
+            <div class="xp-panel-title"><i class="bi bi-clock-history me-2" style="color:var(--vs-accent)"></i>Histórico de XP</div>
+            <div class="xp-panel-sub">Últimos <%= _events.length %> evento<%= _events.length !== 1 ? 's' : '' %></div>
+            <div class="xp-panel-math">
+              Total acumulado: <strong><%= _pts %> XP</strong> ·
+              Soma dos exibidos: <strong><%= _listedSum %> XP</strong> ·
+              Diferença: <strong><%= _listedDiff >= 0 ? '+' : '' %><%= _listedDiff %> XP</strong>
+            </div>
+          </div>
+          <button id="btnExportEvents" class="btn-xp-export">
+            <i class="bi bi-download"></i> Exportar CSV
+          </button>
+        </div>
+
+        <% if (!_events || _events.length === 0) { %>
+        <div class="xp-event-empty">
+          <i class="bi bi-inbox"></i>
+          <p>Nenhum evento de XP ainda.<br>Complete ações na plataforma para ganhar pontos!</p>
+        </div>
+        <% } else { %>
+          <% _events.forEach(function(ev) {
+               const d = new Date(ev.createdAt);
+               const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+               const timeStr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          %>
+          <div class="xp-event-row">
+            <div class="xp-event-dot"><i class="bi bi-star-fill"></i></div>
+            <div style="flex:1;min-width:0;">
+              <div class="xp-event-reason"><%= ev.reason || 'Ação no sistema' %></div>
+              <div class="xp-event-date"><i class="bi bi-calendar3 me-1"></i><%= dateStr %> &middot; <%= timeStr %></div>
+            </div>
+            <span class="xp-event-amount">+<%= ev.amount %> XP</span>
+          </div>
+          <% }) %>
+        <% } %>
+      </div>
+
     </div>
 
-    <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <%= messages[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
-    <% if (success && success.length>0) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <%= success[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
+    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/gamification.js"></script>
+    <script>
+      (function () {
+        // Auto-dismiss alerts
+        document.querySelectorAll('.alert').forEach(function (el) {
+          setTimeout(function () {
+            try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {}
+          }, 5000);
+        });
 
-    <% const nextLevel = Math.max(0, 100 - (summary.inLevel % 100)); %>
-
-    <section class="card vs-card mb-4">
-      <div class="card-body row g-3 align-items-center">
-        <div class="col-12 col-lg-4">
-          <p class="text-white-50 mb-1">Nível atual</p>
-          <p class="fs-3 fw-bold mb-0">Nível <%= summary.level %></p>
-          <small class="text-white-50">Total acumulado: <strong><%= summary.points %> XP</strong></small>
-        </div>
-        <div class="col-12 col-lg-5">
-          <div class="text-white-50 small mb-1">Progresso no semestre</div>
-          <div class="vs-xpbar" style="width:100%">
-            <div class="fill" style="width:<%= Math.min(100, Math.max(0, summary.inLevel)) %>%"></div>
-          </div>
-          <small class="text-white-50 d-block mt-1"><%= summary.inLevel %>/100 XP</small>
-        </div>
-        <div class="col-12 col-lg-3 text-lg-end">
-          <p class="text-white-50 small mb-1">XP restante</p>
-          <p class="fs-4 fw-semibold mb-0"><%= nextLevel %> XP</p>
-          <small class="text-white-50">para o próximo nível</small>
-        </div>
-      </div>
-    </section>
-
-    <section class="row g-3 mb-4">
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="vs-card p-3 d-flex flex-column gap-1">
-          <span class="text-white-50 small">XP Total</span>
-          <span class="fs-4 fw-semibold"><%= summary.points %></span>
-        </div>
-      </div>
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="vs-card p-3 d-flex flex-column gap-1">
-          <span class="text-white-50 small">Nível</span>
-          <span class="fs-4 fw-semibold"><%= summary.level %></span>
-        </div>
-      </div>
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="vs-card p-3 d-flex flex-column gap-1">
-          <span class="text-white-50 small">Para o próximo nível</span>
-          <span class="fs-4 fw-semibold"><%= nextLevel %> XP</span>
-        </div>
-      </div>
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="vs-card p-3 d-flex flex-column gap-1">
-          <span class="text-white-50 small d-flex align-items-center gap-2">
-            <i class="bi bi-fire text-warning"></i> Sequência diária
-          </span>
-          <span class="fs-4 fw-semibold"><%= Number(summary.streak || 0) %> dia(s)</span>
-        </div>
-      </div>
-    </section>
-
-    <% if (user && Array.isArray(user.xpBySemester)) { %>
-      <section class="card vs-card mb-4">
-        <div class="card-body">
-          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
-            <div>
-              <p class="mb-0 text-white-50 small">XP por semestre</p>
-              <h2 class="h5 text-white mb-0">Distribuição dos 8 semestres</h2>
-            </div>
-            <span class="badge bg-dark-subtle text-dark">Seu semestre atual: <strong><%= user.semester %></strong></span>
-          </div>
-          <div class="row g-3">
-            <% for (let i = 1; i <= 8; i++) {
-                 const val = (user.xpBySemester[i - 1] || 0);
-                 const pct = Math.min(100, Math.max(0, val % 100));
-                 const isCur = Number(user.semester) === i;
-            %>
-              <div class="col-12 col-sm-6 col-xl-3">
-                <div class="vs-sem-card <%= isCur ? 'vs-sem-current' : '' %> h-100">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-white-50 small">Semestre <%= i %></span>
-                    <% if (isCur) { %><span class="badge bg-info text-dark">Atual</span><% } %>
-                  </div>
-                  <strong class="d-block mb-2"><%= val %> XP</strong>
-                  <div class="vs-xpbar" style="width:100%">
-                    <div class="fill" style="width:<%= pct %>%"></div>
-                  </div>
-                </div>
-              </div>
-            <% } %>
-          </div>
-        </div>
-      </section>
-    <% } %>
-
-    <section class="vs-card p-0">
-      <div class="table-responsive">
-        <table class="table table-dark table-striped align-middle mb-0">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Pontos</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (!events || events.length === 0) { %>
-              <tr>
-                <td colspan="3" class="text-center text-white-50 py-4">Nenhum evento de XP encontrado.</td>
-              </tr>
-            <% } else { %>
-              <% events.forEach(ev => { %>
-                <tr>
-                  <td><%= new Date(ev.createdAt).toLocaleString('pt-BR') %></td>
-                  <td><span class="badge text-bg-success">+<%= ev.amount %> XP</span></td>
-                  <td><%= ev.reason || '-' %></td>
-                </tr>
-              <% }) %>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </section>
+        // Exportar CSV
+        const btn = document.getElementById('btnExportEvents');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+          const rows = Array.from(document.querySelectorAll('.xp-event-row'));
+          const head = ['Data', 'Pontos', 'Ação'];
+          const lines = [head.join(',')];
+          rows.forEach(function (row) {
+            const reason = row.querySelector('.xp-event-reason')?.innerText.trim() || '';
+            const date   = row.querySelector('.xp-event-date')?.innerText.trim()   || '';
+            const amount = row.querySelector('.xp-event-amount')?.innerText.trim() || '';
+            lines.push([date, amount, reason].map(function (v) {
+              return '"' + v.replaceAll('"', '""') + '"';
+            }).join(','));
+          });
+          const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href = url; a.download = 'meu_xp.csv'; a.click();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        });
+      })();
+    </script>
   </div>
-
-  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    (function(){
-      document.querySelectorAll('.alert').forEach(el => setTimeout(()=>{
-        try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch(_){}
-      }, 5000));
-    })();
-  </script>
-  <script>
-    (function(){
-      const btn = document.getElementById('btnExportEvents');
-      if (!btn) return;
-      btn.addEventListener('click', function(){
-        const rows = Array.from(document.querySelectorAll('table tbody tr'))
-          .filter(tr => !tr.querySelector('td[colspan]'))
-          .map(tr => Array.from(tr.querySelectorAll('td')).map(td => td.innerText.trim()));
-        const head = ['Data','Pontos','Ação'];
-        const lines = [head.join(',')];
-        rows.forEach(r => lines.push(r.map(v => '"'+v.replaceAll('"','""')+'"').join(',')));
-        const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'meu_xp.csv'; a.click();
-        setTimeout(()=> URL.revokeObjectURL(url), 1000);
-      });
-    })();
-  </script>
 </body>
 </html>

@@ -1,0 +1,363 @@
+/* ── Meu XP — estilos exclusivos de /me/xp ── */
+.xp-shell {
+  width: calc(100% - 60px);
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.xp-hero {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 2rem 2rem 1.75rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.xp-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(58,181,160,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.xp-hero-name {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--vs-accent);
+  margin-bottom: .25rem;
+}
+.xp-hero-level {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -.5px;
+  margin-bottom: .1rem;
+  line-height: 1.1;
+}
+.xp-hero-sub {
+  font-size: .85rem;
+  color: rgba(255,255,255,0.40);
+  margin-bottom: 1.5rem;
+}
+.xp-bar-wrap {
+  position: relative;
+}
+.xp-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .72rem;
+  color: rgba(255,255,255,0.40);
+  margin-bottom: .45rem;
+}
+.xp-bar-label strong { color: var(--vs-accent); }
+.xp-bar-track {
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--vs-accent), #52c8b4);
+  border-radius: 999px;
+  transition: width .5s ease;
+}
+.xp-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba(167,139,250,0.14);
+  border: 1px solid rgba(167,139,250,0.28);
+  border-radius: 999px;
+  padding: .3rem .9rem;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+
+/* Stat cards */
+.xp-stat {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: border-color .2s, transform .2s;
+}
+.xp-stat:hover {
+  border-color: rgba(58,181,160,0.35);
+  transform: translateY(-2px);
+}
+.xp-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.xp-stat-icon.purple { background: rgba(167,139,250,0.14); color: #a78bfa; }
+.xp-stat-icon.amber  { background: rgba(212,137,10,0.14);  color: #d4890a; }
+.xp-stat-icon.green  { background: rgba(58,181,160,0.14);  color: var(--vs-accent); }
+.xp-stat-icon.blue   { background: rgba(96,165,250,0.14);  color: #60a5fa; }
+.xp-stat-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+.xp-stat-label {
+  font-size: .72rem;
+  color: rgba(255,255,255,0.40);
+  margin-top: .1rem;
+}
+
+/* Semestres */
+.xp-sem-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .75rem;
+}
+@media (max-width: 767px) {
+  .xp-sem-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 479px) {
+  .xp-sem-grid { grid-template-columns: 1fr 1fr; }
+}
+.xp-sem-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: .85rem 1rem;
+  transition: border-color .2s;
+}
+.xp-sem-card.current {
+  border-color: rgba(58,181,160,0.40);
+  background: rgba(58,181,160,0.06);
+}
+.xp-sem-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: .4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.xp-sem-label .cur-tag {
+  background: rgba(58,181,160,0.18);
+  color: var(--vs-accent);
+  border-radius: 999px;
+  padding: .1rem .45rem;
+  font-size: .62rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.xp-sem-val {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: .5rem;
+}
+.xp-sem-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.xp-sem-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--vs-accent), #52c8b4);
+  border-radius: 999px;
+}
+.xp-sem-card.current .xp-sem-val { color: var(--vs-accent); }
+
+/* Painel de seção */
+.xp-panel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.xp-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.xp-panel-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+.xp-panel-sub {
+  font-size: .72rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: .1rem;
+}
+.xp-panel-math {
+  margin-top: .45rem;
+  font-size: .72rem;
+  color: rgba(255,255,255,0.45);
+}
+.xp-panel-math strong {
+  color: rgba(255,255,255,0.82);
+}
+
+/* Botão de exportar */
+.btn-xp-export {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .4rem 1rem;
+  font-size: .78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.70);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, color .18s;
+}
+.btn-xp-export:hover {
+  background: rgba(58,181,160,0.12);
+  border-color: rgba(58,181,160,0.35);
+  color: var(--vs-accent);
+}
+
+/* Tabela de eventos */
+.xp-event-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .75rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background .15s;
+}
+.xp-event-row:last-child { border-bottom: none; }
+.xp-event-row:hover { background: rgba(255,255,255,0.03); }
+.xp-event-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(58,181,160,0.12);
+  border: 1px solid rgba(58,181,160,0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: .85rem;
+  color: var(--vs-accent);
+}
+.xp-event-reason {
+  font-size: .85rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.80);
+  flex: 1;
+  min-width: 0;
+}
+.xp-event-date {
+  font-size: .72rem;
+  color: rgba(255,255,255,0.30);
+  white-space: nowrap;
+}
+.xp-event-amount {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--vs-accent);
+  white-space: nowrap;
+  background: rgba(58,181,160,0.10);
+  border: 1px solid rgba(58,181,160,0.20);
+  border-radius: 999px;
+  padding: .15rem .6rem;
+}
+.xp-event-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1rem;
+  gap: .75rem;
+  color: rgba(255,255,255,0.30);
+}
+.xp-event-empty i { font-size: 2rem; opacity: .4; }
+.xp-event-empty p { font-size: .85rem; margin: 0; }
+
+/* Seção de título */
+.xp-section-title {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: .85rem;
+}
+
+@media (max-width: 768px) {
+  .xp-shell { width: calc(100% - 40px); }
+  .xp-hero {
+    padding: 1.25rem 1rem 1.1rem;
+  }
+  .xp-bar-label {
+    flex-direction: column;
+    gap: .2rem;
+    align-items: flex-start;
+  }
+  .xp-panel-header {
+    padding: .9rem 1rem;
+  }
+  .xp-panel-math {
+    line-height: 1.45;
+  }
+  .btn-xp-export {
+    width: 100%;
+    justify-content: center;
+  }
+  .xp-event-row {
+    padding: .68rem 1rem;
+    flex-wrap: wrap;
+    gap: .55rem;
+  }
+  .xp-event-amount {
+    margin-left: 2.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .xp-shell { width: calc(100% - 24px); }
+  .xp-stats-row > [class*="col-6"] {
+    width: 100%;
+    flex: 0 0 100%;
+  }
+  .xp-stat {
+    padding: .9rem 1rem;
+  }
+  .xp-stat-val {
+    font-size: 1rem;
+  }
+  .xp-sem-grid {
+    grid-template-columns: 1fr;
+  }
+  .xp-sem-label .cur-tag {
+    font-size: .58rem;
+  }
+  .xp-event-amount {
+    margin-left: 0;
+  }
+}

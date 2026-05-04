@@ -4,189 +4,244 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-  <title>Logs de Ações</title>
+  <title>Logs de Ações • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/logs.css">
 </head>
 <body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container mt-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <h1 class="vs-title h4 mb-0">Logs de Ações</h1>
-      <a class="btn btn-dark btn-sm" id="btn-export-logs" href="#"><i class="bi bi-download me-1"></i> Exportar CSV</a>
-    </div>
-    <% if (messages && messages.length>0) { %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <%= messages[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
-    <% if (success && success.length>0) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <%= success[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-      </div>
-    <% } %>
 
-    <form class="row g-3 mb-3" method="GET" action="/logs" id="filter-form">
-      <div class="col-12 col-md-3">
-        <label class="form-label">Início</label>
-        <input type="date" class="form-control" name="start" value="<%= filters.start %>">
-      </div>
-      <div class="col-12 col-md-3">
-        <label class="form-label">Fim</label>
-        <input type="date" class="form-control" name="end" value="<%= filters.end %>">
-      </div>
-      <div class="col-12 col-md-3">
-        <label class="form-label">E-mail do usuário</label>
-        <input list="emailsList" type="email" class="form-control" name="email" placeholder="usuario@dominio" value="<%= filters.email %>">
-        <datalist id="emailsList">
-          <% (emailSuggestions || []).forEach(e => { %>
-            <option value="<%= e %>"></option>
-          <% }) %>
-        </datalist>
-      </div>
-      <div class="col-12 col-md-3">
-        <label class="form-label">Ação</label>
-        <select class="form-select" name="action">
-          <option value="" <%= !filters.action ? 'selected' : '' %>>Todas</option>
-          <option value="bulk_close" <%= filters.action==='bulk_close' ? 'selected' : '' %>>Fechar rounds (lote)</option>
-          <option value="bulk_reopen" <%= filters.action==='bulk_reopen' ? 'selected' : '' %>>Reabrir rounds (lote)</option>
-          <option value="bulk_delete" <%= filters.action==='bulk_delete' ? 'selected' : '' %>>Excluir rounds (lote)</option>
-        </select>
-      </div>
-      <div class="col-12 d-flex justify-content-end gap-2">
-        <button class="btn btn-vs-accent vs-cta"><i class="bi bi-funnel me-1"></i> Filtrar</button>
-        <a class="btn btn-dark" id="btn-export-logs" href="#"><i class="bi bi-download me-1"></i> Exportar CSV</a>
-      </div>
-    </form>
+  <div class="vs-main">
+    <div class="lg-page">
+      <% const sortKey = sort ? sort.key : ''; %>
+      <% const sortDir = sort ? sort.dir : ''; %>
+      <% const baseFilterQuery = `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}`; %>
 
-    <div class="vs-card p-0">
-      <div class="table-responsive">
-      <table class="table table-dark table-striped align-middle mb-0">
-        <thead>
-          <tr>
-            <th>
-              <% const nextDirDate = (sort && sort.key==='date' && sort.dir==='asc') ? 'desc' : 'asc'; %>
-              <a class="link-light" href="/logs?<%= `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=date&dir=${nextDirDate}` %>">Data
-                <% if (sort && sort.key==='date') { %>
-                  <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+      <header class="lg-header">
+        <div>
+          <p class="lg-kicker">Auditoria</p>
+          <h1 class="lg-title">Logs de Ações</h1>
+          <p class="lg-subtitle">Rastreie operações em massa por data, usuário, ação e impacto.</p>
+        </div>
+        <a class="btn lg-btn lg-btn-export" id="btn-export-logs-top" href="#">
+          <i class="bi bi-download"></i>
+          Exportar CSV
+        </a>
+      </header>
+
+      <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-dismissible fade show lg-alert lg-alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div><%= messages[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <% if (success && success.length > 0) { %>
+        <div class="alert alert-dismissible fade show lg-alert lg-alert-success" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div><%= success[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <section class="lg-card mb-3">
+        <div class="lg-card-head">
+          <h2><i class="bi bi-funnel-fill"></i> Filtros</h2>
+        </div>
+        <div class="lg-card-body">
+          <form class="row g-3" method="GET" action="/logs" id="filter-form">
+            <div class="col-12 col-md-3">
+              <label class="lg-label">Início</label>
+              <input type="date" class="form-control lg-input" name="start" value="<%= filters.start %>">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="lg-label">Fim</label>
+              <input type="date" class="form-control lg-input" name="end" value="<%= filters.end %>">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="lg-label">E-mail do usuário</label>
+              <input list="emailsList" type="email" class="form-control lg-input" name="email" placeholder="usuario@dominio" value="<%= filters.email %>">
+              <datalist id="emailsList">
+                <% (emailSuggestions || []).forEach(e => { %>
+                  <option value="<%= e %>"></option>
+                <% }) %>
+              </datalist>
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="lg-label">Ação</label>
+              <select class="form-select lg-input" name="action">
+                <option value="" <%= !filters.action ? 'selected' : '' %>>Todas</option>
+                <option value="bulk_close" <%= filters.action==='bulk_close' ? 'selected' : '' %>>Fechar rounds (lote)</option>
+                <option value="bulk_reopen" <%= filters.action==='bulk_reopen' ? 'selected' : '' %>>Reabrir rounds (lote)</option>
+                <option value="bulk_delete" <%= filters.action==='bulk_delete' ? 'selected' : '' %>>Excluir rounds (lote)</option>
+              </select>
+            </div>
+            <div class="col-12 d-flex justify-content-end gap-2 flex-wrap">
+              <button class="btn lg-btn lg-btn-filter" type="submit"><i class="bi bi-search"></i> Filtrar</button>
+              <a class="btn lg-btn lg-btn-export" id="btn-export-logs-form" href="#"><i class="bi bi-download"></i> Exportar CSV</a>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="lg-card">
+        <div class="lg-card-head lg-card-head-table">
+          <h2><i class="bi bi-table"></i> Resultados</h2>
+        </div>
+        <div class="lg-card-body p-0">
+          <div class="table-responsive">
+            <table class="table lg-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>
+                    <% const nextDirDate = (sort && sort.key === 'date' && sort.dir === 'asc') ? 'desc' : 'asc'; %>
+                    <a href="/logs?<%= `${baseFilterQuery}&sort=date&dir=${nextDirDate}` %>">Data
+                      <% if (sort && sort.key === 'date') { %>
+                        <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+                      <% } %>
+                    </a>
+                  </th>
+                  <th>Usuário</th>
+                  <th>
+                    <% const nextDirAction = (sort && sort.key === 'action' && sort.dir === 'asc') ? 'desc' : 'asc'; %>
+                    <a href="/logs?<%= `${baseFilterQuery}&sort=action&dir=${nextDirAction}` %>">Ação
+                      <% if (sort && sort.key === 'action') { %>
+                        <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+                      <% } %>
+                    </a>
+                  </th>
+                  <th>
+                    <% const nextDirSem = (sort && sort.key === 'semester' && sort.dir === 'asc') ? 'desc' : 'asc'; %>
+                    <a href="/logs?<%= `${baseFilterQuery}&sort=semester&dir=${nextDirSem}` %>">Semestre
+                      <% if (sort && sort.key === 'semester') { %>
+                        <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+                      <% } %>
+                    </a>
+                  </th>
+                  <th>
+                    <% const nextDirRound = (sort && sort.key === 'round' && sort.dir === 'asc') ? 'desc' : 'asc'; %>
+                    <a href="/logs?<%= `${baseFilterQuery}&sort=round&dir=${nextDirRound}` %>">Round
+                      <% if (sort && sort.key === 'round') { %>
+                        <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+                      <% } %>
+                    </a>
+                  </th>
+                  <th>
+                    <% const nextDirStatus = (sort && sort.key === 'status' && sort.dir === 'asc') ? 'desc' : 'asc'; %>
+                    <a href="/logs?<%= `${baseFilterQuery}&sort=status&dir=${nextDirStatus}` %>">Status filtro
+                      <% if (sort && sort.key === 'status') { %>
+                        <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+                      <% } %>
+                    </a>
+                  </th>
+                  <th>
+                    <% const nextDirAff = (sort && sort.key === 'affected' && sort.dir === 'asc') ? 'desc' : 'asc'; %>
+                    <a href="/logs?<%= `${baseFilterQuery}&sort=affected&dir=${nextDirAff}` %>">Afetados
+                      <% if (sort && sort.key === 'affected') { %>
+                        <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
+                      <% } %>
+                    </a>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if ((logs || []).length === 0) { %>
+                  <tr>
+                    <td colspan="7">
+                      <div class="lg-empty">
+                        <i class="bi bi-journal-x"></i>
+                        <p>Nenhum log encontrado para os filtros aplicados.</p>
+                      </div>
+                    </td>
+                  </tr>
                 <% } %>
-              </a>
-            </th>
-            <th>Usuário</th>
-            <th>
-              <% const nextDirAction = (sort && sort.key==='action' && sort.dir==='asc') ? 'desc' : 'asc'; %>
-              <a class="link-light" href="/logs?<%= `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=action&dir=${nextDirAction}` %>">Ação
-                <% if (sort && sort.key==='action') { %>
-                  <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
-                <% } %>
-              </a>
-            </th>
-            <th>
-              <% const nextDirSem = (sort && sort.key==='semester' && sort.dir==='asc') ? 'desc' : 'asc'; %>
-              <a class="link-light" href="/logs?<%= `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=semester&dir=${nextDirSem}` %>">Semestre
-                <% if (sort && sort.key==='semester') { %>
-                  <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
-                <% } %>
-              </a>
-            </th>
-            <th>
-              <% const nextDirRound = (sort && sort.key==='round' && sort.dir==='asc') ? 'desc' : 'asc'; %>
-              <a class="link-light" href="/logs?<%= `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=round&dir=${nextDirRound}` %>">Round
-                <% if (sort && sort.key==='round') { %>
-                  <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
-                <% } %>
-              </a>
-            </th>
-            <th>
-              <% const nextDirStatus = (sort && sort.key==='status' && sort.dir==='asc') ? 'desc' : 'asc'; %>
-              <a class="link-light" href="/logs?<%= `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=status&dir=${nextDirStatus}` %>">Status filtro
-                <% if (sort && sort.key==='status') { %>
-                  <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
-                <% } %>
-              </a>
-            </th>
-            <th>
-              <% const nextDirAff = (sort && sort.key==='affected' && sort.dir==='asc') ? 'desc' : 'asc'; %>
-              <a class="link-light" href="/logs?<%= `start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=affected&dir=${nextDirAff}` %>">Afetados
-                <% if (sort && sort.key==='affected') { %>
-                  <i class="bi <%= sort.dir==='asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill' %>"></i>
-                <% } %>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <% (logs || []).forEach(l => { %>
-            <tr>
-              <td><%= new Date(l.createdAt).toLocaleString('pt-BR') %></td>
-              <td>
-                <% if (l.user) { %>
-                  <%= l.user.name || '-' %><br><span class="text-white-50 small"><%= l.user.email %></span>
-                <% } else { %>
-                  -
-                <% } %>
-              </td>
-              <td>
-                <% if (l.action==='bulk_close') { %><span class="badge text-bg-danger">Fechar rounds (lote)</span><% } %>
-                <% if (l.action==='bulk_reopen') { %><span class="badge text-bg-warning text-dark">Reabrir rounds (lote)</span><% } %>
-                <% if (l.action==='bulk_delete') { %><span class="badge text-bg-secondary">Excluir rounds (lote)</span><% } %>
-              </td>
-              <td><%= l.semester %></td>
-              <td><%= typeof l.numberRound === 'number' ? l.numberRound : 'Todos' %></td>
-              <td>
-                <% if (!l.statusFilter || l.statusFilter==='') { %>
-                  <span class="badge text-bg-light text-dark">Todos</span>
-                <% } else if (l.statusFilter==='active') { %>
-                  <span class="badge text-bg-success">Ativos</span>
-                <% } else if (l.statusFilter==='closed') { %>
-                  <span class="badge text-bg-warning text-dark">Fechados</span>
-                <% } else { %>
-                  <span class="badge text-bg-light text-dark"><%= l.statusFilter %></span>
-                <% } %>
-              </td>
-              <td><span class="badge text-bg-info"><%= l.affectedCount %></span></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      </div>
+                <% (logs || []).forEach(l => { %>
+                  <tr>
+                    <td><%= new Date(l.createdAt).toLocaleString('pt-BR') %></td>
+                    <td>
+                      <% if (l.user) { %>
+                        <div class="lg-user-name"><%= l.user.name || '-' %></div>
+                        <div class="lg-user-email"><%= l.user.email %></div>
+                      <% } else { %>
+                        -
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (l.action === 'bulk_close') { %><span class="lg-badge action-close">Fechar rounds (lote)</span><% } %>
+                      <% if (l.action === 'bulk_reopen') { %><span class="lg-badge action-reopen">Reabrir rounds (lote)</span><% } %>
+                      <% if (l.action === 'bulk_delete') { %><span class="lg-badge action-delete">Excluir rounds (lote)</span><% } %>
+                    </td>
+                    <td><%= l.semester %></td>
+                    <td><%= typeof l.numberRound === 'number' ? l.numberRound : 'Todos' %></td>
+                    <td>
+                      <% if (!l.statusFilter || l.statusFilter === '') { %>
+                        <span class="lg-badge status-all">Todos</span>
+                      <% } else if (l.statusFilter === 'active') { %>
+                        <span class="lg-badge status-active">Ativos</span>
+                      <% } else if (l.statusFilter === 'closed') { %>
+                        <span class="lg-badge status-closed">Fechados</span>
+                      <% } else { %>
+                        <span class="lg-badge status-all"><%= l.statusFilter %></span>
+                      <% } %>
+                    </td>
+                    <td><span class="lg-badge affected"><%= l.affectedCount %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <% if (pagination && pagination.pages > 1) { %>
+        <nav class="mt-3" aria-label="Paginação">
+          <ul class="pagination pagination-sm lg-pagination">
+            <% const page = pagination.page; const pages = pagination.pages; const limit = pagination.limit; %>
+            <li class="page-item <%= page <= 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="/logs?<%= `page=${page-1}&limit=${limit}&${baseFilterQuery}&sort=${sortKey}&dir=${sortDir}` %>">Anterior</a>
+            </li>
+            <% for (let p=1; p<=pages; p++){ %>
+              <li class="page-item <%= p===page ? 'active' : '' %>">
+                <a class="page-link" href="/logs?<%= `page=${p}&limit=${limit}&${baseFilterQuery}&sort=${sortKey}&dir=${sortDir}` %>"><%= p %></a>
+              </li>
+            <% } %>
+            <li class="page-item <%= page >= pages ? 'disabled' : '' %>">
+              <a class="page-link" href="/logs?<%= `page=${page+1}&limit=${limit}&${baseFilterQuery}&sort=${sortKey}&dir=${sortDir}` %>">Próxima</a>
+            </li>
+          </ul>
+        </nav>
+      <% } %>
     </div>
-    <% if (pagination && pagination.pages > 1) { %>
-      <nav class="mt-3" aria-label="Paginação">
-        <ul class="pagination pagination-sm">
-          <% const page = pagination.page; const pages = pagination.pages; const limit = pagination.limit; %>
-          <li class="page-item <%= page<=1 ? 'disabled' : '' %>"><a class="page-link" href="/logs?<%= `page=${page-1}&limit=${limit}&start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=${sort?sort.key:''}&dir=${sort?sort.dir:''}` %>">Anterior</a></li>
-          <% for (let p=1; p<=pages; p++){ %>
-            <li class="page-item <%= p===page ? 'active' : '' %>"><a class="page-link" href="/logs?<%= `page=${p}&limit=${limit}&start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=${sort?sort.key:''}&dir=${sort?sort.dir:''}` %>"><%= p %></a></li>
-          <% } %>
-          <li class="page-item <%= page>=pages ? 'disabled' : '' %>"><a class="page-link" href="/logs?<%= `page=${page+1}&limit=${limit}&start=${filters.start}&end=${filters.end}&email=${filters.email}&action=${filters.action}&sort=${sort?sort.key:''}&dir=${sort?sort.dir:''}` %>">Próxima</a></li>
-        </ul>
-      </nav>
-    <% } %>
   </div>
+
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     (function(){
       const form = document.getElementById('filter-form');
-      const btnTop = document.getElementById('btn-export-logs');
+      const btnTop = document.getElementById('btn-export-logs-top');
+      const btnForm = document.getElementById('btn-export-logs-form');
+
       function updateHref(){
         if (!form) return;
         const start = form.querySelector('input[name="start"]').value;
         const end = form.querySelector('input[name="end"]').value;
         const email = form.querySelector('input[name="email"]').value;
         const action = form.querySelector('select[name="action"]').value;
-        const sortKey = '<%= sort ? sort.key : '' %>';
-        const sortDir = '<%= sort ? sort.dir : '' %>';
-        const q = new URLSearchParams({ start, end, email, action, sort: sortKey, dir: sortDir }).toString();
+        const sortQ = '<%= sort ? sort.key : '' %>';
+        const dirQ = '<%= sort ? sort.dir : '' %>';
+        const q = new URLSearchParams({ start, end, email, action, sort: sortQ, dir: dirQ }).toString();
         if (btnTop) btnTop.href = '/logs/export?' + q;
+        if (btnForm) btnForm.href = '/logs/export?' + q;
       }
+
       form && form.addEventListener('change', updateHref);
       updateHref();
+
       document.querySelectorAll('.alert').forEach(function(el){
-        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        setTimeout(function(){ try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {} }, 5000);
       });
     })();
   </script>

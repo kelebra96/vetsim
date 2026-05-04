@@ -1,105 +1,144 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
-  <title>VetSim</title>
+  <title>Criar Round • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/round.css">
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/roundcreate.css">
 </head>
-
 <body class="vs-gradient">
   <%- include('../partials/navbar') %>
-  <div class="container py-3 py-md-4">
-    <div class="row justify-content-center">
-      <div class="col-12 col-lg-10 col-xxl-8">
-        <h1 class="text-center my-4 my-md-5">Criar Round</h1>
-      </div>
+
+  <div class="vs-main">
+    <div class="rc-page">
+      <header class="rc-header">
+        <div>
+          <p class="rc-kicker">Operações acadêmicas</p>
+          <h1 class="rc-title">Criar Round</h1>
+          <p class="rc-subtitle">Gere os registros de pontuação por semestre com controle de volume e rounds existentes.</p>
+        </div>
+      </header>
+
+      <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-dismissible fade show rc-alert rc-alert-danger" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>
+            <strong>Não foi possível criar o round.</strong>
+            <ul class="mb-0 mt-1">
+              <% messages.forEach(function(message) { %>
+                <li><%= message %></li>
+              <% }); %>
+            </ul>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <% if (success && success.length > 0) { %>
+        <div class="alert alert-dismissible fade show rc-alert rc-alert-success" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div><%= success[0] %></div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <form action="/createround" method="POST" novalidate>
+        <section class="rc-card">
+          <div class="rc-card-head">
+            <h2><i class="bi bi-sliders2"></i> Configuração</h2>
+          </div>
+
+          <div class="rc-card-body">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="semester" class="rc-label">Semestre (1 a 8)</label>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  class="form-control rc-input"
+                  id="semester"
+                  name="semester"
+                  min="1"
+                  max="8"
+                  required
+                  aria-describedby="hint-existing"
+                  value="<%= (user && user.semester) ? user.semester : '' %>"
+                >
+                <% if (user && user.semester) { %>
+                  <p class="rc-field-hint">Seu semestre atual: <span class="rc-chip"><%= user.semester %>º</span></p>
+                <% } %>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="number" class="rc-label">Número do round (1 a 4)</label>
+                <select class="form-select rc-input" id="number" name="numberRound" required aria-describedby="selected-round-info">
+                  <option value="" selected disabled>Selecionar...</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+                <div id="selected-round-info" class="rc-field-hint"></div>
+              </div>
+
+              <div class="col-12">
+                <div class="rc-metrics">
+                  <div class="rc-metric" id="existing-counter">
+                    <span class="rc-metric-label">Rounds criados</span>
+                    <strong>0/4</strong>
+                  </div>
+                  <div class="rc-metric" id="remaining-rounds">
+                    <span class="rc-metric-label">Rounds restantes</span>
+                    <strong>4</strong>
+                  </div>
+                  <div class="rc-metric" id="active-users">
+                    <span class="rc-metric-label">Alunos ativos</span>
+                    <strong>0</strong>
+                  </div>
+                  <div class="rc-metric" id="predicted-info">
+                    <span class="rc-metric-label">Registros previstos</span>
+                    <strong>0</strong>
+                  </div>
+                </div>
+
+                <div class="rc-helper" id="hint-existing">Selecione um semestre para ver rounds já existentes.</div>
+
+                <div class="alert alert-info mt-2 d-none rc-inline-alert" id="no-users-warning">
+                  <i class="bi bi-info-circle-fill"></i> Nenhum aluno ativo para este semestre. Criação desabilitada.
+                </div>
+                <div class="alert alert-warning mt-2 d-none rc-inline-alert" id="high-volume-warning">
+                  <i class="bi bi-exclamation-triangle-fill"></i> Volume alto de criação. Considere realizar em horário de menor uso.
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button type="submit" class="btn rc-btn-create" id="btn-create-round">
+                  <i class="bi bi-plus-circle-fill"></i>
+                  Criar Round
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="rc-card rc-list-card mt-3">
+          <div class="rc-card-head">
+            <h2><i class="bi bi-table"></i> Rounds existentes neste semestre</h2>
+          </div>
+          <div class="rc-card-body">
+            <div id="existing-details" class="rc-list-placeholder">
+              <i class="bi bi-search"></i>
+              <p>Selecione um semestre para carregar os dados.</p>
+            </div>
+          </div>
+        </section>
+      </form>
     </div>
-
-    <form action="/createround" method="POST" novalidate>
-      <div class="row justify-content-center">
-        <div class="col-12 col-lg-10 col-xxl-8">
-          <div class="card vs-card">
-            <div class="card-body">
-              <% if (messages && messages.length> 0) { %>
-                <div class="alert alert-danger alert-dismissible fade show mt-1" role="alert">
-                  <ul class="mb-0">
-                    <% messages.forEach(function(message) { %>
-                      <li><%= message %></li>
-                    <% }); %>
-                  </ul>
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-                </div>
-              <% } %>
-              <% if (success && success.length> 0) { %>
-                <div class="alert alert-success alert-dismissible fade show mt-1" role="alert">
-                  <%= success %>
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-                </div>
-              <% } %>
-
-              <div id="form">
-                <div class="row g-3">
-                  <div class="col-12 col-md-6">
-                    <label for="semester" class="form-label">Semestre (1 a 8)</label>
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="form-control" id="semester" name="semester" min="1" max="8" required aria-describedby="hint-existing" value="<%= (user && user.semester) ? user.semester : '' %>">
-                    <% if (user && user.semester) { %>
-                      <div class="form-text">Seu semestre: <span class="badge text-bg-info"><%= user.semester %></span></div>
-                    <% } %>
-                  </div>
-                  <div class="col-12 col-md-6">
-                    <label for="number" class="form-label">Número do Round (1 a 4)</label>
-                    <select class="form-select" id="number" name="numberRound" required aria-describedby="hint-existing">
-                      <option value="" selected disabled>Selecionar...</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>`n                    <div id="selected-round-info" class="form-text"></div>
-                  </div>
-
-                  <div class="col-12">
-                    <div class="row g-2">
-                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="existing-counter">Rounds criados neste semestre: 0/4</div></div>
-                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="remaining-rounds">Rounds restantes neste semestre: 4</div></div>
-                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="active-users">Alunos ativos neste semestre: 0</div></div>
-                      <div class="col-12 col-sm-6 col-lg-3"><div class="text-white-50 small" id="predicted-info">Previstos para criação: 0 registros</div></div>
-                      <div class="col-12"><div class="form-text" id="hint-existing">Selecione um semestre para ver rounds já existentes.</div></div>
-                      <div class="col-12"><div class="alert alert-info mt-2 d-none" id="no-users-warning">Nenhum aluno ativo para este semestre. Criação desabilitada.</div></div>
-                      <div class="col-12"><div class="alert alert-warning mt-2 d-none" id="high-volume-warning">Volume alto de criação. Considere realizar em horário de menor uso.</div></div>
-                    </div>
-                  </div>
-
-                  <div class="col-12">
-                    <div class="d-grid gap-2 mt-1">
-                      <button type="submit" class="btn btn-vs-accent vs-cta w-100 w-md-auto" id="btn-create-round">Criar Round</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row justify-content-center mt-3 mb-3">
-        <div class="col-12 col-lg-10 col-xxl-8">
-          <div class="card vs-card">
-            <div class="card-body">
-              <h5 class="card-title">Rounds existentes neste semestre</h5>
-              <div id="existing-details">
-                <div class="text-white-50 small">Selecione um semestre para carregar os dados.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>
   </div>
 
   <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -107,7 +146,7 @@
   <script>
     (function(){
       document.querySelectorAll('.alert').forEach(function(el){
-        setTimeout(function(){ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(_){} }, 5000);
+        setTimeout(function(){ try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {} }, 5000);
       });
     })();
   </script>
@@ -118,159 +157,206 @@
       const $hint = document.getElementById('hint-existing');
       const $selInfo = document.getElementById('selected-round-info');
 
+      function setMetric(id, label, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<span class="rc-metric-label">' + label + '</span><strong>' + value + '</strong>';
+      }
+
       async function refreshExisting(){
         const v = Number($sem.value);
         if (!v || v < 1 || v > 8) return;
+
         try {
-          const r = await fetch(`/roundsexisting?semester=${encodeURIComponent(v)}`);
+          const r = await fetch('/roundsexisting?semester=' + encodeURIComponent(v));
           if (!r.ok) throw new Error('fail');
           const data = await r.json();
           const existing = Array.isArray(data.existing) ? data.existing : [];
-          // Enable all options then disable existing
-          Array.from($num.options).forEach(opt => { if (opt.value) opt.disabled = false; });
-          existing.forEach(n => {
-            const opt = Array.from($num.options).find(o => Number(o.value) === Number(n));
+
+          Array.from($num.options).forEach(function(opt){ if (opt.value) opt.disabled = false; });
+          existing.forEach(function(n){
+            const opt = Array.from($num.options).find(function(o){ return Number(o.value) === Number(n); });
             if (opt) opt.disabled = true;
           });
-          // Update hint
+
           if (existing.length === 0) {
             $hint.textContent = 'Nenhum round existente para este semestre.';
           } else {
-            $hint.textContent = 'Já existem: ' + existing.sort().join(', ');
+            $hint.textContent = 'Já existem rounds: ' + existing.sort().join(', ');
           }
-          // Update counter and submit state
-          const $counter = document.getElementById('existing-counter');
-          if ($counter) $counter.textContent = `Rounds criados neste semestre: ${existing.length}/4`;
-          const $rem = document.getElementById('remaining-rounds');
-          if ($rem) $rem.textContent = `Rounds restantes neste semestre: ${Math.max(0, 4 - existing.length)}`;
+
+          setMetric('existing-counter', 'Rounds criados', existing.length + '/4');
+          setMetric('remaining-rounds', 'Rounds restantes', String(Math.max(0, 4 - existing.length)));
+
           const $btn = document.getElementById('btn-create-round');
-          if ($btn) {
-            $btn.disabled = existing.length >= 4;
+          if ($btn && existing.length >= 4) {
+            $btn.disabled = true;
+            $btn.classList.add('is-disabled');
           }
-          // If selected option is disabled now, reset selection
+
           if ($num.value) {
-            const optSel = Array.from($num.options).find(o => o.value === $num.value);
+            const optSel = Array.from($num.options).find(function(o){ return o.value === $num.value; });
             if (optSel && optSel.disabled) $num.value = '';
           }
-        } catch (e) {
+        } catch (_e) {
           $hint.textContent = 'Não foi possível consultar rounds existentes.';
         }
       }
-      $sem && $sem.addEventListener('change', refreshExisting);
-      if ($sem && $sem.value) refreshExisting();
 
       async function refreshSelectedRoundInfo(){
         const v = Number($sem.value);
         const sel = Number($num.value || '');
-        if (!v || v < 1 || v > 8 || !sel) { if ($selInfo) $selInfo.textContent=''; return; }
+        if (!v || v < 1 || v > 8 || !sel) {
+          if ($selInfo) $selInfo.textContent = '';
+          return;
+        }
+
         try {
-          const r = await fetch(`/roundslist?semester=${encodeURIComponent(v)}`);
+          const r = await fetch('/roundslist?semester=' + encodeURIComponent(v));
           const data = r.ok ? await r.json() : { list: [] };
           const list = Array.isArray(data.list) ? data.list : [];
-          const row = list.find(it => Number(it.numberRound) === sel);
+          const row = list.find(function(it){ return Number(it.numberRound) === sel; });
           const count = row ? Number(row.count || 0) : 0;
-          if ($selInfo) $selInfo.textContent = count > 0 ? `Já existem ${count} registros para este round.` : 'Nenhum registro para este round ainda.';
-        } catch(_e){ if ($selInfo) $selInfo.textContent=''; }
+          if ($selInfo) {
+            $selInfo.textContent = count > 0 ? ('Já existem ' + count + ' registro(s) para este round.') : 'Nenhum registro para este round ainda.';
+          }
+        } catch (_e) {
+          if ($selInfo) $selInfo.textContent = '';
+        }
       }
 
       async function refreshList(){
         const v = Number($sem.value);
         const $details = document.getElementById('existing-details');
         if (!$details) return;
-        if (!v || v < 1 || v > 8) { $details.innerHTML = '<div class="text-white-50 small">Semestre inválido.</div>'; return; }
+
+        if (!v || v < 1 || v > 8) {
+          $details.innerHTML = '<div class="rc-list-placeholder"><i class="bi bi-slash-circle"></i><p>Semestre inválido.</p></div>';
+          return;
+        }
+
         try {
-          const r = await fetch(`/roundslist?semester=${encodeURIComponent(v)}`);
+          const r = await fetch('/roundslist?semester=' + encodeURIComponent(v));
           if (!r.ok) throw new Error('fail');
           const data = await r.json();
           const list = Array.isArray(data.list) ? data.list : [];
-          if (list.length === 0) { $details.innerHTML = '<div class="text-white-50 small">Nenhum round criado neste semestre.</div>'; return; }
-          const rows = list.map(item => {
+
+          if (list.length === 0) {
+            $details.innerHTML = '<div class="rc-list-placeholder"><i class="bi bi-inboxes"></i><p>Nenhum round criado neste semestre.</p></div>';
+            return;
+          }
+
+          const rows = list.map(function(item){
             const d1 = new Date(item.firstCreated);
             const d2 = new Date(item.lastUpdated);
-            return `<tr>
-              <td>${item.numberRound}</td>
-              <td>${item.count}</td>
-              <td>${isNaN(d1) ? '-' : d1.toLocaleString('pt-BR')}</td>
-              <td>${isNaN(d2) ? '-' : d2.toLocaleString('pt-BR')}</td>
-            </tr>`;
+            return '<tr>' +
+              '<td>Round ' + item.numberRound + '</td>' +
+              '<td>' + item.count + '</td>' +
+              '<td>' + (isNaN(d1) ? '-' : d1.toLocaleString('pt-BR')) + '</td>' +
+              '<td>' + (isNaN(d2) ? '-' : d2.toLocaleString('pt-BR')) + '</td>' +
+            '</tr>';
           }).join('');
-          $details.innerHTML = `
-            <div class=\"table-responsive\">
-              <table class=\"table table-dark table-striped align-middle mb-0\">
-                <thead>
-                  <tr>
-                    <th>Número</th>
-                    <th>Quant. Registros</th>
-                    <th>Criado em</th>
-                    <th>Última Atualização</th>
-                  </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-              </table>
-            </div>`;
-        } catch (e) {
-          $details.innerHTML = '<div class="text-danger small">Erro ao carregar lista de rounds.</div>';
+
+          $details.innerHTML =
+            '<div class="table-responsive">' +
+              '<table class="table rc-table align-middle mb-0">' +
+                '<thead>' +
+                  '<tr>' +
+                    '<th>Round</th>' +
+                    '<th>Registros</th>' +
+                    '<th>Criado em</th>' +
+                    '<th>Última atualização</th>' +
+                  '</tr>' +
+                '</thead>' +
+                '<tbody>' + rows + '</tbody>' +
+              '</table>' +
+            '</div>';
+        } catch (_e) {
+          $details.innerHTML = '<div class="rc-list-placeholder is-error"><i class="bi bi-x-circle"></i><p>Erro ao carregar lista de rounds.</p></div>';
         }
       }
 
       async function refreshActiveUsers(){
         const v = Number($sem.value);
-        const $au = document.getElementById('active-users');
-        const $pred = document.getElementById('predicted-info');
         const $btn = document.getElementById('btn-create-round');
         const $warn = document.getElementById('high-volume-warning');
         const $none = document.getElementById('no-users-warning');
-        if (!$au) return;
+
         if (!v || v < 1 || v > 8) {
-          $au.textContent = 'Alunos ativos neste semestre: 0';
-          if ($pred) $pred.textContent = 'Previstos para criação: 0 registros';
-          if ($btn) $btn.textContent = 'Criar Round';
+          setMetric('active-users', 'Alunos ativos', '0');
+          setMetric('predicted-info', 'Registros previstos', '0');
+          if ($btn) {
+            $btn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Criar Round';
+            $btn.disabled = false;
+            $btn.classList.remove('is-disabled');
+          }
           if ($warn) $warn.classList.add('d-none');
           if ($none) $none.classList.add('d-none');
           return;
         }
+
         try {
-          const r = await fetch(`/semesterusers?semester=${encodeURIComponent(v)}`);
+          const r = await fetch('/semesterusers?semester=' + encodeURIComponent(v));
           if (!r.ok) throw new Error('fail');
           const data = await r.json();
           const n = Number(data.activeUsers || 0);
-          $au.textContent = `Alunos ativos neste semestre: ${n}`;
-          if ($pred) $pred.textContent = `Previstos para criação: ${n} registro(s)`;
-          if ($btn) $btn.textContent = `Criar Round (${n})`;
-          const THRESHOLD = Number(<%= typeof hvThreshold !== 'undefined' ? hvThreshold : 200 %>);
+
+          setMetric('active-users', 'Alunos ativos', String(n));
+          setMetric('predicted-info', 'Registros previstos', String(n));
+
+          if ($btn) {
+            $btn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Criar Round (' + n + ')';
+          }
+
+          const threshold = Number(<%= typeof hvThreshold !== 'undefined' ? hvThreshold : 200 %>);
           if ($warn) {
-            if (n > THRESHOLD) {
-              $warn.textContent = `Volume alto de criação (${n} registros). Considere realizar em horário de menor uso.`;
+            if (n > threshold) {
+              $warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Volume alto de criação (' + n + ' registros). Considere realizar em horário de menor uso.';
               $warn.classList.remove('d-none');
             } else {
               $warn.classList.add('d-none');
             }
           }
-          // Nenhum aluno ativo: avisa e desabilita
+
           if ($none) {
-            if (n === 0) $none.classList.remove('d-none'); else $none.classList.add('d-none');
+            if (n === 0) $none.classList.remove('d-none');
+            else $none.classList.add('d-none');
           }
-          // Estado do botão: bloqueia se sem alunos ou limite 4/4
-          const existingCount = (document.getElementById('existing-counter')?.textContent.match(/(\d+)\/4/)||[])[1];
-          const full = existingCount ? Number(existingCount) >= 4 : false;
+
+          const existingText = document.getElementById('existing-counter')?.querySelector('strong')?.textContent || '0/4';
+          const existingCount = Number((existingText.match(/(\d+)\/?4?/) || [])[1] || 0);
+          const full = existingCount >= 4;
           if ($btn) {
             $btn.disabled = (n === 0) || full;
+            $btn.classList.toggle('is-disabled', (n === 0) || full);
           }
-        } catch (e) {
-          $au.textContent = 'Alunos ativos neste semestre: -';
-          if ($pred) $pred.textContent = 'Previstos para criação: -';
-          if ($btn) $btn.textContent = 'Criar Round';
+        } catch (_e) {
+          setMetric('active-users', 'Alunos ativos', '-');
+          setMetric('predicted-info', 'Registros previstos', '-');
+          if ($btn) {
+            $btn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Criar Round';
+          }
           if ($warn) $warn.classList.add('d-none');
           if ($none) $none.classList.add('d-none');
         }
       }
 
-      $sem && $sem.addEventListener('change', function(){ refreshExisting(); refreshList(); refreshActiveUsers(); refreshSelectedRoundInfo(); });
+      $sem && $sem.addEventListener('change', function(){
+        refreshExisting();
+        refreshList();
+        refreshActiveUsers();
+        refreshSelectedRoundInfo();
+      });
+
       $num && $num.addEventListener('change', refreshSelectedRoundInfo);
-      if ($sem && $sem.value) { refreshList(); refreshActiveUsers(); refreshSelectedRoundInfo(); }
+
+      if ($sem && $sem.value) {
+        refreshExisting();
+        refreshList();
+        refreshActiveUsers();
+        refreshSelectedRoundInfo();
+      }
     })();
   </script>
-
 </body>
-
 </html>

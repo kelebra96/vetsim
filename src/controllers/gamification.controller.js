@@ -11,9 +11,20 @@ const myXP = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(50)
       .lean();
+    const listedEventsSum = events.reduce((acc, ev) => acc + Number(ev?.amount || 0), 0);
+    const listedVsTotalDiff = points - listedEventsSum;
 
     res.render("gamification/me_xp", {
-      summary: { name: user?.name || "", points, level, inLevel, streak: Number(user?.streakCount || 0), streakLast: user?.streakLast || null },
+      summary: {
+        name: user?.name || "",
+        points,
+        level,
+        inLevel,
+        streak: Number(user?.streakCount || 0),
+        streakLast: user?.streakLast || null,
+        listedEventsSum,
+        listedVsTotalDiff,
+      },
       events,
       messages: req.flash("error"),
       success: req.flash("success"),
@@ -29,7 +40,7 @@ export default { myXP };
 // Persist streak across devices
 export const getStreak = async (req, res) => {
   try {
-    const u = await (await import('../models/User.js')).default.findById(req.user.id).select('streakCount streakLast').lean();
+    const u = await User.findById(req.user.id).select('streakCount streakLast').lean();
     return res.json({ streak: Number(u?.streakCount || 0), last: u?.streakLast || null });
   } catch (e) {
     return res.status(500).json({ streak: 0, last: null });
@@ -38,7 +49,6 @@ export const getStreak = async (req, res) => {
 
 export const tickStreakToday = async (req, res) => {
   try {
-    const User = (await import('../models/User.js')).default;
     const u = await User.findById(req.user.id).select('streakCount streakLast').lean();
     const now = new Date();
     const today = now.toDateString();
