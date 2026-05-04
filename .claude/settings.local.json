@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-remote *)",
+      "Bash(git fetch *)",
+      "Bash(git ls-tree *)",
+      "Bash(git mktree *)",
+      "Bash(git merge *)",
+      "Bash(npm install *)",
+      "Bash(mongosh --eval \"db.runCommand\\({ping:1}\\)\" --quiet)",
+      "Bash(powershell *)",
+      "PowerShell(Test-NetConnection *)"
+    ]
+  }
+}
