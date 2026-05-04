@@ -9,7 +9,9 @@
       "Bash(npm install *)",
       "Bash(mongosh --eval \"db.runCommand\\({ping:1}\\)\" --quiet)",
       "Bash(powershell *)",
-      "PowerShell(Test-NetConnection *)"
+      "PowerShell(Test-NetConnection *)",
+      "Bash(docker --version)",
+      "PowerShell(Resolve-DnsName *)"
     ]
   }
 }
