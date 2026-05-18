@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <link rel="icon" type="image/svg+xml" href="/img/gato-preto.svg" />
   <title>VetSim — Home</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -54,7 +54,8 @@
         </div>
       </div>
 
-      <!-- ── Estatísticas ── -->
+      <!-- ── Estatísticas (apenas alunos) ── -->
+      <% if (!_isAdmin) { %>
       <div class="row g-3 mb-4 home-stats-row">
         <div class="col-6 col-lg-3">
           <div class="home-stat-card">
@@ -93,6 +94,7 @@
           </div>
         </div>
       </div>
+      <% } %>
 
       <!-- ── Dashboard de resultados ── -->
       <div class="home-panel mb-4">

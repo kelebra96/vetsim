@@ -47,14 +47,14 @@ const router = Router();
 
 router.post("/login", userController.loginPost);
 router.get("/", userController.login);
-router.get("/register", userController.register);
-router.post("/createuser", userController.create);
-router.get("/userimport", userController.importForm);
-router.post("/importcsv", upload.single("csvfile"), userController.importCsv);
+router.get("/register", authenticate, authorizeAdminOrTeacher, userController.register);
+router.post("/createuser", authenticate, authorizeAdminOrTeacher, userController.create);
+router.get("/userimport", authenticate, authorizeAdminOrTeacher, userController.importForm);
+router.post("/importcsv", authenticate, authorizeAdminOrTeacher, upload.single("csvfile"), userController.importCsv);
 router.post("/importstudents", authenticate, authorizeAdminOrTeacher, upload.single("file"), importStudents);
-router.get("/userall", userController.findAll);
-router.get("/userid/:id", userController.findById);
-router.patch("/userupdate/:id", userController.update); 
+router.get("/userall", authenticate, authorizeAdminOrTeacher, userController.findAll);
+router.get("/userid/:id", authenticate, userController.findById);
+router.patch("/userupdate/:id", authenticate, authorizeAdminOrTeacher, userController.update); 
 // Perfil
 router.get("/profile", authenticate, userController.profileView);
 router.post("/profile", authenticate, avatarUploadSingle, userController.profileUpdate);

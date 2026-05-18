@@ -1,10 +1,9 @@
 // src/middlewares/auth.middleware.js
 import jwt from "jsonwebtoken";
-
-const secret = process.env.JWT_SECRET || "vetSimSecretKey";
+import { jwtSecret } from "../config/secrets.js";
 
 export function generateToken(payload) {
-  return jwt.sign(payload, secret, { expiresIn: "3h" });
+  return jwt.sign(payload, jwtSecret, { expiresIn: "3h" });
 }
 
 export function authenticate(req, res, next) {
@@ -16,7 +15,7 @@ export function authenticate(req, res, next) {
   if (!token) return res.redirect("/");
 
   try {
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, jwtSecret);
 
     // Sanitizando o conteúdo do token
     req.user = {

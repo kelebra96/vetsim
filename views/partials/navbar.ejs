@@ -41,7 +41,7 @@
   <% if (_u) { %>
   <div class="vs-sb-profile">
     <div class="vs-sb-avatar">
-      <img src="<%= _u.avatarUrl && _u.avatarUrl.length ? _u.avatarUrl : '/img/gato-preto.svg' %>" alt="Avatar">
+      <img src="<%= _u.avatarUrl && _u.avatarUrl.length ? _u.avatarUrl : '/img/gato-preto.svg' %>" alt="Avatar" onerror="this.onerror=null;this.src='/img/gato-preto.svg'">
     </div>
     <div class="vs-sb-profile-info">
       <span class="vs-sb-name"><%= _u.name || 'Usuário' %></span>
@@ -49,7 +49,8 @@
     </div>
   </div>
 
-  <!-- HUD -->
+  <!-- HUD — apenas alunos -->
+  <% if (!_isAdmin) { %>
   <div class="vs-sb-hud">
     <div class="vs-sb-hud-row">
       <i class="bi bi-cash-coin vs-sb-hud-icon"></i>
@@ -72,6 +73,7 @@
     </div>
   </div>
   <% } %>
+  <% } %>
 
   <!-- Navegação -->
   <nav class="vs-sb-nav">
@@ -79,12 +81,16 @@
     <a href="/home" class="vs-sb-link <%= _active('/home') %>">
       <i class="bi bi-house-door-fill"></i> Home
     </a>
+    <% if (!_isAdmin) { %>
     <a href="/rounds" class="vs-sb-link <%= _active('/rounds') %>">
       <i class="bi bi-arrow-repeat"></i> Meu Round
     </a>
+    <% } %>
+    <% if (!_isAdmin) { %>
     <a href="/me/xp" class="vs-sb-link <%= _active('/me/xp') %>">
       <i class="bi bi-trophy-fill"></i> Meu XP
     </a>
+    <% } %>
     <a href="/profile" class="vs-sb-link <%= _active('/profile') %>">
       <i class="bi bi-person-fill"></i> Meu Perfil
     </a>
@@ -135,6 +141,7 @@
 <script>
   window.__serverXP = <%= (_u && typeof _u.points === 'number') ? Number(_u.points) : 0 %>;
   window.__serverStreak = <%= (_u && typeof _u.streakCount === 'number') ? Number(_u.streakCount) : 0 %>;
+  window.__userRole = '<%= (_u && _u.role) ? _u.role : "student" %>';
 
   (function () {
     const toggle = document.getElementById('sidebarToggle');

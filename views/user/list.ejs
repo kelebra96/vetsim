@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <link rel="icon" type="image/svg+xml" href="/img/gato-preto.svg" />
   <title>Usuários • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -147,7 +147,7 @@
 
                   <td>
                     <% if (u.avatarUrl) { %>
-                      <img src="<%= u.avatarUrl %>" class="ul-avatar" alt="avatar">
+                      <img src="<%= u.avatarUrl %>" class="ul-avatar" alt="avatar" onerror="this.onerror=null;this.src='/img/gato-preto.svg'">
                     <% } else { %>
                       <div class="ul-avatar-placeholder"><i class="bi bi-person-fill"></i></div>
                     <% } %>

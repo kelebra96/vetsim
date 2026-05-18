@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import flash from "express-flash";
+import { jwtSecret, sessionSecret } from "./src/config/secrets.js";
 
 dotenv.config();
 
@@ -15,10 +16,15 @@ app.use(express.static("public"));
 app.use(cookieParser()); // <== necessário para ler cookies
 app.use(
   session({
-    secret: "vetSimSecret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 3 * 60 * 60 * 1000 }, // 3 horas
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3 * 60 * 60 * 1000,
+    }, // 3 horas
   })
 );
 
@@ -32,10 +38,7 @@ app.use(async (req, res, next) => {
   const token = req.cookies?.token;
   if (token) {
     try {
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || "vetSimSecretKey"
-      );
+      const decoded = jwt.verify(token, jwtSecret);
       // Traz nome e avatar do usuário para exibir no navbar
       try {
         const u = await User.findById(decoded.id)

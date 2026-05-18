@@ -39,11 +39,14 @@ router.get(
   authorizeAdminOrTeacher,
   roundController.semesterUsersCount
 );
-router.get("/roundall", roundController.findAll);
-router.get("/rounds", authenticate, roundController.rounds);
-router.get("/roundid/:id", roundController.findById);
+router.get("/roundall", authenticate, authorizeAdminOrTeacher, roundController.findAll);
+router.get("/rounds", authenticate, (req, res, next) => {
+  if (req.user.role === "admin" || req.user.role === "teacher") return res.redirect("/home");
+  next();
+}, roundController.rounds);
+router.get("/roundid/:id", authenticate, roundController.findById);
 router.post("/roundupdate/:id", authenticate, roundController.update);
-router.post("/close", roundController.closeRound);
+router.post("/close", authenticate, authorizeAdminOrTeacher, roundController.closeRound);
 router.get(
   "/roundsadmin",
   authenticate,

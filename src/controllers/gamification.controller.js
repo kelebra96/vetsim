@@ -2,6 +2,9 @@ import User from "../models/User.js";
 import GamificationEvent from "../models/GamificationEvent.js";
 
 const myXP = async (req, res) => {
+  if (req.user.role === "admin" || req.user.role === "teacher") {
+    return res.redirect("/home");
+  }
   try {
     const user = await User.findById(req.user.id).select("name points level streakCount streakLast").lean();
     const points = Number(user?.points || 0);
@@ -48,6 +51,9 @@ export const getStreak = async (req, res) => {
 };
 
 export const tickStreakToday = async (req, res) => {
+  if (req.user.role === "admin" || req.user.role === "teacher") {
+    return res.json({ streak: 0, last: null });
+  }
   try {
     const u = await User.findById(req.user.id).select('streakCount streakLast').lean();
     const now = new Date();

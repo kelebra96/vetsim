@@ -13,6 +13,7 @@ export async function awardPoints(userId, amount, reason = "award") {
   if (!userId || !amount || amount <= 0) return null;
   const u = await User.findById(userId).select("type semester points level xpBySemester");
   if (!u) return null;
+  if (u.type === "admin" || u.type === "teacher") return null;
 
   let newPoints = 0;
 

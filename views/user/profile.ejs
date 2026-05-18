@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/svg+xml" href="/gato-preto.svg" />
+  <link rel="icon" type="image/svg+xml" href="/img/gato-preto.svg" />
   <title>Meu Perfil • VetSim</title>
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -63,7 +63,7 @@
           <div class="prf-id-card">
 
             <div class="prf-avatar-wrap">
-              <img id="avatarDisplay" src="<%= _avatar %>" alt="Avatar" class="prf-avatar">
+              <img id="avatarDisplay" src="<%= _avatar %>" alt="Avatar" class="prf-avatar" onerror="this.onerror=null;this.src='/img/gato-preto.svg'">
               <div class="prf-avatar-ring"></div>
             </div>
 
@@ -87,6 +87,7 @@
               <span class="prf-info-val"><%= _sem %></span>
             </div>
 
+            <% if (!_isAdmin) { %>
             <hr class="prf-divider">
 
             <div class="prf-info-row">
@@ -95,11 +96,6 @@
                 <%= _bal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }) %>
               </span>
             </div>
-
-            <% if (_isAdmin && _doc._id) { %>
-            <a class="btn-prf-adjust" href="/users/edit/<%= _doc._id %>">
-              <i class="bi bi-cash-coin"></i> Ajustar Saldo VIDA
-            </a>
             <% } %>
 
           </div>
@@ -141,7 +137,7 @@
                     <i class="bi bi-image-fill"></i> Foto de Perfil
                   </label>
                   <label class="prf-avatar-preview-wrap" for="avatarInput">
-                    <img id="avatarThumb" src="<%= _avatar %>" alt="Preview" class="prf-avatar-thumb">
+                    <img id="avatarThumb" src="<%= _avatar %>" alt="Preview" class="prf-avatar-thumb" onerror="this.onerror=null;this.src='/img/gato-preto.svg'">
                     <div>
                       <div class="prf-avatar-pick-label">Clique para selecionar uma imagem</div>
                       <div class="prf-avatar-pick-sub" id="avatarFileName">PNG, JPG, JPEG, GIF, WEBP — máx. 2 MB</div>

@@ -33,7 +33,12 @@ const loginPost = async (req, res) => {
 
     const token = generateToken({ id: user._id, code: user.code, role: user.type });
 
-    res.cookie("token", token, { httpOnly: true, maxAge: 3 * 60 * 60 * 1000 });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3 * 60 * 60 * 1000,
+    });
     res.redirect("/home");
   } catch (err) {
     req.flash("error", "Erro ao efetuar login.");

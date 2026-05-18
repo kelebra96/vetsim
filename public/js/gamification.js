@@ -67,6 +67,9 @@
   }
 
   function init() {
+    const role = (typeof window !== 'undefined' && window.__userRole) ? window.__userRole : 'student';
+    if (role === 'admin' || role === 'teacher') return;
+
     const body = document.body;
     if (body && !body.classList.contains('vs-gradient')) body.classList.add('vs-gradient');
 
