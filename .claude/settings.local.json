@@ -11,7 +11,15 @@
       "Bash(powershell *)",
       "PowerShell(Test-NetConnection *)",
       "Bash(docker --version)",
-      "PowerShell(Resolve-DnsName *)"
+      "PowerShell(Resolve-DnsName *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Dev\\\\vetsim\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Sort-Object PSIsContainer -Descending)",
+      "PowerShell(takeown *)",
+      "PowerShell(git *)",
+      "Bash(git pull *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
