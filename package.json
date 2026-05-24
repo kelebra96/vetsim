@@ -8,7 +8,7 @@
     "seed:test": "node scripts/seed_test_user.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Rodrigo Aparecido de Almeida",
   "license": "ISC",
   "description": "",
   "dependencies": {
