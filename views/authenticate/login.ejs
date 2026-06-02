@@ -38,47 +38,48 @@
     </section>
 
     <section class="login-panel login-form-panel">
-      <div class="login-form-head">
-        <div class="login-logo-wrap">
-          <img src="/img/felinos.png" alt="VetSim" class="login-logo">
+      <img src="/img/felinos.png" alt="" class="login-bg-cat" aria-hidden="true">
+
+      <div class="login-form-inner">
+        <div class="login-form-head">
+          <h2 class="login-form-title">Acessar conta</h2>
+          <p class="login-form-sub">Entre com seu e-mail institucional e senha.</p>
         </div>
-        <h2 class="login-form-title">Acessar conta</h2>
-        <p class="login-form-sub">Entre com seu e-mail institucional e senha.</p>
+
+        <% if (messages && messages.length > 0) { %>
+          <div class="alert alert-dismissible fade show login-alert" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span><%= messages[0] %></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+          </div>
+        <% } %>
+
+        <form action="/login" method="POST" class="login-form" novalidate>
+          <label class="login-label" for="email">E-mail</label>
+          <div class="login-field">
+            <i class="bi bi-envelope"></i>
+            <input id="email" type="email" class="form-control" name="email" required placeholder="usuario@dominio.com">
+          </div>
+
+          <label class="login-label" for="password">Senha</label>
+          <div class="login-field">
+            <i class="bi bi-lock"></i>
+            <input id="password" type="password" class="form-control" name="password" required placeholder="••••••••">
+          </div>
+
+          <button type="submit" class="btn login-submit">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Entrar
+          </button>
+        </form>
+
+        <div class="login-links">
+          <a href="/forgot-password">Esqueci minha senha</a>
+          <a href="https://www.baraodemaua.br" target="_blank" rel="noopener">Não tem conta? Entre em contato</a>
+        </div>
+
+        <p class="login-dev">Desenvolvido por Rodrigo A. Almeida</p>
       </div>
-
-      <% if (messages && messages.length > 0) { %>
-        <div class="alert alert-dismissible fade show login-alert" role="alert">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          <span><%= messages[0] %></span>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
-        </div>
-      <% } %>
-
-      <form action="/login" method="POST" class="login-form" novalidate>
-        <label class="login-label" for="email">E-mail</label>
-        <div class="login-field">
-          <i class="bi bi-envelope"></i>
-          <input id="email" type="email" class="form-control" name="email" required placeholder="usuario@dominio.com">
-        </div>
-
-        <label class="login-label" for="password">Senha</label>
-        <div class="login-field">
-          <i class="bi bi-lock"></i>
-          <input id="password" type="password" class="form-control" name="password" required placeholder="••••••••">
-        </div>
-
-        <button type="submit" class="btn login-submit">
-          <i class="bi bi-box-arrow-in-right"></i>
-          Entrar
-        </button>
-      </form>
-
-      <div class="login-links">
-        <a href="/forgot-password">Esqueci minha senha</a>
-        <a href="https://www.baraodemaua.br" target="_blank" rel="noopener">Não tem conta? Entre em contato</a>
-      </div>
-
-      <p class="login-dev">Desenvolvido por Rodrigo A. Almeida</p>
     </section>
   </main>
 

@@ -176,22 +176,134 @@
   }
 }
 
+/* ── Graduações (/settings/courses) ── */
+.sc-btn {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: .52rem .9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s, transform .15s;
+}
+.sc-btn-primary {
+  background: linear-gradient(90deg, var(--vs-accent), #5fd2be);
+  color: #07231d;
+  box-shadow: 0 6px 18px rgba(58,181,160,.22);
+}
+.sc-btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+.sc-btn-advance {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.75);
+}
+.sc-btn-advance:not(:disabled):hover {
+  background: rgba(58,181,160,.14);
+  border-color: rgba(58,181,160,.35);
+  color: var(--vs-accent);
+}
+.sc-btn-advance:disabled { opacity: .45; cursor: not-allowed; }
+
+.sc-btn-icon {
+  border: none;
+  border-radius: 7px;
+  padding: .3rem .45rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.sc-btn-danger {
+  background: rgba(220,38,58,.1);
+  color: #f87171;
+}
+.sc-btn-danger:hover { background: rgba(220,38,58,.2); }
+
+.sc-info-text {
+  color: rgba(255,255,255,.55);
+  font-size: .84rem;
+  margin-bottom: .5rem;
+}
+.sc-check-label {
+  font-size: .82rem;
+  color: rgba(255,255,255,.65);
+}
+
+.sc-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: rgba(255,255,255,.8);
+  --bs-table-border-color: rgba(255,255,255,.08);
+}
+.sc-table thead th {
+  font-size: .67rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.4);
+  white-space: nowrap;
+}
+.sc-table tbody td { font-size: .82rem; }
+
+.sc-course-name { font-weight: 700; color: #fff; }
+.sc-muted { color: rgba(255,255,255,.42); font-size: .78rem; }
+
+.sc-badge-semesters {
+  display: inline-flex;
+  align-items: center;
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  background: rgba(58,181,160,.13);
+  border: 1px solid rgba(58,181,160,.25);
+  color: var(--vs-accent);
+}
+.sc-badge-count {
+  display: inline-flex;
+  align-items: center;
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  background: rgba(96,165,250,.13);
+  border: 1px solid rgba(96,165,250,.25);
+  color: #60a5fa;
+}
+
+.sc-empty {
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  color: rgba(255,255,255,.42);
+  padding: 2rem;
+}
+.sc-empty i { font-size: 1.6rem; }
+.sc-empty p { margin: 0; font-size: .84rem; }
+.sc-empty-sub { font-size: .76rem !important; color: rgba(255,255,255,.28) !important; }
+
+.sc-footer-note {
+  margin-top: 1rem;
+  font-size: .78rem;
+  color: rgba(255,255,255,.38);
+}
+
+/* ── Responsividade ── */
 @media (max-width: 576px) {
   .sc-page {
     width: calc(100% - 60px);
-  }
-
-  .sc-page {
     padding-top: .6rem;
   }
-
   .sc-card-head,
   .sc-card-body {
     padding-left: .86rem;
     padding-right: .86rem;
   }
-
-  .sc-subtitle {
-    font-size: .82rem;
-  }
+  .sc-subtitle { font-size: .82rem; }
 }

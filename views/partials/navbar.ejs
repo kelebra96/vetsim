@@ -8,6 +8,7 @@
   const _in = ((_cur % 100) + 100) % 100;
   const _pct = Math.min(100, Math.max(0, _in));
   const _isAdmin = _u && (_u.role === 'admin' || _u.role === 'teacher');
+  const _lvl = (_u && _u.level) ? Number(_u.level) : 1;
   function _active(route) { return _p === route ? 'vs-nav-active' : ''; }
 %>
 
@@ -45,7 +46,7 @@
     </div>
     <div class="vs-sb-profile-info">
       <span class="vs-sb-name"><%= _u.name || 'Usuário' %></span>
-      <span class="vs-sb-role"><%= _u.role === 'admin' ? 'Administrador' : _u.role === 'teacher' ? 'Professor' : 'Aluno' %> · Sem. <%= _sem %></span>
+      <span class="vs-sb-role"><%= _u.role === 'admin' ? 'Administrador' : _u.role === 'teacher' ? 'Professor' : 'Aluno' %> · Sem. <%= _sem %><% if (!_isAdmin) { %> · <span class="vs-sb-level">Nv. <%= _lvl %></span><% } %></span>
     </div>
   </div>
 
@@ -58,9 +59,9 @@
       <span class="vs-sb-hud-val"><%= _bal.toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) %></span>
     </div>
     <div class="vs-sb-hud-row">
-      <i class="bi bi-fire vs-sb-hud-icon" style="color:#d4890a"></i>
+      <i class="bi bi-fire vs-sb-hud-icon vs-sb-hud-icon-amber"></i>
       <span class="vs-sb-hud-label">Sequência</span>
-      <span class="vs-sb-hud-val" id="streak-value"><%= (_u && _u.streakCount) || 0 %></span>
+      <span class="vs-sb-hud-val" id="streak-value"><%= (_u && _u.streakCount) || 0 %> <span class="vs-sb-hud-unit">dias</span></span>
     </div>
     <div class="vs-sb-hud-xp">
       <div class="d-flex justify-content-between align-items-center mb-1">
@@ -77,53 +78,53 @@
 
   <!-- Navegação -->
   <nav class="vs-sb-nav">
-    <p class="vs-sb-nav-label">Principal</p>
-    <a href="/home" class="vs-sb-link <%= _active('/home') %>">
+    <a href="/home" class="vs-sb-link <%= _active('/home') %>" <% if (_active('/home')) { %>aria-current="page"<% } %>>
       <i class="bi bi-house-door-fill"></i> Home
     </a>
     <% if (!_isAdmin) { %>
-    <a href="/rounds" class="vs-sb-link <%= _active('/rounds') %>">
+    <a href="/rounds" class="vs-sb-link <%= _active('/rounds') %>" <% if (_active('/rounds')) { %>aria-current="page"<% } %>>
       <i class="bi bi-arrow-repeat"></i> Meu Round
     </a>
-    <% } %>
-    <% if (!_isAdmin) { %>
-    <a href="/me/xp" class="vs-sb-link <%= _active('/me/xp') %>">
+    <a href="/me/xp" class="vs-sb-link <%= _active('/me/xp') %>" <% if (_active('/me/xp')) { %>aria-current="page"<% } %>>
       <i class="bi bi-trophy-fill"></i> Meu XP
     </a>
     <% } %>
-    <a href="/profile" class="vs-sb-link <%= _active('/profile') %>">
+    <a href="/profile" class="vs-sb-link <%= _active('/profile') %>" <% if (_active('/profile')) { %>aria-current="page"<% } %>>
       <i class="bi bi-person-fill"></i> Meu Perfil
     </a>
 
     <% if (_isAdmin) { %>
-    <p class="vs-sb-nav-label mt-3">Gestão</p>
-    <a href="/register" class="vs-sb-link <%= _active('/register') %>">
+    <div class="vs-sb-nav-divider">Gestão</div>
+    <a href="/register" class="vs-sb-link <%= _active('/register') %>" <% if (_active('/register')) { %>aria-current="page"<% } %>>
       <i class="bi bi-person-plus-fill"></i> Criar Usuário
     </a>
-    <a href="/users" class="vs-sb-link <%= _active('/users') %>">
+    <a href="/users" class="vs-sb-link <%= _active('/users') %>" <% if (_active('/users')) { %>aria-current="page"<% } %>>
       <i class="bi bi-people-fill"></i> Usuários
     </a>
-    <a href="/roundcreate" class="vs-sb-link <%= _active('/roundcreate') %>">
+    <a href="/roundcreate" class="vs-sb-link <%= _active('/roundcreate') %>" <% if (_active('/roundcreate')) { %>aria-current="page"<% } %>>
       <i class="bi bi-plus-circle-fill"></i> Criar Round
     </a>
-    <a href="/roundclose" class="vs-sb-link <%= _active('/roundclose') %>">
+    <a href="/roundclose" class="vs-sb-link <%= _active('/roundclose') %>" <% if (_active('/roundclose')) { %>aria-current="page"<% } %>>
       <i class="bi bi-flag-fill"></i> Fechar Round
     </a>
-    <a href="/roundsadmin" class="vs-sb-link <%= _active('/roundsadmin') %>">
+    <a href="/roundsadmin" class="vs-sb-link <%= _active('/roundsadmin') %>" <% if (_active('/roundsadmin')) { %>aria-current="page"<% } %>>
       <i class="bi bi-grid-3x3-gap-fill"></i> Rounds por Semestre
     </a>
 
-    <p class="vs-sb-nav-label mt-3">Sistema</p>
-    <a href="/settings/costs" class="vs-sb-link <%= _active('/settings/costs') %>">
+    <div class="vs-sb-nav-divider">Sistema</div>
+    <a href="/settings/costs" class="vs-sb-link <%= _active('/settings/costs') %>" <% if (_active('/settings/costs')) { %>aria-current="page"<% } %>>
       <i class="bi bi-gear-fill"></i> Configurações
     </a>
-    <a href="/logs" class="vs-sb-link <%= _active('/logs') %>">
+    <a href="/settings/courses" class="vs-sb-link <%= _active('/settings/courses') %>" <% if (_active('/settings/courses')) { %>aria-current="page"<% } %>>
+      <i class="bi bi-mortarboard-fill"></i> Graduações
+    </a>
+    <a href="/logs" class="vs-sb-link <%= _active('/logs') %>" <% if (_active('/logs')) { %>aria-current="page"<% } %>>
       <i class="bi bi-journal-text"></i> Logs de Ações
     </a>
     <% } %>
 
-    <p class="vs-sb-nav-label mt-3">Outros</p>
-    <a href="/sobre" class="vs-sb-link <%= _active('/sobre') %>">
+    <div class="vs-sb-nav-sep"></div>
+    <a href="/sobre" class="vs-sb-link <%= _active('/sobre') %>" <% if (_active('/sobre')) { %>aria-current="page"<% } %>>
       <i class="bi bi-info-circle-fill"></i> Sobre
     </a>
   </nav>

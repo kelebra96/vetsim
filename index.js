@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import flash from "express-flash";
+import cron from "node-cron";
 import { jwtSecret, sessionSecret } from "./src/config/secrets.js";
+import { advanceSemesters } from "./src/services/semesterAdvance.service.js";
 
 dotenv.config();
 
@@ -107,6 +109,7 @@ import healthRoute from "./src/routes/health.route.js";
 import settingsRoute from "./src/routes/settings.route.js";
 import gamificationRoute from "./src/routes/gamification.route.js";
 import logsRoute from "./src/routes/logs.route.js";
+import courseRoute from "./src/routes/course.route.js";
 
 app.use("/", userRoute);
 app.use("/", homeRoute);
@@ -115,6 +118,22 @@ app.use("/", healthRoute);
 app.use("/", settingsRoute);
 app.use("/", gamificationRoute);
 app.use("/", logsRoute);
+app.use("/", courseRoute);
+
+// Virada de semestre automática: 1 fev às 06h e 1 ago às 06h
+// Para ajustar as datas, edite a expressão cron abaixo.
+// Formato: "minuto hora dia mês dia-semana"
+cron.schedule("0 6 1 2,8 *", async () => {
+  console.log("[cron] Iniciando virada de semestre automática...");
+  try {
+    const result = await advanceSemesters();
+    console.log(
+      `[cron] Concluído: ${result.advanced} aluno(s) avançaram, ${result.atLimit} já estão no semestre final (total: ${result.total}).`
+    );
+  } catch (err) {
+    console.error("[cron] Erro na virada de semestre:", err.message);
+  }
+}, { timezone: "America/Sao_Paulo" });
 
 app.listen(port, () => {
   console.log(`Server web running port:${port}`);

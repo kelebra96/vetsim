@@ -414,7 +414,7 @@ export async function importStudents(req, res) {
 
       const missing = (!mapped.name || !mapped.code || !mapped.email || !mapped.semester || !mapped.password);
       if (missing) { skipped++; skippedMissing++; details.push(`Linha com campos ausentes para email '${rawEmail || '-'}'`); continue; }
-      if (!Number.isFinite(mapped.code) || mapped.code <= 0 || !Number.isFinite(mapped.semester) || mapped.semester < 1 || mapped.semester > 8) {
+      if (!Number.isFinite(mapped.code) || mapped.code <= 0 || !Number.isFinite(mapped.semester) || mapped.semester < 1 || mapped.semester > 20) {
         skipped++; skippedInvalidNum++; details.push(`Linha inválida (code/semester) para email '${rawEmail}'`); continue; }
       if (!isValidEmail(rawEmail)) { skipped++; skippedInvalidEmail++; details.push(`Email inválido: '${rawEmail}'`); continue; }
       if (seenEmails.has(rawEmail)) { skipped++; skippedDupFile++; details.push(`Email duplicado no arquivo: '${rawEmail}'`); continue; }

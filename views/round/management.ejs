@@ -29,6 +29,7 @@
 
       const totalCost = (curShelter * shelterCost) + (curMales * maleNeuterCost) + (curFemales * femaleNeuterCost);
       const isOpen    = _round ? _round.status !== false : false;
+      const _userBal  = locals.user ? (Number.isFinite(Number(locals.user.balance)) ? Number(locals.user.balance) : 50000) : 0;
     %>
 
     <div class="round-shell">
@@ -36,7 +37,7 @@
       <!-- ── Header ── -->
       <div class="rnd-header">
         <div>
-          <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--vs-accent);margin-bottom:.3rem;">Simulação</p>
+          <p class="rnd-kicker">Simulação</p>
           <h1 class="rnd-header-title">Meu Round</h1>
           <% if (_round) { %>
           <div class="rnd-info-chips mt-2">
@@ -97,6 +98,7 @@
                 data-target="cost-males"
                 <% if (!isOpen) { %>disabled<% } %>
               >
+              <div class="rnd-field-error" id="error-quantMales"></div>
             </div>
 
             <!-- Fêmeas -->
@@ -117,6 +119,7 @@
                 data-target="cost-females"
                 <% if (!isOpen) { %>disabled<% } %>
               >
+              <div class="rnd-field-error" id="error-quantFemales"></div>
             </div>
 
             <!-- Abrigo -->
@@ -137,6 +140,7 @@
                 data-target="cost-shelter"
                 <% if (!isOpen) { %>disabled<% } %>
               >
+              <div class="rnd-field-error" id="error-shelter"></div>
             </div>
 
             <% if (isOpen) { %>
@@ -144,7 +148,7 @@
               <i class="bi bi-floppy-fill me-2"></i>Salvar Dados do Round
             </button>
             <% } else { %>
-            <div style="text-align:center;padding:.75rem;background:rgba(220,38,58,0.08);border:1px solid rgba(220,38,58,0.18);border-radius:10px;font-size:.82rem;color:#f87171;">
+            <div class="rnd-closed-notice">
               <i class="bi bi-lock-fill me-1"></i> Este round foi encerrado e não pode ser editado.
             </div>
             <% } %>
@@ -188,23 +192,23 @@
             </div>
           </div>
 
-          <!-- Painel de tabela de custos unitários -->
+          <!-- Painel de impacto no saldo -->
           <div class="rnd-balance-panel">
-            <p style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:.65rem;">Tabela de Preços</p>
+            <p class="rnd-balance-panel-title"><i class="bi bi-wallet2 me-1"></i> Impacto no Saldo</p>
 
             <div class="rnd-balance-row">
-              <span class="rnd-balance-label"><i class="bi bi-house-heart"></i> Abrigo / animal</span>
-              <span class="rnd-balance-val"><%= shelterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+              <span class="rnd-balance-label"><i class="bi bi-cash-coin"></i> Saldo atual</span>
+              <span class="rnd-balance-val"><%= _userBal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
             </div>
             <hr class="rnd-balance-divider">
             <div class="rnd-balance-row">
-              <span class="rnd-balance-label"><i class="bi bi-gender-male"></i> Castração macho</span>
-              <span class="rnd-balance-val"><%= maleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+              <span class="rnd-balance-label"><i class="bi bi-receipt"></i> Custo estimado</span>
+              <span class="rnd-balance-val" id="impact-cost"><%= totalCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
             </div>
             <hr class="rnd-balance-divider">
             <div class="rnd-balance-row">
-              <span class="rnd-balance-label"><i class="bi bi-gender-female"></i> Castração fêmea</span>
-              <span class="rnd-balance-val"><%= femaleNeuterCost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
+              <span class="rnd-balance-label"><i class="bi bi-wallet-fill"></i> Saldo após salvar</span>
+              <span class="rnd-balance-val <%= (_userBal - totalCost) < 0 ? 'negative' : '' %>" id="impact-after"><%= (_userBal - totalCost).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) %></span>
             </div>
           </div>
 
@@ -248,7 +252,7 @@
           </div>
 
           <div class="rnd-balance-panel">
-            <p style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:.65rem;">Tabela de Preços</p>
+            <p class="rnd-balance-panel-title">Tabela de Preços</p>
 
             <div class="rnd-balance-row">
               <span class="rnd-balance-label"><i class="bi bi-house-heart"></i> Abrigo / animal</span>
@@ -275,9 +279,9 @@
     <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/gamification.js"></script>
     <script>
-      // Calculadora de custo em tempo real
       (function () {
         const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const userBalance = <%= _userBal %>;
 
         function recalc() {
           let total = 0;
@@ -291,13 +295,59 @@
           });
           const totEl = document.getElementById('cost-total');
           if (totEl) totEl.textContent = fmt(total);
+
+          const costEl  = document.getElementById('impact-cost');
+          const afterEl = document.getElementById('impact-after');
+          if (costEl) costEl.textContent = fmt(total);
+          if (afterEl) {
+            const after = userBalance - total;
+            afterEl.textContent = fmt(after);
+            afterEl.classList.toggle('negative', after < 0);
+          }
+        }
+
+        function clearFieldError(inp) {
+          const errEl = document.getElementById('error-' + inp.id);
+          const groupEl = inp.closest('.rnd-input-group');
+          if (errEl) errEl.textContent = '';
+          if (groupEl) groupEl.classList.remove('has-error');
+        }
+
+        function validate() {
+          let valid = true;
+          document.querySelectorAll('input[data-cost]').forEach(function (inp) {
+            const val = parseInt(inp.value, 10);
+            const errEl = document.getElementById('error-' + inp.id);
+            const groupEl = inp.closest('.rnd-input-group');
+            if (!Number.isFinite(val) || val < 0) {
+              if (errEl) errEl.textContent = 'Insira um número inteiro maior ou igual a zero.';
+              if (groupEl) groupEl.classList.add('has-error');
+              valid = false;
+            } else {
+              clearFieldError(inp);
+            }
+          });
+          return valid;
         }
 
         document.querySelectorAll('input[data-cost]').forEach(function (inp) {
-          inp.addEventListener('input', recalc);
+          inp.addEventListener('input', function () {
+            clearFieldError(inp);
+            recalc();
+          });
         });
 
-        // Auto-dismiss alerts
+        const formRound = document.getElementById('form-round');
+        if (formRound) {
+          formRound.addEventListener('submit', function (e) {
+            if (!validate()) {
+              e.preventDefault();
+              const firstErr = formRound.querySelector('.rnd-input-group.has-error input');
+              if (firstErr) firstErr.focus();
+            }
+          });
+        }
+
         document.querySelectorAll('.alert').forEach(function (el) {
           setTimeout(function () {
             try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (_) {}

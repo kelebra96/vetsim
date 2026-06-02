@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-31T00:00:00Z",
+  "title": "Design System: VetSim",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Teal Acadêmico",
+        "canonical": "oklch(0.68 0.11 186)",
+        "tonalRamp": ["#0c2b27", "#103f39", "#185247", "#1f6a5e", "#288474", "#3ab5a0", "#72ccbf", "#b8e8e2"]
+      },
+      "accent-light": {
+        "role": "primary",
+        "displayName": "Teal Claro",
+        "canonical": "oklch(0.76 0.09 186)",
+        "tonalRamp": ["#103228", "#1a4e43", "#226655", "#2c8370", "#3aa48e", "#52c8b4", "#8ed9cc", "#c8eee9"]
+      },
+      "navy-deep": {
+        "role": "neutral",
+        "displayName": "University Night",
+        "canonical": "oklch(0.12 0.03 248)",
+        "tonalRamp": ["#03080f", "#0a1628", "#111c30", "#1a2a3f", "#243a55", "#3b5a7a", "#6890b0", "#b0c5d9"]
+      },
+      "navy-mid": {
+        "role": "neutral",
+        "displayName": "Midnight Lab",
+        "canonical": "oklch(0.18 0.03 248)",
+        "tonalRamp": ["#050c17", "#0e1929", "#111c30", "#1c2e40", "#274060", "#3d6282", "#7098b8", "#b8cedd"]
+      },
+      "navy-teal": {
+        "role": "neutral",
+        "displayName": "Teal Depth",
+        "canonical": "oklch(0.19 0.04 195)",
+        "tonalRamp": ["#050f0d", "#0a1e1b", "#12302a", "#1a4238", "#22574a", "#347060", "#5a9f90", "#a8d0c9"]
+      },
+      "teal-mid": {
+        "role": "secondary",
+        "displayName": "Teal Médio",
+        "canonical": "oklch(0.52 0.09 186)",
+        "tonalRamp": ["#0c2420", "#132e2a", "#1a4038", "#20554a", "#27897a", "#38a895", "#65bfb0", "#a8dcd5"]
+      },
+      "text-inverse": {
+        "role": "neutral",
+        "displayName": "Mint White",
+        "canonical": "oklch(0.91 0.015 186)",
+        "tonalRamp": ["#0e1f1d", "#1a3632", "#2b5650", "#3d7870", "#5a9e96", "#8cc8c2", "#c2e5e2", "#deecea"]
+      },
+      "amber": {
+        "role": "tertiary",
+        "displayName": "Âmbar do Streak",
+        "canonical": "oklch(0.67 0.17 63)",
+        "tonalRamp": ["#2e1900", "#4a2900", "#7a4200", "#a55800", "#c97200", "#d4890a", "#e8ad50", "#f5d89a"]
+      },
+      "blue-stat": {
+        "role": "tertiary",
+        "displayName": "Azul Estatística",
+        "canonical": "oklch(0.72 0.13 234)",
+        "tonalRamp": ["#061628", "#0a2640", "#103d68", "#165490", "#1f6db8", "#60a5fa", "#98c5fc", "#cce3fe"]
+      },
+      "purple-level": {
+        "role": "tertiary",
+        "displayName": "Roxo de Nível",
+        "canonical": "oklch(0.71 0.13 295)",
+        "tonalRamp": ["#110a28", "#1f1244", "#32206c", "#452e94", "#6044c0", "#a78bfa", "#c5b0fc", "#e4d9fe"]
+      },
+      "error": {
+        "role": "neutral",
+        "displayName": "Vermelho de Erro",
+        "canonical": "oklch(0.73 0.19 22)",
+        "tonalRamp": ["#2d0a0a", "#4a1111", "#7a1a1a", "#a52424", "#cc3838", "#f87171", "#faa7a7", "#fdd9d9"]
+      },
+      "success": {
+        "role": "neutral",
+        "displayName": "Verde Sucesso",
+        "canonical": "oklch(0.84 0.10 160)",
+        "tonalRamp": ["#0a2018", "#123224", "#1a4e38", "#25724f", "#38986a", "#6ee7b7", "#9ef0cc", "#cef8e6"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Saudação de dashboard, hero XP, títulos de telas principais." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de página — aparece uma vez por tela." },
+      "title": { "displayName": "Title", "purpose": "Títulos de painéis e cards de seção." },
+      "body": { "displayName": "Body", "purpose": "Texto descritivo, subtítulos, missões. Máx 65ch em prosa." },
+      "label": { "displayName": "Label", "purpose": "Rótulos de seção, kickers, nomes de campo. Máx 4 palavras." }
+    },
+    "shadows": [
+      {
+        "name": "card-ambient",
+        "value": "0 10px 30px rgba(0,0,0,0.35)",
+        "purpose": "Cards e painéis de conteúdo. Elevação padrão."
+      },
+      {
+        "name": "modal-structural",
+        "value": "0 22px 50px rgba(0,0,0,0.35)",
+        "purpose": "Login shell e modais de tela cheia. Separação física do fundo."
+      },
+      {
+        "name": "accent-glow-low",
+        "value": "0 6px 18px rgba(58,181,160,0.22)",
+        "purpose": "Botões accent em repouso. Comunica potencial de ação."
+      },
+      {
+        "name": "accent-glow-high",
+        "value": "0 10px 24px rgba(58,181,160,0.35)",
+        "purpose": "Botões accent em hover. Amplifica energia cinética."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px rgba(58,181,160,0.12)",
+        "purpose": "Inputs e selects em focus. Área de conforto visual ao redor do campo ativo."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Transições de estado padrão: hover, active, focus. 150–200ms."
+      },
+      {
+        "name": "ease-out-subtle",
+        "value": "cubic-bezier(0, 0, 0.2, 1)",
+        "purpose": "Entradas de elementos: toasts, modais, sidebar mobile. 200–250ms."
+      },
+      {
+        "name": "ease-progress",
+        "value": "ease",
+        "purpose": "Barras de XP e progresso. 500–600ms para leitura deliberada da progressão."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "576px" },
+      { "name": "tablet", "value": "768px" },
+      { "name": "sidebar-break", "value": "991.98px" },
+      { "name": "desktop", "value": "1200px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão Accent",
+      "kind": "button",
+      "refersTo": "button-accent",
+      "description": "Ação primária. CTA de round, salvar dados, fechar round.",
+      "html": "<button class=\"ds-btn-accent\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\"><path d=\"M8 1a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 1z\"/></svg>Salvar Round</button>",
+      "css": ".ds-btn-accent { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; font-size: 0.9rem; font-weight: 700; color: #071a17; background: linear-gradient(90deg, #3ab5a0, #52c8b4); border: none; border-radius: 10px; box-shadow: 0 6px 18px rgba(58,181,160,0.22); cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-btn-accent:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(58,181,160,0.35); filter: brightness(1.05); } .ds-btn-accent:active { transform: translateY(0); filter: brightness(0.97); } .ds-btn-accent:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; } .ds-btn-accent:focus-visible { outline: 2px solid #3ab5a0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão Ghost",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Ação secundária. Links de seção, empty state CTAs, ações alternativas.",
+      "html": "<button class=\"ds-btn-ghost\">Ver histórico</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 0.78rem; font-weight: 700; color: #3ab5a0; background: rgba(58,181,160,0.09); border: 1px solid rgba(58,181,160,0.35); border-radius: 10px; cursor: pointer; text-decoration: none; transition: background 150ms, border-color 150ms; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-btn-ghost:hover { background: rgba(58,181,160,0.15); border-color: rgba(58,181,160,0.55); color: #3ab5a0; } .ds-btn-ghost:focus-visible { outline: 2px solid #3ab5a0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link-default",
+      "description": "Item de navegação da sidebar. Default e active states.",
+      "html": "<nav style=\"background:#0a1628;padding:8px;border-radius:8px;width:220px\"><a class=\"ds-nav-link\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\"><path d=\"M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z\"/></svg>Dashboard</a><a class=\"ds-nav-link ds-nav-active\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\"><path d=\"M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z\"/></svg>Rounds</a></nav>",
+      "css": ".ds-nav-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.84rem; font-weight: 500; color: rgba(255,255,255,0.60); text-decoration: none; transition: background 150ms, color 150ms; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-nav-link:hover { background: rgba(255,255,255,0.07); color: #ffffff; } .ds-nav-link.ds-nav-active { background: rgba(58,181,160,0.14); color: #3ab5a0; font-weight: 600; } .ds-nav-link svg { flex-shrink: 0; opacity: 0.8; } .ds-nav-link.ds-nav-active svg { opacity: 1; }"
+    },
+    {
+      "name": "Card Glass",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Container padrão de conteúdo. Painéis de seção, cards de estatística, formulários.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-label\">Castração Total</p><p class=\"ds-card-value\">124</p><p class=\"ds-card-sub\">Semestre 1</p></div>",
+      "css": ".ds-card { background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; padding: 18px 20px; transition: border-color 200ms, transform 200ms; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-card:hover { border-color: rgba(58,181,160,0.35); transform: translateY(-2px); } .ds-card-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.40); margin: 0 0 6px; } .ds-card-value { font-size: 1.15rem; font-weight: 800; color: #ffffff; margin: 0 0 2px; font-variant-numeric: tabular-nums; } .ds-card-sub { font-size: 0.72rem; color: rgba(255,255,255,0.35); margin: 0; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Campo de texto para formulários de round e registro.",
+      "html": "<div class=\"ds-field-wrap\"><label class=\"ds-field-label\">Fêmeas Castradas</label><div class=\"ds-field\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"rgba(255,255,255,0.36)\"><path d=\"M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z\"/><path d=\"M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1z\"/></svg><input class=\"ds-input\" type=\"number\" placeholder=\"0\" /></div></div>",
+      "css": ".ds-field-wrap { display: flex; flex-direction: column; gap: 6px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-field-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 6px; } .ds-field { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.20); border: 1px solid rgba(255,255,255,0.10); border-radius: 10px; padding: 10px 14px; transition: border-color 180ms, box-shadow 180ms; } .ds-field:focus-within { border-color: rgba(58,181,160,0.55); box-shadow: 0 0 0 3px rgba(58,181,160,0.12); } .ds-input { background: transparent; border: none; color: #ffffff; font-size: 1rem; font-weight: 700; outline: none; width: 100%; font-family: inherit; font-variant-numeric: tabular-nums; } .ds-input::placeholder { color: rgba(255,255,255,0.20); font-weight: 400; }"
+    },
+    {
+      "name": "XP Bar",
+      "kind": "custom",
+      "refersTo": "button-accent",
+      "description": "Barra de progresso de XP do semestre. Componente signature da gamificação.",
+      "html": "<div class=\"ds-xp-wrap\"><div class=\"ds-xp-labels\"><span>XP</span><span class=\"ds-xp-val\">73 / 100</span></div><div class=\"ds-xp-track\"><div class=\"ds-xp-fill\" style=\"width:73%\"></div></div></div>",
+      "css": ".ds-xp-wrap { display: flex; flex-direction: column; gap: 5px; width: 160px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-xp-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(255,255,255,0.40); } .ds-xp-val { color: #3ab5a0; font-weight: 700; } .ds-xp-track { height: 8px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.10); border-radius: 999px; overflow: hidden; } .ds-xp-fill { height: 100%; background: linear-gradient(90deg, #3ab5a0, #52c8b4); border-radius: 999px; transition: width 600ms ease; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "button-accent",
+      "description": "Indicador de status de round. Aberto ou fechado.",
+      "html": "<div style=\"display:flex;gap:8px\"><span class=\"ds-badge ds-badge-open\"><svg width=\"10\" height=\"10\" viewBox=\"0 0 16 16\" fill=\"currentColor\"><circle cx=\"8\" cy=\"8\" r=\"7\"/></svg>Aberto</span><span class=\"ds-badge ds-badge-closed\"><svg width=\"10\" height=\"10\" viewBox=\"0 0 16 16\" fill=\"currentColor\"><path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z\"/></svg>Fechado</span></div>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-badge-open { background: rgba(58,181,160,0.14); color: #3ab5a0; border: 1px solid rgba(58,181,160,0.25); } .ds-badge-closed { background: rgba(220,38,58,0.12); color: #f87171; border: 1px solid rgba(220,38,58,0.20); }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Card de estatística do dashboard. Ícone colorido + valor numérico + rótulo.",
+      "html": "<div class=\"ds-stat-card\"><div class=\"ds-stat-icon ds-stat-green\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 16 16\" fill=\"currentColor\"><path d=\"M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z\"/></svg></div><div><p class=\"ds-stat-val\">3</p><p class=\"ds-stat-label\">Rounds Concluídos</p></div></div>",
+      "css": ".ds-stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; transition: border-color 200ms, transform 200ms; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; } .ds-stat-card:hover { border-color: rgba(58,181,160,0.35); transform: translateY(-2px); } .ds-stat-icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } .ds-stat-green { background: rgba(58,181,160,0.14); color: #3ab5a0; } .ds-stat-val { font-size: 1.15rem; font-weight: 800; color: #ffffff; line-height: 1.2; margin: 0 0 2px; font-variant-numeric: tabular-nums; } .ds-stat-label { font-size: 0.72rem; color: rgba(255,255,255,0.40); margin: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A Arena de Aprendizado",
+    "overview": "VetSim vive num momento de consequência. Cada round que um aluno preenche é uma decisão real com peso real: animais, custo, resultado. O sistema visual não decora essa experiência — ele amplifica a gravidade dela. O fundo é escuro não por moda, mas porque dados populacionais e gráficos de simulação respiram melhor no escuro. O teal acadêmico pulsa como sinal vital, aparecendo onde a ação é concreta: botões de salvar, barras de XP, estados ativos, indicadores de progresso.\n\nO sistema segue a filosofia de presença antes de decoração: cada elemento visual precisa justificar sua existência em termos funcionais. A gamificação (XP, VIDA, nível, streak) é institucional, não infantil: pill-badges em teal discreto, barras de progresso precisas, números em tabular-nums.\n\nA hierarquia entre professor e aluno se reflete na densidade das telas: alunos vêem uma tarefa clara com contexto gamificado; professores vêem tabelas densas, filtros e ações em batch.",
+    "keyCharacteristics": [
+      "Dark-first com gradiente navy-teal como ambiente permanente",
+      "Teal acadêmico usado exclusivamente em estados ativos e ações primárias",
+      "Hierarquia tipográfica funcional: weight 800→700→500→400",
+      "Glass-tonal hybrid para elevação",
+      "Gamificação com peso acadêmico: métricas visíveis, progressão legível",
+      "Componentes confiantes e táteis com accent glow e focus ring teal"
+    ],
+    "rules": [
+      {
+        "name": "A Regra do Sinal Vital",
+        "body": "O teal acadêmico (#3ab5a0) aparece em no máximo 10% de qualquer tela. A sua raridade é o ponto — quando aparece, o usuário sabe que precisa olhar.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Ambiente Escuro",
+        "body": "O gradiente navy-teal é o fundo permanente da aplicação, não um tema. Nunca introduzir superfícies brancas ou claras como fundo de página.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Peso 800",
+        "body": "Títulos de tela usam weight 800. Títulos de card usam weight 700. Links de navegação usam weight 500-600. Nunca usar 800 em elementos interativos.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra do Tabular",
+        "body": "Todos os valores numéricos (saldo VIDA, XP, contagens, custos) usam font-variant-numeric: tabular-nums.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra do Flat-by-Default",
+        "body": "Superfícies estão planas em estado de repouso. Sombras e glows aparecem apenas em resposta a estado: hover, focus, modal.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar #3ab5a0 exclusivamente em ações primárias, estados ativos e indicadores de progresso",
+      "Do aplicar font-variant-numeric: tabular-nums em todos os valores numéricos",
+      "Do construir empty states com ícone, título explicativo e um CTA claro",
+      "Do usar border-radius: 999px em badges de status, pills de XP e indicadores de streak",
+      "Do aplicar focus ring teal em todos os elementos interativos",
+      "Do usar transform e opacity para animações — nunca width, height, padding ou margin",
+      "Do incluir @media (prefers-reduced-motion: reduce) para cada animação"
+    ],
+    "donts": [
+      "Don't usar Bootstrap out-of-the-box sem tematização — nenhuma superfície branca deve aparecer",
+      "Don't usar gamificação cartunesca: sem confetti, sem mascotes durante dados, sem bounce/elastic",
+      "Don't usar border-left maior que 1px como acento colorido em cards ou listas",
+      "Don't usar background-clip: text com gradiente — texto usa cor sólida",
+      "Don't vazar estética de landing page SaaS: sem fundos cream, sem fotografias lifestyle",
+      "Don't usar ERP-style (campos cinza em fundo branco)",
+      "Don't usar transition: width em elementos de UI genéricos",
+      "Don't usar display fonts em labels, botões ou dados",
+      "Don't adicionar sombras em elementos estáticos não-interativos"
+    ]
+  }
+}

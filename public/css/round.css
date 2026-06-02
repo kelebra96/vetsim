@@ -14,6 +14,15 @@
   gap: .75rem;
   margin-bottom: 1.75rem;
 }
+.rnd-kicker {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--vs-accent);
+  margin-bottom: .3rem;
+  margin-top: 0;
+}
 .rnd-header-title {
   font-size: clamp(1.25rem, 2.5vw, 1.6rem);
   font-weight: 800;
@@ -22,7 +31,7 @@
   margin: 0;
 }
 .rnd-header-sub {
-  font-size: .8rem;
+  font-size: .82rem;
   color: rgba(255,255,255,0.40);
   margin-top: .2rem;
 }
@@ -55,7 +64,7 @@
   gap: .5rem;
   font-size: .78rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.60);
   margin-bottom: .55rem;
   text-transform: uppercase;
   letter-spacing: .07em;
@@ -65,9 +74,9 @@
 }
 .rnd-input-label .cost-hint {
   margin-left: auto;
-  font-size: .7rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.30);
+  font-size: .72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
   text-transform: none;
   letter-spacing: 0;
 }
@@ -116,22 +125,30 @@
   display: flex;
   align-items: center;
   gap: .5rem;
-  font-size: .8rem;
-  color: rgba(255,255,255,0.50);
-}
-.rnd-cost-row-label i { font-size: .85rem; }
-.rnd-cost-row-val {
   font-size: .82rem;
+  color: rgba(255,255,255,0.55);
+}
+.rnd-cost-row-label i { font-size: .88rem; }
+.rnd-cost-row-val {
+  font-size: 1rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.80);
+  color: rgba(255,255,255,0.85);
   font-variant-numeric: tabular-nums;
 }
 .rnd-cost-row.total {
   background: rgba(58,181,160,0.06);
   border-top: 1px solid rgba(58,181,160,0.15);
 }
-.rnd-cost-row.total .rnd-cost-row-label { color: var(--vs-accent); font-weight: 700; }
-.rnd-cost-row.total .rnd-cost-row-val   { color: var(--vs-accent); font-size: .9rem; }
+.rnd-cost-row.total .rnd-cost-row-label {
+  color: var(--vs-accent);
+  font-weight: 700;
+  font-size: .84rem;
+}
+.rnd-cost-row.total .rnd-cost-row-val {
+  color: var(--vs-accent);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
 
 /* Painel de saldo */
 .rnd-balance-panel {
@@ -140,6 +157,15 @@
   border-radius: 14px;
   padding: 1rem 1.25rem;
 }
+.rnd-balance-panel-title {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: .65rem;
+  margin-top: 0;
+}
 .rnd-balance-row {
   display: flex;
   align-items: center;
@@ -147,16 +173,16 @@
   padding: .3rem 0;
 }
 .rnd-balance-label {
-  font-size: .78rem;
-  color: rgba(255,255,255,0.40);
+  font-size: .82rem;
+  color: rgba(255,255,255,0.50);
   display: flex;
   align-items: center;
   gap: .4rem;
 }
 .rnd-balance-val {
-  font-size: .85rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.85);
   font-variant-numeric: tabular-nums;
 }
 .rnd-balance-val.negative { color: #f87171; }
@@ -164,6 +190,36 @@
   border: none;
   border-top: 1px solid rgba(255,255,255,0.06);
   margin: .4rem 0;
+}
+
+/* Erro de campo inline */
+.rnd-field-error {
+  font-size: .72rem;
+  font-weight: 600;
+  color: #f87171;
+  min-height: 1.1em;
+  margin-top: .35rem;
+  padding-left: .1rem;
+}
+
+.rnd-input-group.has-error {
+  border-color: rgba(220,38,58,0.55);
+  background: rgba(220,38,58,0.05);
+}
+
+.rnd-input-group.has-error .rnd-field {
+  border-color: rgba(220,38,58,0.55) !important;
+}
+
+/* Estado "encerrado" (informativo, não de erro) */
+.rnd-closed-notice {
+  text-align: center;
+  padding: .75rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  font-size: .82rem;
+  color: rgba(255,255,255,0.50);
 }
 
 /* Botão salvar */

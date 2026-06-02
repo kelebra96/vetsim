@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/img/gato-preto.svg" />
+  <title>Graduações • VetSim</title>
+  <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/settings-costs.css">
+</head>
+<body class="vs-gradient">
+  <%- include('../partials/navbar') %>
+
+  <div class="vs-main">
+    <div class="sc-page">
+
+      <header class="sc-header">
+        <p class="sc-kicker">Configurações</p>
+        <h1 class="sc-title">Graduações</h1>
+        <p class="sc-subtitle">Defina as graduações e seus limites de semestres. Alunos sem graduação atribuída usam o padrão de 8 semestres.</p>
+      </header>
+
+      <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-dismissible fade show sc-alert sc-alert-danger mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i><%= messages[0] %>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+      <% if (success && success.length > 0) { %>
+        <div class="alert alert-dismissible fade show sc-alert sc-alert-success mb-3" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i><%= success %>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+      <% } %>
+
+      <!-- Virada de semestre -->
+      <section class="sc-card mb-4">
+        <div class="sc-card-head">
+          <h2><i class="bi bi-arrow-clockwise"></i> Virada de Semestre</h2>
+        </div>
+        <div class="sc-card-body">
+          <p class="sc-info-text">
+            O sistema avança automaticamente o semestre de todos os alunos ativos em <strong>1 de fevereiro</strong> e <strong>1 de agosto</strong> às 06h (horário de Brasília).
+            Alunos já no semestre máximo da sua graduação não são alterados.
+          </p>
+          <p class="sc-info-text mb-3">
+            Você também pode disparar a virada manualmente agora. Use com cuidado — a operação é irreversível.
+          </p>
+          <form method="POST" action="/settings/advance-semesters" id="advance-form">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="advance-confirm">
+              <label class="form-check-label sc-check-label" for="advance-confirm">
+                Confirmo que quero avançar o semestre de todos os alunos ativos agora
+              </label>
+            </div>
+            <button type="submit" class="btn sc-btn sc-btn-advance" id="btn-advance" disabled>
+              <i class="bi bi-arrow-clockwise"></i> Executar virada de semestre
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Criar nova graduação -->
+      <section class="sc-card mb-4">
+        <div class="sc-card-head">
+          <h2><i class="bi bi-mortarboard-fill"></i> Nova Graduação</h2>
+        </div>
+        <div class="sc-card-body">
+          <form method="POST" action="/settings/courses" class="row g-3">
+            <div class="col-12 col-md-5">
+              <label class="sc-label">Nome da graduação</label>
+              <input type="text" class="form-control sc-input" name="name" required
+                placeholder="ex: Medicina Veterinária" maxlength="100">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="sc-label">Número de semestres</label>
+              <input type="number" class="form-control sc-input" name="maxSemesters" required
+                min="1" max="20" placeholder="ex: 10">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="sc-label">Descrição (opcional)</label>
+              <input type="text" class="form-control sc-input" name="description"
+                placeholder="ex: Bacharelado 5 anos" maxlength="200">
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn sc-btn sc-btn-primary">
+                <i class="bi bi-plus-circle-fill"></i> Adicionar graduação
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Lista de graduações -->
+      <section class="sc-card">
+        <div class="sc-card-head">
+          <h2><i class="bi bi-table"></i> Graduações cadastradas</h2>
+        </div>
+        <div class="sc-card-body p-0">
+          <% if (courses.length === 0) { %>
+            <div class="sc-empty">
+              <i class="bi bi-mortarboard"></i>
+              <p>Nenhuma graduação cadastrada. Crie a primeira acima.</p>
+              <p class="sc-empty-sub">Enquanto não houver graduações, todos os alunos usam o limite padrão de 8 semestres.</p>
+            </div>
+          <% } else { %>
+            <div class="table-responsive">
+              <table class="table sc-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Graduação</th>
+                    <th>Semestres</th>
+                    <th>Alunos ativos</th>
+                    <th>Descrição</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% courses.forEach(c => { %>
+                    <tr>
+                      <td class="sc-course-name"><%= c.name %></td>
+                      <td>
+                        <span class="sc-badge-semesters"><%= c.maxSemesters %> sem.</span>
+                      </td>
+                      <td>
+                        <% if (c.studentCount > 0) { %>
+                          <span class="sc-badge-count"><%= c.studentCount %> aluno<%= c.studentCount !== 1 ? 's' : '' %></span>
+                        <% } else { %>
+                          <span class="sc-muted">0 alunos</span>
+                        <% } %>
+                      </td>
+                      <td class="sc-muted"><%= c.description || '—' %></td>
+                      <td>
+                        <form method="POST" action="/settings/courses/<%= c._id %>/delete"
+                          onsubmit="return confirm('Remover a graduação \'<%= c.name %>\'? Os alunos vinculados passarão a usar o padrão de 8 semestres.')">
+                          <button type="submit" class="btn sc-btn-icon sc-btn-danger" title="Remover">
+                            <i class="bi bi-trash3"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <% if (unassigned > 0) { %>
+        <p class="sc-footer-note">
+          <i class="bi bi-info-circle me-1"></i>
+          <strong><%= unassigned %></strong> aluno<%= unassigned !== 1 ? 's' : '' %> ativo<%= unassigned !== 1 ? 's' : '' %> sem graduação atribuída — usando limite padrão de 8 semestres.
+          Atribua uma graduação na tela de edição de cada aluno.
+        </p>
+      <% } %>
+
+    </div>
+  </div>
+
+  <script src="/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const cb = document.getElementById('advance-confirm');
+    const btn = document.getElementById('btn-advance');
+    if (cb && btn) {
+      cb.addEventListener('change', () => { btn.disabled = !cb.checked; });
+    }
+    document.querySelectorAll('.alert').forEach(el => {
+      setTimeout(() => { try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch(_){} }, 6000);
+    });
+  </script>
+</body>
+</html>

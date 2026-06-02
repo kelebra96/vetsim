@@ -41,7 +41,18 @@ body.vs-gradient {
   z-index: 1040;
   overflow-y: auto;
   overflow-x: hidden;
-  transition: transform .25s ease;
+  transition: transform .25s cubic-bezier(0,0,0.2,1);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(58,181,160,0.20) transparent;
+}
+.vs-sidebar::-webkit-scrollbar { width: 4px; }
+.vs-sidebar::-webkit-scrollbar-track { background: transparent; }
+.vs-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(58,181,160,0.20);
+  border-radius: 999px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-sidebar { transition: none; }
 }
 
 /* Conteúdo principal */
@@ -104,19 +115,23 @@ body.vs-gradient {
 }
 .vs-sb-role {
   font-size: .7rem;
-  color: rgba(255,255,255,0.40);
+  color: rgba(255,255,255,0.55);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.vs-sb-level {
+  color: var(--vs-accent);
+  font-weight: 700;
+}
 
 /* HUD */
 .vs-sb-hud {
-  padding: .85rem 1.25rem;
+  padding: .9rem 1.25rem;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: .6rem;
   flex-shrink: 0;
 }
 .vs-sb-hud-row {
@@ -131,18 +146,27 @@ body.vs-gradient {
   text-align: center;
   flex-shrink: 0;
 }
+.vs-sb-hud-icon-amber {
+  color: #d4890a;
+}
 .vs-sb-hud-label {
   font-size: .75rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.50);
   flex: 1;
 }
 .vs-sb-hud-val {
   font-size: .75rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.80);
+  color: rgba(255,255,255,0.85);
+  font-variant-numeric: tabular-nums;
+}
+.vs-sb-hud-unit {
+  font-size: .65rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.40);
 }
 .vs-sb-hud-xp {
-  margin-top: .15rem;
+  margin-top: .1rem;
 }
 .vs-sb-hud-xp .vs-xpbar {
   width: 100%;
@@ -151,31 +175,45 @@ body.vs-gradient {
 /* Navegação */
 .vs-sb-nav {
   flex: 1;
-  padding: .85rem .75rem .5rem;
+  padding: .9rem .75rem .5rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
-.vs-sb-nav-label {
+.vs-sb-nav-divider {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem .5rem .2rem;
   font-size: .62rem;
   font-weight: 700;
-  letter-spacing: .1em;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.28);
-  padding: .25rem .5rem;
-  margin: 0;
+  color: rgba(255,255,255,0.35);
+  margin-top: .35rem;
+}
+.vs-sb-nav-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+.vs-sb-nav-sep {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: .5rem .5rem .2rem;
 }
 .vs-sb-link {
   display: flex;
   align-items: center;
   gap: .6rem;
-  padding: .52rem .75rem;
+  padding: .54rem .75rem;
   border-radius: 8px;
   font-size: .84rem;
   font-weight: 500;
-  color: rgba(255,255,255,0.60);
+  color: rgba(255,255,255,0.62);
   text-decoration: none;
-  transition: background .15s, color .15s;
+  transition: background .15s, color .15s, transform .15s;
 }
 .vs-sb-link i {
   font-size: .95rem;
@@ -186,28 +224,36 @@ body.vs-gradient {
 .vs-sb-link:hover {
   background: rgba(255,255,255,0.07);
   color: #ffffff;
+  transform: translateX(2px);
 }
 .vs-sb-link.vs-nav-active {
-  background: rgba(58,181,160,0.14);
+  background: rgba(58,181,160,0.18);
+  border: 1px solid rgba(58,181,160,0.18);
   color: var(--vs-accent);
   font-weight: 600;
 }
 .vs-sb-link.vs-nav-active i {
   color: var(--vs-accent);
 }
+@media (prefers-reduced-motion: reduce) {
+  .vs-sb-link { transition: background .15s, color .15s; }
+  .vs-sb-link:hover { transform: none; }
+}
 
 /* Footer da sidebar (logout) */
 .vs-sb-footer {
-  padding: .75rem;
+  padding: .65rem .75rem;
   border-top: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
 }
 .vs-sb-logout {
-  color: rgba(255,255,255,0.45) !important;
+  color: rgba(255,255,255,0.42) !important;
+  font-size: .82rem !important;
 }
 .vs-sb-logout:hover {
-  background: rgba(220,38,58,0.12) !important;
+  background: rgba(220,38,58,0.10) !important;
   color: #f87171 !important;
+  transform: none !important;
 }
 
 /* Topbar mobile */
@@ -396,6 +442,9 @@ textarea.form-control {
   width: 0%;
   background: linear-gradient(90deg, var(--vs-accent), #52c8b4);
   transition: width 600ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-xpbar > .fill { transition: none; }
 }
 
 /* Missões (Home) */

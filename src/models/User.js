@@ -5,7 +5,8 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, require: true },
   code: { type: Number, require: true },
   email: { type: String, require: true, unique: true, lowercase: true, trim: true },
-  semester: { type: Number, require: true, min: 1, max: 8 },
+  semester: { type: Number, require: true, min: 1 },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", default: null },
   password: { type: String, require: true, select: false },
   status: { type: Boolean, default: true },
   type: {

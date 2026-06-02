@@ -11,7 +11,7 @@
   justify-content: space-between;
   gap: .8rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: 1.75rem;
 }
 
 .ra-kicker {
@@ -97,8 +97,12 @@
   overflow: hidden;
 }
 
+.ra-card + .ra-card {
+  margin-top: 1.25rem;
+}
+
 .ra-card-head {
-  padding: .85rem 1.05rem;
+  padding: 1rem 1.25rem;
   border-bottom: 1px solid rgba(255,255,255,.08);
   background: rgba(255,255,255,.02);
 }
@@ -108,13 +112,13 @@
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  font-size: .9rem;
+  font-size: .92rem;
   font-weight: 700;
-  color: rgba(255,255,255,.82);
+  color: rgba(255,255,255,.85);
 }
 
 .ra-card-body {
-  padding: 1rem 1.05rem;
+  padding: 1.25rem;
 }
 
 .ra-label {
@@ -333,8 +337,8 @@
 
   .ra-card-head,
   .ra-card-body {
-    padding-left: .85rem;
-    padding-right: .85rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .ra-links {
