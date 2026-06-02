@@ -1,23 +1,12 @@
 import { Router } from "express";
 import multer from "multer";
-import path from "path";
 import userController, { importStudents } from "../controllers/user.controller.js";
 import { authenticate, authorizeAdminOrTeacher } from "../middlewares/auth.middleware.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
-// Storage para avatar em disco
-const avatarStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads/avatars");
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const safeExt = [".png", ".jpg", ".jpeg", ".gif", ".webp"].includes(ext) ? ext : ".png";
-    cb(null, `${req.user.id}-${Date.now()}${safeExt}`);
-  },
-});
+// Avatar em memória — salvo como base64 no MongoDB (sem dependência de filesystem)
 const avatarUpload = multer({
-  storage: avatarStorage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
   fileFilter: (req, file, cb) => {
     const ok = /^image\/(png|jpe?g|gif|webp)$/i.test(file.mimetype);

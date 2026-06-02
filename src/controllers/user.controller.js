@@ -186,8 +186,9 @@ const profileUpdate = async (req, res) => {
     name = name.replace(/\s+/g, " ").slice(0, 80);
     const update = {};
     if (name && name.length >= 2) update.name = name;
-    if (req.file && req.file.filename) {
-      update.avatarUrl = "/uploads/avatars/" + req.file.filename;
+    if (req.file && req.file.buffer) {
+      const mime = req.file.mimetype || "image/jpeg";
+      update.avatarUrl = `data:${mime};base64,${req.file.buffer.toString("base64")}`;
     }
     if (Object.keys(update).length === 0) {
       req.flash("error", "Informe um nome ou selecione uma imagem.");
