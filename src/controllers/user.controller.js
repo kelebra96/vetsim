@@ -207,7 +207,9 @@ const editView = async (req, res) => {
   try {
     const u = await User.findById(req.params.id).lean();
     if (!u) { req.flash('error', 'Usuário não encontrado.'); return res.redirect('/users'); }
-    res.render('user/edit', { u, messages: req.flash('error'), success: req.flash('success') });
+    const Course = (await import('../models/Course.js')).default;
+    const courses = await Course.find().sort({ name: 1 }).select('_id name maxSemesters').lean();
+    res.render('user/edit', { u, courses, messages: req.flash('error'), success: req.flash('success') });
   } catch (err) {
     req.flash('error', 'Erro ao carregar usuário.');
     return res.redirect('/users');
@@ -227,6 +229,12 @@ const adminUpdate = async (req, res) => {
     if (semester !== undefined && semester !== '') update.semester = Number(semester);
     if (type && ['student','teacher','admin'].includes(type)) update.type = type;
     if (typeof status !== 'undefined') update.status = (status === '1' || status === 'true' || status === true);
+    const { courseId } = req.body;
+    if (courseId === '' || courseId === 'none') {
+      update.courseId = null;
+    } else if (courseId) {
+      update.courseId = courseId;
+    }
     update.updatedAt = new Date();
     await User.findByIdAndUpdate(id, { $set: update });
     req.flash('success', 'Usuário atualizado com sucesso.');

@@ -59,8 +59,22 @@
               </div>
               <div class="col-6 col-md-3">
                 <label class="ue-label">Semestre</label>
-                <input type="number" name="semester" class="form-control ue-input" value="<%= u.semester %>" min="1" max="8">
+                <input type="number" name="semester" class="form-control ue-input" value="<%= u.semester %>" min="1" max="20">
               </div>
+
+              <% if (u.type === 'student') { %>
+              <div class="col-12 col-md-6">
+                <label class="ue-label">Graduação</label>
+                <select name="courseId" class="form-select ue-input">
+                  <option value="none" <%= !u.courseId ? 'selected' : '' %>>Padrão (8 semestres)</option>
+                  <% (courses || []).forEach(c => { %>
+                    <option value="<%= c._id %>" <%= String(u.courseId) === String(c._id) ? 'selected' : '' %>>
+                      <%= c.name %> (<%= c.maxSemesters %> sem.)
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+              <% } %>
 
               <div class="col-12 col-md-6">
                 <label class="ue-label">E-mail</label>
